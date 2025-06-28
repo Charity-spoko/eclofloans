@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+  <title>Payment List with Filters & History</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    console.log("🔥 SCRIPT IS RUNNING");
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, getDoc, doc, addDoc,
+      updateDoc, deleteDoc, query, orderBy, where
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let currentEditId = null;
+
+    async function loadPayments() {
+      const tbody = document.getElementById("paymentTableBody");
+      tbody.innerHTML = "";
+      const filters = getFilters();
+      let paymentsQ = collection(db, "payments");
+
+      if (filters.dueDate) {
+        const d = new Date(filters.dueDate);
+        paymentsQ = query(paymentsQ, where("createdAt", "<=", d));
+      } else {
+        paymentsQ = query(paymentsQ, orderBy("createdAt", "asc"));
+      }
+
+      const snap = await getDocs(paymentsQ);
+      let counter = 1;
+
+      for (const ds of snap.docs) {
+        const p = ds.data();
+        let loanRef = "N/A", borrower = "N/A", repayCount = 0;
+        const loanSnap = await getDoc(doc(db, "loans", p.loanId));
+        if (!loanSnap.exists()) continue;
+
+        const ld = loanSnap.data();
+        loanRef = ld.refNo || "N/A";
+        if (filters.loanStatus && filters.loanStatus !== "all" && ld.status !== filters.loanStatus) continue;
+
+        const userSnap = await getDoc(doc(db, "users", ld.borrowerId));
+        if (userSnap.exists()) borrower = userSnap.data().fullName;
+
+        const historySnap = await getDocs(query(collection(db, "payments"), where("loanId", "==", p.loanId)));
+        repayCount = historySnap.size;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="text-center">${counter++}</td>
+          <td class="text-center">${loanRef}</td>
+          <td class="text-center">${borrower}</td>
+          <td class="text-center">${Number(p.amount).toFixed(2)}</td>
+          <td class="text-center">${Number(p.penaltyAmount || 0).toFixed(2)}</td>
+          <td class="text-center">${repayCount}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-info" onclick="viewRepaymentHistory('${p.loanId}', '${borrower}')"><i class="fa fa-list"></i> View</button>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-xs btn-outline-primary" onclick="openEditPaymentModal('${ds.id}')"><i class="fa fa-edit"></i></button>
+            <button class="btn btn-xs btn-outline-danger" onclick="deletePayment('${ds.id}')"><i class="fa fa-trash"></i></button>
+          </td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    window.viewRepaymentHistory = async (loanId, borrowerName) => {
+      document.getElementById("repaymentHistoryLabel").innerText = `Repayment History - ${borrowerName}`;
+      const tbody = document.getElementById("repaymentHistoryBody");
+      tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+
+      const q = query(collection(db, "payments"), where("loanId", "==", loanId), orderBy("createdAt", "asc"));
+      const snap = await getDocs(q);
+      tbody.innerHTML = "";
+
+      if (snap.empty) {
+        tbody.innerHTML = "<tr><td colspan='4'>No repayments found.</td></tr>";
+        return;
+      }
+
+      let i = 1;
+      snap.forEach(docSnap => {
+        const p = docSnap.data();
+        const tr = document.createElement("tr");
+        const date = p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString() : 'N/A';
+        tr.innerHTML = `
+          <td>${i++}</td>
+          <td>${date}</td>
+          <td>MWK ${Number(p.amount).toFixed(2)}</td>
+          <td>MWK ${Number(p.penaltyAmount || 0).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      new bootstrap.Modal(document.getElementById("repaymentHistoryModal")).show();
+    };
+
+    window.openAddPaymentModal = () => {
+      currentEditId = null;
+      document.getElementById("paymentForm").reset();
+      document.getElementById("individualBorrowerGroup").classList.add("d-none");
+      document.getElementById("groupBorrowerGroup").classList.add("d-none");
+      new bootstrap.Modal(document.getElementById("paymentModal")).show();
+    };
+
+    window.openEditPaymentModal = async (id) => {
+      currentEditId = id;
+      const ds = await getDoc(doc(db, "payments", id));
+      if (!ds.exists()) return alert("Payment not found");
+      const p = ds.data();
+      document.getElementById("loanSelect").value = p.loanType;
+      document.getElementById("amountInput").value = p.amount;
+      document.getElementById("penaltyInput").value = p.penaltyAmount;
+      document.getElementById("loanSelect").dispatchEvent(new Event("change"));
+
+      if (p.loanType === "individual") {
+        document.getElementById("individualBorrower").value = p.borrowerId;
+      } else {
+        document.getElementById("groupSelect").value = p.borrowerId;
+      }
+      new bootstrap.Modal(document.getElementById("paymentModal")).show();
+    };
+
+    window.deletePayment = async (id) => {
+      if (!confirm("Are you sure?")) return;
+      await deleteDoc(doc(db, "payments", id));
+      alert("Deleted.");
+      loadPayments();
+    };
+
+    async function loadUsersAndGroups() {
+      const ib = document.getElementById("individualBorrower");
+      const gb = document.getElementById("groupSelect");
+      ib.innerHTML = `<option value="">Select borrower</option>`;
+      gb.innerHTML = `<option value="">Select group</option>`;
+
+      (await getDocs(collection(db, "users"))).forEach(u => {
+        const data = u.data();
+        if (data.isGroup) return; // Skip groups in individual borrower list
+        const fullName = data.fullName || '${firstName} ${lastName}';
+        ib.innerHTML += `<option value="${u.id}">${data.fullName || u.id}</option>`;
+      });
+      (await getDocs(collection(db, "groups"))).forEach(g => {
+        const data =g.data();
+        if (!data.groupName) return; // Skip if no group name
+        gb.innerHTML += `<option value="${g.id}">${data.groupName || g.id}</option>`;
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadUsersAndGroups();
+      loadPayments();
+
+      document.getElementById("loanSelect").addEventListener("change", e => {
+        document.getElementById("individualBorrowerGroup").classList.toggle("d-none", e.target.value !== "individual");
+        document.getElementById("groupBorrowerGroup").classList.toggle("d-none", e.target.value !== "group");
+      });
+
+      document.getElementById("filterBtn").addEventListener("click", loadPayments);
+
+      document.getElementById("paymentForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const type = document.getElementById("loanSelect").value;
+        const borrowerId = type === "individual"
+          ? document.getElementById("individualBorrower").value
+          : document.getElementById("groupSelect").value;
+        const amount = parseFloat(document.getElementById("amountInput").value);
+        const penalty = parseFloat(document.getElementById("penaltyInput").value) || 0;
+
+        const loanSnap = await getDocs(query(
+          collection(db, "loans_applications"),
+          orderBy("createdAt", "desc"),
+          where("status", "==", "active"),
+          where(type === "individual" ? "borrowerId" : "groupId", "==", borrowerId),
+          where("isGroupLoan", "==", (type === "group"))
+        ));
+        if (loanSnap.empty) return alert("Loan not found");
+        else if (loanSnap.size > 1) return alert("Multiple loans found,please refine your search.");
+        if (borrowerId === "") return alert("please select a borrower or group.");
+        if (isNaN(amount) || amount <=0) return alert("please enter a valid amount.");
+        const loanDoc = loanSnap.docs[0];
+
+        const data = {
+          loanId: loanDoc.id,
+          loanType: type,
+          borrowerId,
+          amount,
+          penaltyAmount: penalty,
+          createdAt: new Date()
+        };
+
+        if (currentEditId) {
+          await updateDoc(doc(db, "payments", currentEditId), data);
+          alert("Updated.");
+        } else {
+          await addDoc(collection(db, "payments"), data);
+          alert("Saved.");
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
+        loadPayments();
+      });
+
+      document.getElementById("newPaymentBtn").addEventListener("click", openAddPaymentModal);
+    });
+
+    function getFilters() {
+      return {
+        loanStatus: document.getElementById("statusFilter").value,
+        dueDate: document.getElementById("dueDateFilter").value
+      };
+    }
+  </script>
+</head>
+<body class="bg-light">
+  <div class="container-fluid mt-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between">
+        <a href="loanofficer.html" class="btn btn-outline-secondary">🏠 Back to Home</a>
+        <h4>Payment List</h4>
+        <button class="btn btn-outline-secondary" id="newPaymentBtn"><i class="fa fa-plus"></i> New Payment</button>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label>Loan Status</label>
+            <select id="statusFilter" class="form-select">
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="defaulter">Defaulter</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>Due Date (on or before)</label>
+            <input type="date" id="dueDateFilter" class="form-control"/>
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100" id="filterBtn">Apply Filters</button>
+          </div>
+        </div>
+
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>#</th><th>Loan Ref</th><th>Borrower</th><th>Amount</th><th>Penalty</th><th>Repayments</th><th>History</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="paymentTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Add/Edit Payment -->
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="paymentForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="paymentModalLabel">Add/Edit Payment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Loan Type</label>
+            <select id="loanSelect" class="form-select" required>
+              <option value="">Select loan type</option>
+              <option value="individual">Individual Loan</option>
+              <option value="group">Group Loan</option>
+            </select>
+          </div>
+          <div class="mb-3 d-none" id="individualBorrowerGroup">
+            <label>Borrower</label>
+            <select id="individualBorrower" class="form-select"></select>
+          </div>
+          <div class="mb-3 d-none" id="groupBorrowerGroup">
+            <label>Group</label>
+            <select id="groupSelect" class="form-select"></select>
+          </div>
+          <div class="mb-3">
+            <label>Amount</label>
+            <input type="number" id="amountInput" class="form-control" step="0.01" required min="0"/>
+          </div>
+          <div class="mb-3">
+            <label>Penalty Amount</label>
+            <input type="number" id="penaltyInput" class="form-control" step="0.01" min="0"/>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">Save Payment</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Repayment History Modal -->
+  <div class="modal fade" id="repaymentHistoryModal" tabindex="-1" aria-labelledby="repaymentHistoryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="repaymentHistoryLabel">Repayment History</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-sm table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Penalty</th>
+              </tr>
+            </thead>
+            <tbody id="repaymentHistoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>td { vertical-align: middle !important; }</style>
+</body>
+</html>

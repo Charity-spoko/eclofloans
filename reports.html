@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECLOF Reports</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-light">
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>📊 ECLOF Loan Reports</h3>
+      <a href="loanofficer.html" class="btn btn-outline-secondary">🏠 Back to Home</a>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <form id="filterForm" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Filter By Status</label>
+            <select class="form-select" id="statusFilter">
+              <option value="">All</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="defaulter">Defaulters</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Due Date Before</label>
+            <input type="date" class="form-control" id="dueDateFilter">
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mb-3 d-flex justify-content-end">
+      <button class="btn btn-outline-success me-2" onclick="exportToExcel()">📥 Export Excel</button>
+      <button class="btn btn-outline-danger" onclick="exportToPDF()">📄 Export PDF</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" id="reportTable">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Borrower</th>
+            <th>Loan Amount</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Total Paid</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody">
+          <tr><td colspan="6" class="text-center">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, getDoc, doc, query, where
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let reportData = [];
+
+    async function loadReports(status = "", dueDate = "") {
+      const tbody = document.getElementById("reportTableBody");
+      tbody.innerHTML = "<tr><td colspan='6' class='text-center'>Loading...</td></tr>";
+
+      let loansQuery = collection(db, "loans");
+      const loanDocs = await getDocs(loansQuery);
+
+      reportData = [];
+
+      for (const docSnap of loanDocs.docs) {
+        const data = docSnap.data();
+        const borrowerSnap = await getDoc(doc(db, "users", data.borrowerId));
+        const borrowerName = borrowerSnap.exists() ? borrowerSnap.data().fullName : "Unknown";
+
+        const repaymentsSnap = await getDocs(query(collection(db, "transactions"), where("loanId", "==", docSnap.id)));
+        let totalPaid = 0;
+        repaymentsSnap.forEach(tx => totalPaid += tx.data().amountPaid);
+
+        const isDefaulter = data.dueDate && new Date(data.dueDate) < new Date() && totalPaid < data.amount;
+        if (status === "active" && data.status !== "active") continue;
+        if (status === "completed" && data.status !== "completed") continue;
+        if (status === "defaulter" && !isDefaulter) continue;
+        if (dueDate && new Date(data.dueDate) > new Date(dueDate)) continue;
+
+        reportData.push({
+          name: borrowerName,
+          amount: data.amount || 0,
+          status: data.status,
+          dueDate: data.dueDate || "N/A",
+          totalPaid: totalPaid.toFixed(2)
+        });
+      }
+
+      tbody.innerHTML = "";
+      reportData.forEach((item, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${item.name}</td>
+          <td>${item.amount}</td>
+          <td>${item.status}</td>
+          <td>${item.dueDate}</td>
+          <td>${item.totalPaid}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      if (reportData.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='6' class='text-center'>No results found.</td></tr>";
+      }
+    }
+
+    document.getElementById("filterForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const status = document.getElementById("statusFilter").value;
+      const dueDate = document.getElementById("dueDateFilter").value;
+      loadReports(status, dueDate);
+    });
+
+    window.exportToExcel = function () {
+      const ws = XLSX.utils.json_to_sheet(reportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "LoanReport");
+      XLSX.writeFile(wb, "EclofLoan_Report.xlsx");
+    };
+
+    window.exportToPDF = function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("ECLOF Loan Report", 14, 16);
+      const headers = [["#", "Borrower", "Loan Amount", "Status", "Due Date", "Total Paid"]];
+      const rows = reportData.map((item, i) => [i + 1, item.name, item.amount, item.status, item.dueDate, item.totalPaid]);
+      doc.autoTable({ head: headers, body: rows, startY: 20 });
+      doc.save("EclofLoan_Report.pdf");
+    };
+
+    loadReports();
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>

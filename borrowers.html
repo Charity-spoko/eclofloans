@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Borrower List</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, getDoc, updateDoc, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadBorrowers() {
+      const tbody = document.getElementById("borrowerTableBody");
+      tbody.innerHTML = "";
+      try {
+        const snap = await getDocs(collection(db, "loan_applications"));
+        let i = 1;
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          if (data.status !== 'Approved') return;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="text-center">${i++}</td>
+            <td>
+              <p><b>${data.fullName || ''}</b></p>
+              <p><small>Loan Type: <b>${data.isGroupLoan ? 'Group' : 'Individual'}</b></small></p>
+              <p><small>Username: <b>${data.username || 'N/A'}</b></small></p>
+            </td>
+            <td>MWK ${data.requestedLoanAmount || 0}</td>
+            <td>${data.paymentSchedule || 'N/A'}</td>
+            <td class="text-center">
+              <button class="btn btn-outline-primary btn-sm" onclick="editBorrower('${docSnap.id}')">
+                <i class="fa fa-edit"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteBorrower('${docSnap.id}')">
+                <i class="fa fa-trash"></i>
+              </button>
+              <button class="btn btn-outline-success btn-sm" onclick="openLoanCalculator('${docSnap.id}', '${encodeURIComponent(data.fullName || '')}')">
+                <i class="fa fa-calculator"></i> Calculate Loan
+              </button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error(e);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="5" class="text-center text-danger">Failed to load borrowers.</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    window.deleteBorrower = async (id) => {
+      if (!confirm("Delete borrower?")) return;
+      await deleteDoc(doc(db, "loan_applications", id));
+      loadBorrowers();
+    };
+
+    window.openLoanCalculator = (id, encName) => {
+      const name = decodeURIComponent(encName);
+      window.location.href = `loan_calculation.html?borrowerId=${id}&borrowerName=${encodeURIComponent(name)}`;
+    };
+
+    window.editBorrower = async (id) => {
+      const docRef = doc(db, "loan_applications", id);
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        document.getElementById("editBorrowerId").value = id;
+        document.getElementById("editFullName").value = data.fullName || "";
+        document.getElementById("editLoanType").value = data.isGroupLoan ? 'group' : 'individual';
+        document.getElementById("editLoanAmount").value = data.requestedLoanAmount || 0;
+        document.getElementById("editSchedule").value = data.paymentSchedule || "";
+        new bootstrap.Modal(document.getElementById("editBorrowerModal")).show();
+      }
+    };
+
+    window.saveEdit = async () => {
+      const id = document.getElementById("editBorrowerId").value;
+      const updatedData = {
+        fullName: document.getElementById("editFullName").value,
+        isGroupLoan: document.getElementById("editLoanType").value === 'group',
+        requestedLoanAmount: parseFloat(document.getElementById("editLoanAmount").value),
+        paymentSchedule: document.getElementById("editSchedule").value
+      };
+      await updateDoc(doc(db, "loan_applications", id), updatedData);
+      bootstrap.Modal.getInstance(document.getElementById("editBorrowerModal")).hide();
+      const successToast = new bootstrap.Toast(document.getElementById("successToast"));
+      successToast.show();
+      loadBorrowers();
+    };
+
+    document.addEventListener("DOMContentLoaded", loadBorrowers);
+  </script>
+</head>
+<body class="bg-light">
+  <div class="container-fluid mt-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <a href="loanofficer.html" class="btn btn-outline-secondary">🏠 Back to Home</a>
+        <h4 class="mb-0">Approved Borrowers</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Borrower</th>
+              <th>Current Loan Amount</th>
+              <th>Payment Schedule</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="borrowerTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Borrower Modal -->
+  <div class="modal fade" id="editBorrowerModal" tabindex="-1" aria-labelledby="editBorrowerLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editBorrowerLabel">Edit Borrower</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editBorrowerId">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="editFullName" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Loan Type</label>
+            <select id="editLoanType" class="form-select" required>
+              <option value="individual">Individual</option>
+              <option value="group">Group</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Loan Amount</label>
+            <input type="number" id="editLoanAmount" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Payment Schedule</label>
+            <select id="editSchedule" class="form-select" required>
+              <option value="">Select</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Bi-Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+    <div id="successToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <strong class="me-auto">Update Successful</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Borrower information updated successfully.
+      </div>
+    </div>
+  </div>
+
+  <style>
+    td p { margin: 0; }
+    td { vertical-align: middle !important; }
+  </style>
+</body>
+</html>

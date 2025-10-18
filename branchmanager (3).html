@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branch Manager Dashboard - ECLOF Malawi</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+        margin: 0;
+        position: relative;
+        min-height: 100vh;
+    }
+     /*Helper function to format date properly*/
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        height: 100vh;
+        background: linear-gradient(180deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%);
+        color: white;
+        padding-top: 1rem;
+        position: fixed;
+        width: 250px;
+        overflow-y: auto;
+        box-shadow: 4px 0 20px rgba(6, 78, 59, 0.3);
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+    }
+
+    .sidebar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #10b981, #22c55e, #34d399);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .sidebar-header {
+        text-align: center;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .sidebar-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-bottom: 0.5rem;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .sidebar h4 {
+        background: linear-gradient(135deg, #34d399, #10b981, #22c55e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .sidebar-subtitle {
+        font-size: 0.8rem;
+        color: #a7f3d0;
+        margin-top: 0.25rem;
+    }
+
+    .nav-link {
+        color: #d1fae5 !important;
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        margin: 0.25rem 1rem;
+        position: relative;
+        overflow: hidden;
+        font-weight: 500;
+    }
+
+    .nav-link i {
+        width: 20px;
+        margin-right: 0.75rem;
+        text-align: center;
+        color: #a7f3d0;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2));
+        color: white !important;
+        transform: translateX(8px);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .nav-link:hover::before {
+        left: 100%;
+    }
+
+    .nav-link:hover i {
+        color: #6ee7b7;
+    }
+
+    /* Header */
+    .header {
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        position: fixed;
+        left: 250px;
+        right: 0;
+        top: 0;
+        z-index: 999;
+        box-shadow: 
+            0 4px 20px rgba(6, 78, 59, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header h3 {
+        margin: 0;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #ffffff, #d1fae5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .notification-badge {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .notification-badge .badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 250px;
+        padding: 2rem 1rem 1rem 1rem;
+        padding-top: 7rem;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+    }
+
+    /* Dashboard Cards */
+    .stat-card {
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 1.5rem;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        padding: 1.5rem;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+        background-size: 200% 100%;
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        margin-right: 1rem;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .stat-card:nth-child(1) { background: linear-gradient(135deg, #064e3b, #047857, #059669); }
+    .stat-card:nth-child(2) { background: linear-gradient(135deg, #ea580c, #f97316, #fb923c); }
+    .stat-card:nth-child(3) { background: linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa); }
+    .stat-card:nth-child(4) { background: linear-gradient(135deg, #dc2626, #ef4444, #f87171); }
+
+    /* Floating background shapes */
+    .floating-shapes {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+        top: 15%;
+        left: 85%;
+        animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, rgba(34, 197, 94, 0.08), rgba(52, 211, 153, 0.04));
+        top: 65%;
+        left: 5%;
+        animation-delay: 3s;
+    }
+
+    .shape:nth-child(3) {
+        width: 60px;
+        height: 60px;
+        background: radial-gradient(circle, rgba(52, 211, 153, 0.06), transparent);
+        top: 40%;
+        left: 90%;
+        animation-delay: 6s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+        50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    /* Dashboard Card */
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        border-left: 4px solid #10b981;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #064e3b, #047857);
+        color: white;
+    }
+
+    .badge-success { background: linear-gradient(135deg, #10b981, #059669); }
+    .badge-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .badge-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(16,185,129,0.3);
+        border-radius: 50%;
+        border-top-color: #10b981;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal Styling */
+    .modal-header {
+        background: linear-gradient(135deg, #064e3b, #047857);
+        color: white;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .info-value {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar.show {
+            transform: translateX(0);
+        }
+        .header {
+            left: 0;
+        }
+        .main-content {
+            margin-left: 0;
+        }
+        .mobile-menu-btn {
+            display: block;
+        }
+    }
+
+    @media (min-width: 769px) {
+        .mobile-menu-btn { display: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Mobile Menu Button -->
+<button class="btn btn-success mobile-menu-btn position-fixed" style="top: 1rem; left: 1rem; z-index: 1001;" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Floating background shapes -->
+<div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="assets/eclof-logo.png" alt="ECLOF Logo" class="sidebar-logo">
+        <h4>Branch Manager</h4>
+        <div class="sidebar-subtitle">ECLOF Malawi</div>
+    </div>
+    <nav class="nav flex-column w-100">
+        <a class="nav-link active" href="#dashboard">
+            <i class="bi bi-speedometer2"></i>Dashboard
+        </a>
+        <a class="nav-link" href="reports (1).html">
+            <i class="bi bi-graph-up"></i>Reports
+        </a>
+        <hr class="text-white-50 mx-3">
+        <a class="nav-link" href="#" onclick="confirmLogout()">
+            <i class="bi bi-box-arrow-right"></i>Logout
+        </a>
+    </nav>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-content">
+        <h3><i class="bi bi-building me-2"></i>Branch Manager Dashboard</h3>
+        <div class="header-actions">
+            <div class="notification-badge">
+                <i class="bi bi-bell text-white" style="font-size: 1.2rem;"></i>
+                <span class="badge" id="notificationCount">0</span>
+            </div>
+            <div class="text-white">
+                <i class="bi bi-person-circle me-1"></i>
+                <span>John Matipwiri</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+    <div class="container-fluid">
+        <div id="loadingIndicator" class="text-center py-5">
+            <div class="loading-spinner me-2"></div>
+            <span>Loading dashboard data...</span>
+        </div>
+
+        <div id="dashboardContent" class="d-none">
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-people"></i></div>
+                        <div>
+                            <div class="card-title">Total Applicants</div>
+                            <h4 id="totalApplicants">0</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+                        <div>
+                            <div class="card-title">Approved Loans</div>
+                            <h4 id="approvedLoans">0</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+                        <div>
+                            <div class="card-title">Total Disbursed</div>
+                            <h4 id="totalDisbursed">MWK 0</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="bi bi-clock"></i></div>
+                        <div>
+                            <div class="card-title">Due This Month</div>
+                            <h4 id="loansDueThisMonth">0</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Loan Applications -->
+            <div class="dashboard-card">
+                <h3 class="h5 mb-4">Recent Loan Applications</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Applicant</th>
+                                <th>Loan Amount</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Date Applied</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentApplications">
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="loading-spinner me-2"></div> Loading applications...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Details Modal -->
+<div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applicationModalLabel">
+                    <i class="bi bi-person-lines-fill me-2"></i>Loan Application Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="applicationDetails">
+                <!-- Application details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="approveBtn" style="display: none;">
+                    <i class="bi bi-check-circle me-1"></i>Approve
+                </button>
+                <button type="button" class="btn btn-danger" id="rejectBtn" style="display: none;">
+                    <i class="bi bi-x-circle me-1"></i>Reject
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4qJPfMhqvKVcGQyKs8uV4Jx9XzF2mN8o",
+        authDomain: "job-application-44096.firebaseapp.com",
+        projectId: "job-application-44096",
+        storageBucket: "job-application-44096.appspot.com",
+        messagingSenderId: "123456789012",
+        appId: "1:123456789012:web:abcdef123456"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Helper function to format large numbers with abbreviations
+    function formatCurrency(amount) {
+        if (amount >= 1000000000) {
+            return `MWK ${(amount / 1000000000).toFixed(1)}B`;
+        } else if (amount >= 1000000) {
+            return `MWK ${(amount / 1000000).toFixed(1)}M`;
+        } else if (amount >= 1000) {
+            return `MWK ${(amount / 1000).toFixed(1)}K`;
+        }
+        return `MWK ${amount.toLocaleString()}`;
+    }
+    function formatDate(dateValue) {
+        if (!dateValue) return 'N/A';
+        
+        let date;
+        
+        // Handle different date formats from Firestore
+        if (dateValue.toDate && typeof dateValue.toDate === 'function') {
+            // Firestore Timestamp
+            date = dateValue.toDate();
+        } else if (typeof dateValue === 'string') {
+            // String date
+            date = new Date(dateValue);
+        } else if (dateValue instanceof Date) {
+            // Already a Date object
+            date = dateValue;
+        } else {
+            return 'N/A';
+        }
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            return 'N/A';
+        }
+
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+
+    async function loadDashboardData() {
+        try {
+            const applicationsRef = collection(db, "loan_applications");
+            const snapshot = await getDocs(applicationsRef);
+
+            let totalApplicants = 0;
+            let approvedLoans = 0;
+            let totalDisbursed = 0;
+            let loansDueThisMonth = 0;
+            const recentApplications = [];
+
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                totalApplicants++;
+
+                const loanAmount = Number(data.loanAmount || 0);
+                const interest = loanAmount * 0.15;
+                const totalWithInterest = loanAmount + interest;
+
+                if (data.status === "Approved") {
+                    approvedLoans++;
+                    totalDisbursed += totalWithInterest;
+                }
+
+                if (data.status === "Approved" && data.repaymentPeriod) {
+                    let appDate;
+                    if (data.applicationDate) {
+                        if (data.applicationDate.toDate && typeof data.applicationDate.toDate === 'function') {
+                            appDate = data.applicationDate.toDate();
+                        } else {
+                            appDate = new Date(data.applicationDate);
+                        }
+                    } else {
+                        appDate = new Date();
+                    }
+                    
+                    const dueDate = new Date(appDate);
+                    dueDate.setMonth(dueDate.getMonth() + Number(data.repaymentPeriod || 12));
+
+                    if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
+                        loansDueThisMonth++;
+                    }
+                }
+
+                recentApplications.push({
+                    id: doc.id,
+                    ...data,
+                    totalWithInterest
+                });
+            });
+
+            // Sort by date (newest first)
+            recentApplications.sort((a, b) => {
+                const dateA = a.applicationDate ? (a.applicationDate.toDate ? a.applicationDate.toDate() : new Date(a.applicationDate)) : new Date(0);
+                const dateB = b.applicationDate ? (b.applicationDate.toDate ? b.applicationDate.toDate() : new Date(b.applicationDate)) : new Date(0);
+                return dateB - dateA;
+            });
+
+            document.getElementById("totalApplicants").textContent = totalApplicants.toLocaleString();
+            document.getElementById("approvedLoans").textContent = approvedLoans.toLocaleString();
+            document.getElementById("totalDisbursed").textContent = formatCurrency(totalDisbursed);
+            document.getElementById("loansDueThisMonth").textContent = loansDueThisMonth.toLocaleString();
+
+            const tbody = document.getElementById("recentApplications");
+            tbody.innerHTML = recentApplications.slice(0, 10).map(app => `
+                <tr>
+                    <td>
+                        <div class="fw-semibold">${app.fullName || 'N/A'}</div>
+                        <small class="text-muted">${app.email || 'N/A'}</small>
+                    </td>
+                    <td>${formatCurrency(app.totalWithInterest)}</td>
+                    <td>${app.loanType || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${getStatusClass(app.status)}">${app.status || 'Pending'}</span>
+                    </td>
+                    <td>${formatDate(app.applicationDate)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewApplication('${app.id}')">
+                            <i class="bi bi-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById("loadingIndicator").classList.add("d-none");
+            document.getElementById("dashboardContent").classList.remove("d-none");
+        } catch (err) {
+            console.error("Error loading data:", err);
+            document.getElementById("loadingIndicator").innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error loading dashboard data. Please refresh the page.
+                </div>
+            `;
+        }
+    }
+
+    function getStatusClass(status) {
+        switch (status?.toLowerCase()) {
+            case 'approved': return 'badge-success';
+            case 'pending': return 'badge-warning';
+            case 'rejected': return 'badge-danger';
+            default: return 'badge-warning';
+        }
+    }
+
+    // View application details
+    window.viewApplication = async (id) => {
+        try {
+            const docRef = doc(db, "loan_applications", id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // Calculate loan details
+                const loanAmount = Number(data.loanAmount || 0);
+                const interest = loanAmount * 0.15;
+                const totalWithInterest = loanAmount + interest;
+                const monthlyPayment = data.repaymentPeriod ? (totalWithInterest / Number(data.repaymentPeriod)) : 0;
+
+                // Generate group members list if available
+                let groupMembersHtml = '';
+                if (data.groupMembers && Array.isArray(data.groupMembers) && data.groupMembers.length > 0) {
+                    groupMembersHtml = data.groupMembers.map((member, index) => {
+                        // Handle different possible structures for group members
+                        const memberName = member.name || member.fullName || member.memberName || 'N/A';
+                        const memberPhone = member.phoneNumber || member.phone || member.memberPhone || 'N/A';
+                        
+                        return `<div class="info-row">
+                            <span class="info-label">Member ${index + 1}:</span>
+                            <span class="info-value">${memberName} - ${memberPhone}</span>
+                        </div>`;
+                    }).join('');
+                } else if (data.groupMember1 || data.member1Name) {
+                    // Handle flat structure where group members are stored as separate fields
+                    const members = [];
+                    for (let i = 1; i <= 5; i++) {
+                        const memberName = data[`groupMember${i}`] || data[`member${i}Name`] || data[`memberName${i}`];
+                        const memberPhone = data[`groupMember${i}Phone`] || data[`member${i}Phone`] || data[`memberPhone${i}`];
+                        
+                        if (memberName) {
+                            members.push(`<div class="info-row">
+                                <span class="info-label">Member ${i}:</span>
+                                <span class="info-value">${memberName} - ${memberPhone || 'N/A'}</span>
+                            </div>`);
+                        }
+                    }
+                    groupMembersHtml = members.join('');
+                }
+
+                const detailsHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3"><i class="bi bi-person me-2"></i>Personal Information</h6>
+                            <div class="info-row">
+                                <span class="info-label">Full Name:</span>
+                                <span class="info-value">${data.fullName || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value">${data.email || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Phone Number:</span>
+                                <span class="info-value">${data.phoneNumber || data.phone || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">National ID:</span>
+                                <span class="info-value">${data.nationalIdFile || data.nationalId || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3"><i class="bi bi-cash-coin me-2"></i>Loan Information</h6>
+                            <div class="info-row">
+                                <span class="info-label">Loan Type:</span>
+                                <span class="info-value">${data.loanType || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Loan Amount:</span>
+                                <span class="info-value">${formatCurrency(loanAmount)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Interest (15%):</span>
+                                <span class="info-value">${formatCurrency(interest)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Total Amount:</span>
+                                <span class="info-value"><strong>${formatCurrency(totalWithInterest)}</strong></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Repayment Period:</span>
+                                <span class="info-value">${data.repaymentPeriod || 'N/A'} months</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Monthly Payment:</span>
+                                <span class="info-value">${formatCurrency(monthlyPayment)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Purpose:</span>
+                                <span class="info-value">${data.purpose || data.loanPurpose || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6 class="text-warning mb-3"><i class="bi bi-briefcase me-2"></i>Business Information</h6>
+                            <div class="info-row">
+                                <span class="info-label">Monthly Income:</span>
+                                <span class="info-value">${data.monthlyIncome ? formatCurrency(Number(data.monthlyIncome)) : 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Business Type:</span>
+                                <span class="info-value">${data.businessType || data.occupation || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-dark mb-3"><i class="bi bi-clock me-2"></i>Application Status</h6>
+                            <div class="info-row">
+                                <span class="info-label">Status:</span>
+                                <span class="info-value">
+                                    <span class="badge ${getStatusClass(data.status)}">${data.status || 'Pending'}</span>
+                                </span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Application Date:</span>
+                                <span class="info-value">${formatDate(data.applicationDate)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Application ID:</span>
+                                <span class="info-value">${id}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${groupMembersHtml ? `
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-info mb-3"><i class="bi bi-people me-2"></i>Group Members</h6>
+                            ${groupMembersHtml}
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+
+                document.getElementById("applicationDetails").innerHTML = detailsHtml;
+                
+                // Show/hide action buttons based on status
+                const approveBtn = document.getElementById("approveBtn");
+                const rejectBtn = document.getElementById("rejectBtn");
+                
+                if (data.status === 'Pending') {
+                    approveBtn.style.display = 'inline-block';
+                    rejectBtn.style.display = 'inline-block';
+                } else {
+                    approveBtn.style.display = 'none';
+                    rejectBtn.style.display = 'none';
+                }
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+                modal.show();
+            } else {
+                alert("Application not found!");
+            }
+        } catch (error) {
+            console.error("Error fetching application details:", error);
+            alert("Error loading application details. Please try again.");
+        }
+    };
+
+    window.confirmLogout = () => {
+        if (confirm("Are you sure you want to logout?")) {
+            localStorage.clear();
+            window.location.href = "onboarding.html";
+        }
+    };
+
+    window.toggleSidebar = () => {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('show');
+    };
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        const sidebar = document.getElementById('sidebar');
+        const mobileBtn = document.querySelector('.mobile-menu-btn');
+        
+        if (window.innerWidth <= 768 && 
+            !sidebar.contains(e.target) && 
+            !mobileBtn.contains(e.target) && 
+            sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadDashboardData);
+</script>
+</body>
+</html>

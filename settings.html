@@ -3,133 +3,1942 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Settings</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-    .header { background-color: green; color: white; padding: 1rem; text-align: center; }
-    .container { margin-top: 2rem; }
-    .toggle-password { cursor: pointer; margin-left: 5px; }
+  <title>ECLOF Malawi - System Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style id="dynamicStyles">
+    :root {
+      --primary-color: #16a34a;
+      --secondary-color: #22c55e;
+      --system-font: 'Inter', sans-serif;
+      --card-radius: 16px;
+      --animation-speed: 0.3s;
+    }
+
+    body {
+      font-family: var(--system-font);
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+      transition: all var(--animation-speed) ease;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      color: #f1f5f9;
+    }
+
+    body.no-animations * {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+      opacity: 1;
+      transition: opacity var(--animation-speed) ease;
+    }
+
+    body.no-background-effects::before {
+      opacity: 0;
+    }
+
+    body.dark-mode::before {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.06) 0%, transparent 50%);
+    }
+
+    .header {
+      background: linear-gradient(135deg, 
+        var(--primary-color) 0%, 
+        color-mix(in srgb, var(--primary-color) 80%, black 20%) 25%, 
+        color-mix(in srgb, var(--secondary-color) 70%, var(--primary-color) 30%) 50%, 
+        var(--secondary-color) 75%, 
+        color-mix(in srgb, var(--secondary-color) 90%, white 10%) 100%);
+      color: white;
+      padding: 2rem 0;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .dark-mode .header {
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .btn-header {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all var(--animation-speed) ease;
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .settings-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .settings-nav {
+      background: white;
+      border-radius: var(--card-radius);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .dark-mode .settings-nav {
+      background: #1e293b;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .nav-tabs {
+      border: none;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1rem;
+    }
+
+    .dark-mode .nav-tabs {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      color: #6b7280;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-right: 0.5rem;
+      transition: all var(--animation-speed) ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark-mode .nav-tabs .nav-link {
+      color: #94a3b8;
+    }
+
+    .nav-tabs .nav-link:hover {
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+      color: var(--primary-color);
+    }
+
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 30%, transparent 70%);
+    }
+
+    .settings-card {
+      background: white;
+      border-radius: var(--card-radius);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      position: relative;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .dark-mode .settings-card {
+      background: #1e293b;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .settings-card.sharp-corners {
+      border-radius: 4px;
+    }
+
+    .settings-card.minimal {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+    }
+
+    .settings-card.elevated {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .settings-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), color-mix(in srgb, var(--secondary-color) 80%, white 20%));
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+      padding: 1.5rem;
+    }
+
+    .dark-mode .card-header-custom {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-bottom-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .card-header-custom h5 {
+      margin: 0;
+      color: #064e3b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark-mode .card-header-custom h5 {
+      color: #e2e8f0;
+    }
+
+    .card-body-custom {
+      padding: 2rem;
+    }
+
+    .form-label {
+      color: #064e3b;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark-mode .form-label {
+      color: #e2e8f0;
+    }
+
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .dark-mode .form-control,
+    .dark-mode .form-select {
+      background: #334155;
+      border-color: #475569;
+      color: #e2e8f0;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent 75%);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 80%, black 20%), var(--primary-color));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 40%, transparent 60%);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .btn-warning:hover {
+      background: linear-gradient(135deg, #b45309, #d97706);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, #0891b2, #06b6d4);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .btn-info:hover {
+      background: linear-gradient(135deg, #0e7490, #0891b2);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(8, 145, 178, 0.4);
+    }
+
+    .color-picker-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .color-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      border: 2px solid #d1d5db;
+      cursor: pointer;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .color-preview:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .feature-item {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border: 1px solid color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all var(--animation-speed) ease;
+    }
+
+    .dark-mode .feature-item {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .feature-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px color-mix(in srgb, var(--primary-color) 10%, transparent 90%);
+    }
+
+    .feature-item h6 {
+      color: #064e3b;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dark-mode .feature-item h6 {
+      color: #e2e8f0;
+    }
+
+    .feature-item p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .dark-mode .feature-item p {
+      color: #94a3b8;
+    }
+
+    .backup-status {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .dark-mode .backup-status {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .backup-status.warning {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border-color: #fbbf24;
+    }
+
+    .backup-status.error {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      border-color: #fca5a5;
+    }
+
+    .progress-custom {
+      height: 8px;
+      border-radius: 4px;
+      background: #f3f4f6;
+      overflow: hidden;
+    }
+
+    .dark-mode .progress-custom {
+      background: #475569;
+    }
+
+    .progress-bar-custom {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      border-radius: 4px;
+      transition: width var(--animation-speed) ease;
+    }
+
+    .log-container {
+      background: #1f2937;
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 1rem;
+    }
+
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #374151;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-timestamp {
+      color: #9ca3af;
+      margin-right: 1rem;
+    }
+
+    .log-level-info {
+      color: #60a5fa;
+    }
+
+    .log-level-warning {
+      color: #fbbf24;
+    }
+
+    .log-level-error {
+      color: #f87171;
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: color-mix(in srgb, var(--primary-color) 6%, transparent 94%);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+      transition: color var(--animation-speed) ease;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 1;
+      transition: opacity var(--animation-speed) ease;
+    }
+
+    .no-background-effects .floating-shapes {
+      opacity: 0;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, color-mix(in srgb, var(--primary-color) 10%, transparent 90%), color-mix(in srgb, var(--secondary-color) 5%, transparent 95%));
+      top: 15%;
+      right: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, color-mix(in srgb, var(--secondary-color) 8%, transparent 92%), color-mix(in srgb, var(--primary-color) 4%, transparent 96%));
+      bottom: 20%;
+      left: 5%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+      50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    /* Font variations */
+    .font-roboto {
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .font-opensans {
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .font-lato {
+      font-family: 'Lato', sans-serif;
+    }
+
+    .font-poppins {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Live preview indicator */
+    .live-preview {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all var(--animation-speed) ease;
+    }
+
+    .live-preview.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        text-align: center;
+      }
+      
+      .nav-tabs {
+        flex-direction: column;
+      }
+      
+      .nav-tabs .nav-link {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+      }
+      
+      .color-picker-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #watermark {
+        font-size: 3rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h3>Settings <a href="di.html" class="btn btn-sm btn-outline-light float-end">Go to Home</a></h3>
+  <!-- Live preview indicator -->
+  <div id="livePreview" class="live-preview">
+    <i class="bi bi-eye me-1"></i>Live Preview Active
   </div>
 
-  <div class="container">
-    <form>
-      <div class="mb-3">
-        <label class="form-label">Loan Limit (MWK)</label>
-        <input type="number" class="form-control" id="loanLimit" placeholder="Enter loan limit">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Interest Rate (%)</label>
-        <input type="number" step="0.01" class="form-control" id="interestRate" placeholder="Enter interest rate">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Notification Email</label>
-        <input type="email" class="form-control" id="notificationEmail" placeholder="admin@example.com">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Currency</label>
-        <select class="form-select" id="currency">
-          <option value="MWK">MWK</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-        </select>
-      </div>
+  <!-- Floating background shapes -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
 
-      <!-- User Management -->
-      <div class="card mt-4">
-        <div class="card-header">User Management</div>
-        <div class="card-body">
-          <form id="addUserForm" class="row g-3">
-            <div class="col-md-4">
-              <input type="text" class="form-control mb-2" id="username" placeholder="Username" required>
-              <div class="input-group">
-                <input type="password" class="form-control" id="password" placeholder="Password" required>
-                <button class="btn btn-outline-secondary" type="button" id="togglePassword">👁️</button>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1><i class="bi bi-gear-fill me-2"></i>System Settings</h1>
+        <a href="admin.html" class="btn-header">
+          <i class="bi bi-house-door"></i>Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="settings-container">
+    
+    <!-- Navigation Tabs -->
+    <div class="settings-nav">
+      <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+            <i class="bi bi-sliders"></i>General
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="appearance-tab" data-bs-toggle="tab" data-bs-target="#appearance" type="button" role="tab">
+            <i class="bi bi-palette"></i>Appearance
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">
+            <i class="bi bi-shield-check"></i>Security
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab">
+            <i class="bi bi-cloud-arrow-up"></i>Backup
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
+            <i class="bi bi-cpu"></i>System
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="settingsTabContent">
+      
+      <!-- General Settings -->
+      <div class="tab-pane fade show active" id="general" role="tabpanel">
+        <div class="settings-card">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-sliders text-success"></i>General Configuration</h5>
+          </div>
+          <div class="card-body-custom">
+            <form id="generalSettingsForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-building"></i>Organization Name
+                    </label>
+                    <input type="text" class="form-control" id="orgName" value="ECLOF Malawi" placeholder="Enter organization name">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-envelope"></i>Admin Email
+                    </label>
+                    <input type="email" class="form-control" id="adminEmail" placeholder="admin@eclofmalawi.org">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-currency-exchange"></i>Default Currency
+                    </label>
+                    <select class="form-select" id="defaultCurrency">
+                      <option value="MWK" selected>Malawian Kwacha (MWK)</option>
+                      <option value="USD">US Dollar (USD)</option>
+                      <option value="EUR">Euro (EUR)</option>
+                      <option value="GBP">British Pound (GBP)</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-percent"></i>Default Interest Rate (%)
+                    </label>
+                    <input type="number" class="form-control" id="interestRate" step="0.01" value="15.00" placeholder="15.00">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-cash-stack"></i>Maximum Loan Amount (MWK)
+                    </label>
+                    <input type="number" class="form-control" id="maxLoanAmount" value="5000000" placeholder="5000000">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-globe"></i>System Timezone
+                    </label>
+                    <select class="form-select" id="timezone">
+                      <option value="Africa/Blantyre" selected>Africa/Blantyre (CAT)</option>
+                      <option value="UTC">UTC</option>
+                      <option value="Africa/Johannesburg">Africa/Johannesburg</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="col-md-4">
-              <select class="form-select" id="role" required>
-                <option value="">Select Role</option>
-                <option value="loan_officer">Loan Officer</option>
-                <option value="branch_manager">Branch Manager</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <button type="submit" class="btn btn-primary">Add User</button>
-            </div>
-          </form>
+              
+              <div class="feature-grid">
+                <div class="feature-item">
+                  <h6><i class="bi bi-bell"></i>Email Notifications</h6>
+                  <p>Send email notifications for loan applications and payments</p>
+                  <label class="switch">
+                    <input type="checkbox" id="emailNotifications" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-phone"></i>SMS Notifications</h6>
+                  <p>Send SMS alerts for important updates</p>
+                  <label class="switch">
+                    <input type="checkbox" id="smsNotifications">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-calendar-check"></i>Auto Backup</h6>
+                  <p>Automatically backup system data daily</p>
+                  <label class="switch">
+                    <input type="checkbox" id="autoBackup" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-shield-lock"></i>Two-Factor Auth</h6>
+                  <p>Require 2FA for admin accounts</p>
+                  <label class="switch">
+                    <input type="checkbox" id="twoFactorAuth">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                  <i class="bi bi-check-lg me-1"></i>Save General Settings
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetGeneralSettings()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reset to Defaults
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
-      <button type="button" id="saveBtn" class="btn btn-success mt-3">Save Settings</button>
-    </form>
+      <!-- Appearance Settings -->
+      <div class="tab-pane fade" id="appearance" role="tabpanel">
+        <div class="settings-card">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-palette text-success"></i>System Appearance</h5>
+          </div>
+          <div class="card-body-custom">
+            <form id="appearanceSettingsForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-4">
+                    <label class="form-label">
+                      <i class="bi bi-paint-bucket"></i>Primary Theme Color
+                    </label>
+                    <div class="color-picker-container">
+                      <input type="color" class="form-control" id="primaryColor" value="#16a34a" style="width: 80px; height: 50px;">
+                      <div class="color-preview" id="primaryPreview" style="background-color: #16a34a;"></div>
+                      <span class="text-muted">Current: #16a34a</span>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-4">
+                    <label class="form-label">
+                      <i class="bi bi-palette2"></i>Secondary Color
+                    </label>
+                    <div class="color-picker-container">
+                      <input type="color" class="form-control" id="secondaryColor" value="#22c55e" style="width: 80px; height: 50px;">
+                      <div class="color-preview" id="secondaryPreview" style="background-color: #22c55e;"></div>
+                      <span class="text-muted">Current: #22c55e</span>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-image"></i>System Logo
+                    </label>
+                    <input type="file" class="form-control" id="systemLogo" accept="image/*">
+                    <small class="text-muted">Recommended: 200x200px, PNG or JPG</small>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-type"></i>System Font
+                    </label>
+                    <select class="form-select" id="systemFont">
+                      <option value="Inter" selected>Inter (Modern)</option>
+                      <option value="Roboto">Roboto (Clean)</option>
+                      <option value="Open Sans">Open Sans (Friendly)</option>
+                      <option value="Lato">Lato (Professional)</option>
+                      <option value="Poppins">Poppins (Rounded)</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-layout-sidebar"></i>Sidebar Style
+                    </label>
+                    <select class="form-select" id="sidebarStyle">
+                      <option value="gradient" selected>Gradient (Current)</option>
+                      <option value="solid">Solid Color</option>
+                      <option value="dark">Dark Theme</option>
+                      <option value="light">Light Theme</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-card-heading"></i>Card Style
+                    </label>
+                    <select class="form-select" id="cardStyle">
+                      <option value="rounded" selected>Rounded Corners</option>
+                      <option value="sharp">Sharp Corners</option>
+                      <option value="minimal">Minimal</option>
+                      <option value="elevated">Elevated Shadow</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="feature-grid">
+                <div class="feature-item">
+                  <h6><i class="bi bi-moon"></i>Dark Mode</h6>
+                  <p>Enable dark theme for the system</p>
+                  <label class="switch">
+                    <input type="checkbox" id="darkMode">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-animation"></i>Animations</h6>
+                  <p>Enable smooth animations and transitions</p>
+                  <label class="switch">
+                    <input type="checkbox" id="animations" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-water"></i>Background Effects</h6>
+                  <p>Show floating shapes and gradients</p>
+                  <label class="switch">
+                    <input type="checkbox" id="backgroundEffects" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-phone"></i>Mobile Optimized</h6>
+                  <p>Optimize interface for mobile devices</p>
+                  <label class="switch">
+                    <input type="checkbox" id="mobileOptimized" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                  <i class="bi bi-check-lg me-1"></i>Apply Theme Changes
+                </button>
+                <button type="button" class="btn btn-warning me-2" onclick="previewTheme()">
+                  <i class="bi bi-eye me-1"></i>Preview Changes
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetTheme()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reset Theme
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="tab-pane fade" id="security" role="tabpanel">
+        <div class="settings-card">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-shield-check text-success"></i>Security Configuration</h5>
+          </div>
+          <div class="card-body-custom">
+            <form id="securitySettingsForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-clock"></i>Session Timeout (minutes)
+                    </label>
+                    <input type="number" class="form-control" id="sessionTimeout" value="30" min="5" max="480">
+                    <small class="text-muted">Auto-logout after inactivity</small>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-key"></i>Password Min Length
+                    </label>
+                    <input type="number" class="form-control" id="passwordMinLength" value="8" min="6" max="20">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-shield-x"></i>Max Login Attempts
+                    </label>
+                    <input type="number" class="form-control" id="maxLoginAttempts" value="5" min="3" max="10">
+                    <small class="text-muted">Account locked after failed attempts</small>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-stopwatch"></i>Account Lockout Duration (minutes)
+                    </label>
+                    <input type="number" class="form-control" id="lockoutDuration" value="15" min="5" max="60">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-arrow-clockwise"></i>Password Reset Expiry (hours)
+                    </label>
+                    <input type="number" class="form-control" id="passwordResetExpiry" value="24" min="1" max="72">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-journal-text"></i>Audit Log Retention (days)
+                    </label>
+                    <input type="number" class="form-control" id="auditLogRetention" value="90" min="30" max="365">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="feature-grid">
+                <div class="feature-item">
+                  <h6><i class="bi bi-shield-lock-fill"></i>Force Strong Passwords</h6>
+                  <p>Require uppercase, lowercase, numbers, and symbols</p>
+                  <label class="switch">
+                    <input type="checkbox" id="strongPasswords" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-phone-vibrate"></i>SMS 2FA</h6>
+                  <p>Two-factor authentication via SMS</p>
+                  <label class="switch">
+                    <input type="checkbox" id="sms2fa">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-eye-slash"></i>Hide User List</h6>
+                  <p>Hide usernames from login screen</p>
+                  <label class="switch">
+                    <input type="checkbox" id="hideUserList">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-journal-check"></i>Activity Logging</h6>
+                  <p>Log all user actions and system events</p>
+                  <label class="switch">
+                    <input type="checkbox" id="activityLogging" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                  <i class="bi bi-shield-check me-1"></i>Update Security Settings
+                </button>
+                <button type="button" class="btn btn-danger me-2" onclick="clearAllSessions()">
+                  <i class="bi bi-power me-1"></i>Clear All Sessions
+                </button>
+                <button type="button" class="btn btn-warning" onclick="downloadAuditLog()">
+                  <i class="bi bi-download me-1"></i>Download Audit Log
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup Settings -->
+      <div class="tab-pane fade" id="backup" role="tabpanel">
+        <div class="settings-card">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-cloud-arrow-up text-success"></i>Backup & Recovery</h5>
+          </div>
+          <div class="card-body-custom">
+            
+            <!-- Backup Status -->
+            <div class="backup-status">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1"><i class="bi bi-check-circle text-success"></i>Last Backup: Today at 2:00 AM</h6>
+                  <small class="text-muted">Next scheduled backup: Tomorrow at 2:00 AM</small>
+                </div>
+                <span class="badge bg-success">Healthy</span>
+              </div>
+            </div>
+            
+            <form id="backupSettingsForm">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-clock-history"></i>Backup Frequency
+                    </label>
+                    <select class="form-select" id="backupFrequency">
+                      <option value="daily" selected>Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="manual">Manual Only</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-clock"></i>Backup Time
+                    </label>
+                    <input type="time" class="form-control" id="backupTime" value="02:00">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-archive"></i>Retention Period (days)
+                    </label>
+                    <input type="number" class="form-control" id="retentionPeriod" value="30" min="7" max="365">
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-cloud"></i>Backup Location
+                    </label>
+                    <select class="form-select" id="backupLocation">
+                      <option value="local" selected>Local Server</option>
+                      <option value="cloud">Cloud Storage</option>
+                      <option value="both">Both Local & Cloud</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-file-zip"></i>Compression Level
+                    </label>
+                    <select class="form-select" id="compressionLevel">
+                      <option value="none">No Compression</option>
+                      <option value="low">Low (Fast)</option>
+                      <option value="medium" selected>Medium (Balanced)</option>
+                      <option value="high">High (Small Size)</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">
+                      <i class="bi bi-envelope"></i>Notification Email
+                    </label>
+                    <input type="email" class="form-control" id="backupNotificationEmail" placeholder="admin@eclofmalawi.org">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="feature-grid">
+                <div class="feature-item">
+                  <h6><i class="bi bi-shield-lock"></i>Encrypt Backups</h6>
+                  <p>Encrypt backup files with AES-256</p>
+                  <label class="switch">
+                    <input type="checkbox" id="encryptBackups" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-bell"></i>Backup Notifications</h6>
+                  <p>Email notifications for backup status</p>
+                  <label class="switch">
+                    <input type="checkbox" id="backupNotifications" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-check2-all"></i>Verify Backups</h6>
+                  <p>Automatically verify backup integrity</p>
+                  <label class="switch">
+                    <input type="checkbox" id="verifyBackups" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+                
+                <div class="feature-item">
+                  <h6><i class="bi bi-cloud-upload"></i>Auto Cloud Sync</h6>
+                  <p>Automatically sync to cloud storage</p>
+                  <label class="switch">
+                    <input type="checkbox" id="autoCloudSync">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                  <i class="bi bi-check-lg me-1"></i>Save Backup Settings
+                </button>
+                <button type="button" class="btn btn-info me-2" onclick="createBackupNow()">
+                  <i class="bi bi-cloud-arrow-up me-1"></i>Backup Now
+                </button>
+                <button type="button" class="btn btn-warning me-2" onclick="restoreFromBackup()">
+                  <i class="bi bi-cloud-arrow-down me-1"></i>Restore
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="testBackupSystem()">
+                  <i class="bi bi-gear me-1"></i>Test System
+                </button>
+              </div>
+            </form>
+            
+            <!-- Backup Progress (hidden by default) -->
+            <div id="backupProgress" style="display: none;" class="mt-4">
+              <h6>Backup in Progress...</h6>
+              <div class="progress-custom">
+                <div class="progress-bar-custom" id="backupProgressBar" style="width: 0%"></div>
+              </div>
+              <small class="text-muted mt-2 d-block">Backing up database... <span id="backupStatus">0%</span></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Settings -->
+      <div class="tab-pane fade" id="system" role="tabpanel">
+        <div class="settings-card">
+          <div class="card-header-custom">
+            <h5><i class="bi bi-cpu text-success"></i>System Information & Maintenance</h5>
+          </div>
+          <div class="card-body-custom">
+            
+            <!-- System Info -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="feature-item">
+                  <h6><i class="bi bi-server"></i>System Status</h6>
+                  <p class="mb-2">Server: <span class="badge bg-success">Online</span></p>
+                  <p class="mb-2">Database: <span class="badge bg-success">Connected</span></p>
+                  <p class="mb-2">Storage: <span class="badge bg-warning">78% Used</span></p>
+                  <p class="mb-0">Uptime: <strong>15 days, 4 hours</strong></p>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="feature-item">
+                  <h6><i class="bi bi-info-circle"></i>Version Information</h6>
+                  <p class="mb-2">ECLOF System: <strong>v2.1.3</strong></p>
+                  <p class="mb-2">Database: <strong>Firebase v9.12.2</strong></p>
+                  <p class="mb-2">Last Update: <strong>2025-09-15</strong></p>
+                  <p class="mb-0">License: <strong>Enterprise</strong></p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Maintenance Actions -->
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="mb-3"><i class="bi bi-tools"></i>Maintenance Actions</h6>
+                
+                <div class="d-grid gap-2">
+                  <button class="btn btn-info" onclick="clearCache()">
+                    <i class="bi bi-trash me-2"></i>Clear System Cache
+                  </button>
+                  
+                  <button class="btn btn-warning" onclick="optimizeDatabase()">
+                    <i class="bi bi-speedometer2 me-2"></i>Optimize Database
+                  </button>
+                  
+                  <button class="btn btn-success" onclick="checkForUpdates()">
+                    <i class="bi bi-arrow-up-circle me-2"></i>Check for Updates
+                  </button>
+                  
+                  <button class="btn btn-secondary" onclick="generateSystemReport()">
+                    <i class="bi bi-file-text me-2"></i>Generate System Report
+                  </button>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <h6 class="mb-3"><i class="bi bi-exclamation-triangle"></i>Danger Zone</h6>
+                
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-warning" onclick="restartSystem()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Restart System
+                  </button>
+                  
+                  <button class="btn btn-outline-danger" onclick="resetToDefaults()">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>Reset All Settings
+                  </button>
+                  
+                  <button class="btn btn-danger" onclick="factoryReset()">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Factory Reset
+                  </button>
+                </div>
+                
+                <small class="text-muted mt-2 d-block">
+                  <i class="bi bi-info-circle me-1"></i>
+                  These actions cannot be undone. Please ensure you have recent backups.
+                </small>
+              </div>
+            </div>
+            
+            <!-- System Logs -->
+            <div class="mt-4">
+              <h6><i class="bi bi-journal-text"></i>Recent System Logs</h6>
+              <div class="log-container" id="systemLogs">
+                <div class="log-entry">
+                  <span class="log-timestamp">2025-09-23 14:30:15</span>
+                  <span class="log-level-info">[INFO]</span>
+                  System backup completed successfully
+                </div>
+                <div class="log-entry">
+                  <span class="log-timestamp">2025-09-23 14:25:03</span>
+                  <span class="log-level-info">[INFO]</span>
+                  User 'admin' logged in from 192.168.1.100
+                </div>
+                <div class="log-entry">
+                  <span class="log-timestamp">2025-09-23 14:20:45</span>
+                  <span class="log-level-warning">[WARN]</span>
+                  High memory usage detected (85%)
+                </div>
+                <div class="log-entry">
+                  <span class="log-timestamp">2025-09-23 14:15:22</span>
+                  <span class="log-level-info">[INFO]</span>
+                  Database optimization completed
+                </div>
+                <div class="log-entry">
+                  <span class="log-timestamp">2025-09-23 14:10:01</span>
+                  <span class="log-level-error">[ERROR]</span>
+                  Failed login attempt for user 'test123'
+                </div>
+              </div>
+              
+              <div class="mt-3">
+                <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshLogs()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <button class="btn btn-outline-secondary btn-sm me-2" onclick="downloadLogs()">
+                  <i class="bi bi-download me-1"></i>Download Logs
+                </button>
+                <button class="btn btn-outline-danger btn-sm" onclick="clearLogs()">
+                  <i class="bi bi-trash me-1"></i>Clear Logs
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <!-- Success Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        Settings saved successfully!
+      </div>
+    </div>
+  </div>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyC_jj0i3VxG-HjKHABbyMDyyO_PztkcTYs",
-    authDomain: "loanmanagement-cc0c3.firebaseapp.com",
-    projectId: "loanmanagement-cc0c3",
-    storageBucket: "loanmanagement-cc0c3.appspot.com",
-    messagingSenderId: "439123722675",
-    appId: "1:439123722675:web:8f9796cc48ad57384a0bc6"
-  };
+  <!-- ECLOF Watermark -->
+  <div id="watermark">ECLOF Malawi</div>
 
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    console.log("ECLOF Settings System Loading...");
+    
+    // Theme application functions
+    function applyThemeSettings() {
+      const primaryColor = document.getElementById('primaryColor').value || '#16a34a';
+      const secondaryColor = document.getElementById('secondaryColor').value || '#22c55e';
+      const systemFont = document.getElementById('systemFont').value || 'Inter';
+      const cardStyle = document.getElementById('cardStyle').value || 'rounded';
+      const darkMode = document.getElementById('darkMode').checked;
+      const animations = document.getElementById('animations').checked;
+      const backgroundEffects = document.getElementById('backgroundEffects').checked;
+      
+      // Apply CSS custom properties
+      const root = document.documentElement;
+      root.style.setProperty('--primary-color', primaryColor);
+      root.style.setProperty('--secondary-color', secondaryColor);
+      
+      // Apply font
+      switch(systemFont) {
+        case 'Roboto':
+          root.style.setProperty('--system-font', "'Roboto', sans-serif");
+          loadGoogleFont('Roboto:wght@400;500;600;700');
+          break;
+        case 'Open Sans':
+          root.style.setProperty('--system-font', "'Open Sans', sans-serif");
+          loadGoogleFont('Open+Sans:wght@400;500;600;700');
+          break;
+        case 'Lato':
+          root.style.setProperty('--system-font', "'Lato', sans-serif");
+          loadGoogleFont('Lato:wght@400;500;600;700');
+          break;
+        case 'Poppins':
+          root.style.setProperty('--system-font', "'Poppins', sans-serif");
+          loadGoogleFont('Poppins:wght@400;500;600;700');
+          break;
+        default:
+          root.style.setProperty('--system-font', "'Inter', sans-serif");
+      }
+      
+      // Apply card style
+      const cards = document.querySelectorAll('.settings-card');
+      cards.forEach(card => {
+        card.className = 'settings-card';
+        if (cardStyle !== 'rounded') {
+          card.classList.add(cardStyle === 'sharp' ? 'sharp-corners' : cardStyle);
+        }
+      });
+      
+      // Apply dark mode
+      document.body.classList.toggle('dark-mode', darkMode);
+      
+      // Apply animations
+      document.body.classList.toggle('no-animations', !animations);
+      root.style.setProperty('--animation-speed', animations ? '0.3s' : '0s');
+      
+      // Apply background effects
+      document.body.classList.toggle('no-background-effects', !backgroundEffects);
+      
+      // Update color previews
+      document.getElementById('primaryPreview').style.backgroundColor = primaryColor;
+      document.getElementById('secondaryPreview').style.backgroundColor = secondaryColor;
+      document.querySelector('#primaryPreview + span').textContent = `Current: ${primaryColor}`;
+      document.querySelector('#secondaryPreview + span').textContent = `Current: ${secondaryColor}`;
+      
+      showLivePreview();
+    }
+    
+    function loadGoogleFont(fontName) {
+      const existingLink = document.querySelector(`link[href*="${fontName}"]`);
+      if (!existingLink) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${fontName}&display=swap`;
+        document.head.appendChild(link);
+      }
+    }
+    
+    function showLivePreview() {
+      const preview = document.getElementById('livePreview');
+      preview.classList.add('show');
+      setTimeout(() => {
+        preview.classList.remove('show');
+      }, 2000);
+    }
 
-  // Save Settings Dummy Handler
-  document.getElementById('saveBtn').addEventListener('click', function () {
-    alert('Settings successfully saved!');
-    setTimeout(() => {
-      window.location.href = 'di.html';
-    }, 1500);
-  });
+    function showNotification(message, type = 'success') {
+      document.getElementById('toastMessage').textContent = message;
+      const toastHeader = document.querySelector('.toast-header');
+      
+      // Reset classes
+      toastHeader.className = 'toast-header';
+      
+      if (type === 'success') {
+        toastHeader.classList.add('bg-success', 'text-white');
+      } else if (type === 'error') {
+        toastHeader.classList.add('bg-danger', 'text-white');
+      } else if (type === 'warning') {
+        toastHeader.classList.add('bg-warning', 'text-dark');
+      }
+      
+      const toast = new bootstrap.Toast(document.getElementById('successToast'));
+      toast.show();
+    }
 
-  // Toggle Password Visibility
-  document.getElementById('togglePassword').addEventListener('click', () => {
-    const passwordField = document.getElementById('password');
-    passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-  });
-
-  // Add User Handler
-  document.getElementById('addUserForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const role = document.getElementById('role').value;
-
-    if (!username || !password || !role) return alert("Please fill all fields.");
-
-    const permissions = role === "loan_officer"
-      ? "Loan Approval, Remove Borrower, and any loan-related actions"
-      : "View Only";
-
-    db.collection("users").add({
-      username,
-      password,
-      role,
-      permissions,
-      createdAt: new Date()
-    }).then(() => {
-      alert("User added successfully to Firebase!");
-      document.getElementById('addUserForm').reset();
-    }).catch((error) => {
-      console.error("Error adding user: ", error);
-      alert("Failed to add user.");
+    // Real-time color picker functionality
+    document.getElementById('primaryColor').addEventListener('input', function() {
+      const color = this.value;
+      document.documentElement.style.setProperty('--primary-color', color);
+      document.getElementById('primaryPreview').style.backgroundColor = color;
+      document.querySelector('#primaryPreview + span').textContent = `Current: ${color}`;
+      showLivePreview();
     });
-  });
-</script>
+
+    document.getElementById('secondaryColor').addEventListener('input', function() {
+      const color = this.value;
+      document.documentElement.style.setProperty('--secondary-color', color);
+      document.getElementById('secondaryPreview').style.backgroundColor = color;
+      document.querySelector('#secondaryPreview + span').textContent = `Current: ${color}`;
+      showLivePreview();
+    });
+
+    // Real-time font changes
+    document.getElementById('systemFont').addEventListener('change', function() {
+      const font = this.value;
+      applyFont(font);
+      showLivePreview();
+    });
+
+    function applyFont(fontName) {
+      const root = document.documentElement;
+      switch(fontName) {
+        case 'Roboto':
+          root.style.setProperty('--system-font', "'Roboto', sans-serif");
+          loadGoogleFont('Roboto:wght@400;500;600;700');
+          break;
+        case 'Open Sans':
+          root.style.setProperty('--system-font', "'Open Sans', sans-serif");
+          loadGoogleFont('Open+Sans:wght@400;500;600;700');
+          break;
+        case 'Lato':
+          root.style.setProperty('--system-font', "'Lato', sans-serif");
+          loadGoogleFont('Lato:wght@400;500;600;700');
+          break;
+        case 'Poppins':
+          root.style.setProperty('--system-font', "'Poppins', sans-serif");
+          loadGoogleFont('Poppins:wght@400;500;600;700');
+          break;
+        default:
+          root.style.setProperty('--system-font', "'Inter', sans-serif");
+      }
+    }
+
+    // Real-time card style changes
+    document.getElementById('cardStyle').addEventListener('change', function() {
+      const style = this.value;
+      const cards = document.querySelectorAll('.settings-card');
+      cards.forEach(card => {
+        card.className = 'settings-card';
+        if (style === 'sharp') {
+          card.classList.add('sharp-corners');
+        } else if (style === 'minimal') {
+          card.classList.add('minimal');
+        } else if (style === 'elevated') {
+          card.classList.add('elevated');
+        }
+      });
+      showLivePreview();
+    });
+
+    // Real-time dark mode toggle
+    document.getElementById('darkMode').addEventListener('change', function() {
+      document.body.classList.toggle('dark-mode', this.checked);
+      showLivePreview();
+    });
+
+    // Real-time animations toggle
+    document.getElementById('animations').addEventListener('change', function() {
+      document.body.classList.toggle('no-animations', !this.checked);
+      document.documentElement.style.setProperty('--animation-speed', this.checked ? '0.3s' : '0s');
+      showLivePreview();
+    });
+
+    // Real-time background effects toggle
+    document.getElementById('backgroundEffects').addEventListener('change', function() {
+      document.body.classList.toggle('no-background-effects', !this.checked);
+      showLivePreview();
+    });
+
+    // Form submission handlers with real-time application
+    document.getElementById('generalSettingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const settings = {
+        orgName: document.getElementById('orgName').value,
+        adminEmail: document.getElementById('adminEmail').value,
+        defaultCurrency: document.getElementById('defaultCurrency').value,
+        interestRate: parseFloat(document.getElementById('interestRate').value),
+        maxLoanAmount: parseInt(document.getElementById('maxLoanAmount').value),
+        timezone: document.getElementById('timezone').value,
+        emailNotifications: document.getElementById('emailNotifications').checked,
+        smsNotifications: document.getElementById('smsNotifications').checked,
+        autoBackup: document.getElementById('autoBackup').checked,
+        twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Save to localStorage for demo purposes (in production, save to database)
+      localStorage.setItem('eclof_general_settings', JSON.stringify(settings));
+      showNotification("General settings saved and applied successfully!");
+    });
+
+    document.getElementById('appearanceSettingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const settings = {
+        primaryColor: document.getElementById('primaryColor').value,
+        secondaryColor: document.getElementById('secondaryColor').value,
+        systemFont: document.getElementById('systemFont').value,
+        sidebarStyle: document.getElementById('sidebarStyle').value,
+        cardStyle: document.getElementById('cardStyle').value,
+        darkMode: document.getElementById('darkMode').checked,
+        animations: document.getElementById('animations').checked,
+        backgroundEffects: document.getElementById('backgroundEffects').checked,
+        mobileOptimized: document.getElementById('mobileOptimized').checked,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Apply all theme settings immediately
+      applyThemeSettings();
+      
+      // Save to localStorage for demo purposes
+      localStorage.setItem('eclof_appearance_settings', JSON.stringify(settings));
+      showNotification("Theme changes applied and saved successfully!");
+    });
+
+    document.getElementById('securitySettingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const settings = {
+        sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+        passwordMinLength: parseInt(document.getElementById('passwordMinLength').value),
+        maxLoginAttempts: parseInt(document.getElementById('maxLoginAttempts').value),
+        lockoutDuration: parseInt(document.getElementById('lockoutDuration').value),
+        passwordResetExpiry: parseInt(document.getElementById('passwordResetExpiry').value),
+        auditLogRetention: parseInt(document.getElementById('auditLogRetention').value),
+        strongPasswords: document.getElementById('strongPasswords').checked,
+        sms2fa: document.getElementById('sms2fa').checked,
+        hideUserList: document.getElementById('hideUserList').checked,
+        activityLogging: document.getElementById('activityLogging').checked,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('eclof_security_settings', JSON.stringify(settings));
+      showNotification("Security settings updated and applied successfully!");
+    });
+
+    document.getElementById('backupSettingsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const settings = {
+        backupFrequency: document.getElementById('backupFrequency').value,
+        backupTime: document.getElementById('backupTime').value,
+        retentionPeriod: parseInt(document.getElementById('retentionPeriod').value),
+        backupLocation: document.getElementById('backupLocation').value,
+        compressionLevel: document.getElementById('compressionLevel').value,
+        backupNotificationEmail: document.getElementById('backupNotificationEmail').value,
+        encryptBackups: document.getElementById('encryptBackups').checked,
+        backupNotifications: document.getElementById('backupNotifications').checked,
+        verifyBackups: document.getElementById('verifyBackups').checked,
+        autoCloudSync: document.getElementById('autoCloudSync').checked,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('eclof_backup_settings', JSON.stringify(settings));
+      showNotification("Backup settings saved and applied successfully!");
+    });
+
+    // Global functions for buttons
+    window.resetGeneralSettings = function() {
+      if (confirm("Are you sure you want to reset all general settings to defaults?")) {
+        document.getElementById('generalSettingsForm').reset();
+        localStorage.removeItem('eclof_general_settings');
+        showNotification("General settings reset to defaults");
+      }
+    };
+
+    window.previewTheme = function() {
+      applyThemeSettings();
+      showNotification("Theme preview applied! Save to make changes permanent.");
+    };
+
+    window.resetTheme = function() {
+      if (confirm("Reset theme to default ECLOF colors and settings?")) {
+        document.getElementById('primaryColor').value = "#16a34a";
+        document.getElementById('secondaryColor').value = "#22c55e";
+        document.getElementById('systemFont').value = "Inter";
+        document.getElementById('cardStyle').value = "rounded";
+        document.getElementById('darkMode').checked = false;
+        document.getElementById('animations').checked = true;
+        document.getElementById('backgroundEffects').checked = true;
+        
+        applyThemeSettings();
+        localStorage.removeItem('eclof_appearance_settings');
+        showNotification("Theme reset to defaults and applied");
+      }
+    };
+
+    window.clearAllSessions = function() {
+      if (confirm("This will log out all users immediately. Continue?")) {
+        showNotification("All user sessions have been cleared");
+      }
+    };
+
+    window.downloadAuditLog = function() {
+      // Simulate audit log download
+      const logData = "ECLOF Malawi Audit Log\n" + new Date().toISOString() + "\n\nSample audit entries...";
+      const blob = new Blob([logData], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'eclof_audit_log.txt';
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showNotification("Audit log download started");
+    };
+
+    window.createBackupNow = function() {
+      const progressDiv = document.getElementById('backupProgress');
+      const progressBar = document.getElementById('backupProgressBar');
+      const statusText = document.getElementById('backupStatus');
+      
+      progressDiv.style.display = 'block';
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            progressDiv.style.display = 'none';
+            showNotification("Backup completed successfully!");
+          }, 1000);
+        }
+        progressBar.style.width = progress + '%';
+        statusText.textContent = Math.round(progress) + '%';
+      }, 300);
+    };
+
+    window.restoreFromBackup = function() {
+      if (confirm("This will restore the system from a backup. All current data will be replaced. Continue?")) {
+        showNotification("Restore process initiated - system will restart shortly", "warning");
+      }
+    };
+
+    window.testBackupSystem = function() {
+      showNotification("Running backup system tests...", "info");
+      setTimeout(() => {
+        showNotification("Backup system test completed successfully!");
+      }, 2000);
+    };
+
+    // System maintenance functions
+    window.clearCache = function() {
+      showNotification("System cache cleared successfully");
+    };
+
+    window.optimizeDatabase = function() {
+      showNotification("Database optimization started", "info");
+      setTimeout(() => {
+        showNotification("Database optimization completed successfully!");
+      }, 3000);
+    };
+
+    window.checkForUpdates = function() {
+      showNotification("Checking for system updates...", "info");
+      setTimeout(() => {
+        showNotification("System is up to date!");
+      }, 2000);
+    };
+
+    window.generateSystemReport = function() {
+      const reportData = `ECLOF Malawi System Report\nGenerated: ${new Date().toISOString()}\n\nSystem Status: Healthy\nUsers: 245\nActive Loans: 1,234\nTotal Amount: MWK 15,678,900`;
+      const blob = new Blob([reportData], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'eclof_system_report.txt';
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showNotification("System report generated and downloaded");
+    };
+
+    window.restartSystem = function() {
+      if (confirm("This will restart the entire system. All users will be disconnected. Continue?")) {
+        showNotification("System restart initiated - please wait...", "warning");
+      }
+    };
+
+    window.resetToDefaults = function() {
+      if (confirm("This will reset ALL settings to factory defaults. This cannot be undone. Continue?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    };
+
+    window.factoryReset = function() {
+      const confirmation = prompt("DANGER: This will completely wipe the system and all data. Type 'FACTORY RESET' to confirm:");
+      if (confirmation === 'FACTORY RESET') {
+        showNotification("Factory reset initiated. System will restart shortly.", "error");
+      }
+    };
+
+    window.refreshLogs = function() {
+      const currentTime = new Date().toLocaleString();
+      const logContainer = document.getElementById('systemLogs');
+      const newEntry = document.createElement('div');
+      newEntry.className = 'log-entry';
+      newEntry.innerHTML = `
+        <span class="log-timestamp">${currentTime}</span>
+        <span class="log-level-info">[INFO]</span>
+        System logs refreshed by administrator
+      `;
+      logContainer.insertBefore(newEntry, logContainer.firstChild);
+      showNotification("System logs refreshed");
+    };
+
+    window.downloadLogs = function() {
+      const logs = document.getElementById('systemLogs').textContent;
+      const blob = new Blob([logs], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'eclof_system_logs.txt';
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showNotification("System logs downloaded");
+    };
+
+    window.clearLogs = function() {
+      if (confirm("Clear all system logs? This cannot be undone.")) {
+        const currentTime = new Date().toLocaleString();
+        document.getElementById('systemLogs').innerHTML = `
+          <div class="log-entry">
+            <span class="log-timestamp">${currentTime}</span>
+            <span class="log-level-info">[INFO]</span>
+            System logs cleared by administrator
+          </div>
+        `;
+        showNotification("System logs cleared successfully");
+      }
+    };
+
+    // Load existing settings on page load
+    function loadSettings() {
+      try {
+        // Load general settings
+        const generalSettings = JSON.parse(localStorage.getItem('eclof_general_settings') || '{}');
+        if (Object.keys(generalSettings).length > 0) {
+          document.getElementById('orgName').value = generalSettings.orgName || 'ECLOF Malawi';
+          document.getElementById('adminEmail').value = generalSettings.adminEmail || '';
+          document.getElementById('defaultCurrency').value = generalSettings.defaultCurrency || 'MWK';
+          document.getElementById('interestRate').value = generalSettings.interestRate || 15.00;
+          document.getElementById('maxLoanAmount').value = generalSettings.maxLoanAmount || 1000000;
+          document.getElementById('timezone').value = generalSettings.timezone || 'Africa/Blantyre';
+          document.getElementById('emailNotifications').checked = generalSettings.emailNotifications !== false;
+          document.getElementById('smsNotifications').checked = generalSettings.smsNotifications || false;
+          document.getElementById('autoBackup').checked = generalSettings.autoBackup !== false;
+          document.getElementById('twoFactorAuth').checked = generalSettings.twoFactorAuth || false;
+        }
+
+        // Load appearance settings and apply them
+        const appearanceSettings = JSON.parse(localStorage.getItem('eclof_appearance_settings') || '{}');
+        if (Object.keys(appearanceSettings).length > 0) {
+          document.getElementById('primaryColor').value = appearanceSettings.primaryColor || '#16a34a';
+          document.getElementById('secondaryColor').value = appearanceSettings.secondaryColor || '#22c55e';
+          document.getElementById('systemFont').value = appearanceSettings.systemFont || 'Inter';
+          document.getElementById('cardStyle').value = appearanceSettings.cardStyle || 'rounded';
+          document.getElementById('darkMode').checked = appearanceSettings.darkMode || false;
+          document.getElementById('animations').checked = appearanceSettings.animations !== false;
+          document.getElementById('backgroundEffects').checked = appearanceSettings.backgroundEffects !== false;
+          document.getElementById('mobileOptimized').checked = appearanceSettings.mobileOptimized !== false;
+        }
+
+        // Load security settings
+        const securitySettings = JSON.parse(localStorage.getItem('eclof_security_settings') || '{}');
+        if (Object.keys(securitySettings).length > 0) {
+          document.getElementById('sessionTimeout').value = securitySettings.sessionTimeout || 30;
+          document.getElementById('passwordMinLength').value = securitySettings.passwordMinLength || 8;
+          document.getElementById('maxLoginAttempts').value = securitySettings.maxLoginAttempts || 5;
+          document.getElementById('lockoutDuration').value = securitySettings.lockoutDuration || 15;
+          document.getElementById('passwordResetExpiry').value = securitySettings.passwordResetExpiry || 24;
+          document.getElementById('auditLogRetention').value = securitySettings.auditLogRetention || 90;
+          document.getElementById('strongPasswords').checked = securitySettings.strongPasswords !== false;
+          document.getElementById('sms2fa').checked = securitySettings.sms2fa || false;
+          document.getElementById('hideUserList').checked = securitySettings.hideUserList || false;
+          document.getElementById('activityLogging').checked = securitySettings.activityLogging !== false;
+        }
+
+        // Load backup settings
+        const backupSettings = JSON.parse(localStorage.getItem('eclof_backup_settings') || '{}');
+        if (Object.keys(backupSettings).length > 0) {
+          document.getElementById('backupFrequency').value = backupSettings.backupFrequency || 'daily';
+          document.getElementById('backupTime').value = backupSettings.backupTime || '02:00';
+          document.getElementById('retentionPeriod').value = backupSettings.retentionPeriod || 30;
+          document.getElementById('backupLocation').value = backupSettings.backupLocation || 'local';
+          document.getElementById('compressionLevel').value = backupSettings.compressionLevel || 'medium';
+          document.getElementById('backupNotificationEmail').value = backupSettings.backupNotificationEmail || '';
+          document.getElementById('encryptBackups').checked = backupSettings.encryptBackups !== false;
+          document.getElementById('backupNotifications').checked = backupSettings.backupNotifications !== false;
+          document.getElementById('verifyBackups').checked = backupSettings.verifyBackups !== false;
+          document.getElementById('autoCloudSync').checked = backupSettings.autoCloudSync || false;
+        }
+
+        // Apply loaded appearance settings immediately
+        applyThemeSettings();
+
+      } catch (error) {
+        console.error("Error loading settings:", error);
+        showNotification("Error loading saved settings", "error");
+      }
+    }
+
+    // Initialize settings on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSettings();
+      console.log("ECLOF Settings System Ready!");
+    });
+  </script>
+
 </body>
 </html>

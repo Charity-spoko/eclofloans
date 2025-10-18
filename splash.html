@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECLOF Malawi - Loading</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background elements */
+        .bg-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.1;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ffffff, transparent);
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #d1fae5, transparent);
+            bottom: -30px;
+            left: -30px;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #a7f3d0, transparent);
+            top: 20%;
+            left: 10%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+                opacity: 0.1;
+            }
+            50% { 
+                transform: translateY(-30px) scale(1.1);
+                opacity: 0.2;
+            }
+        }
+
+        /* Main splash container */
+        .splash-container {
+            text-align: center;
+            color: white;
+            z-index: 10;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo container */
+        .logo-container {
+            margin-bottom: 2rem;
+            animation: scaleIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff, #d1fae5);
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.3),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-circle::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #10b981, #22c55e, #34d399, #10b981);
+            border-radius: 50%;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #064e3b;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Company name */
+        .company-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff, #d1fae5, #bbf7d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% {
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+            }
+            100% {
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            }
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #d1fae5;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.9; }
+        }
+
+        /* Loading section */
+        .loading-section {
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #bbf7d0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        /* Loading spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-dots {
+            font-size: 1.5rem;
+            color: #ffffff;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #d1fae5, #bbf7d0);
+            border-radius: 2px;
+            width: 0%;
+            animation: progressLoad 2s ease-in-out;
+        }
+
+        @keyframes progressLoad {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        .loading-status {
+            font-size: 0.9rem;
+            color: #a7f3d0;
+            font-weight: 500;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .splash-container {
+                padding: 1rem;
+                max-width: 350px;
+            }
+
+            .logo-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-text {
+                font-size: 1.8rem;
+            }
+
+            .company-name {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+        }
+
+        /* Hide splash after loading */
+        .splash-hidden {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s ease-out;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+
+    <!-- Main splash screen -->
+    <div class="splash-container" id="splashScreen">
+        <!-- Logo -->
+        <div class="logo-container">
+            <div class="logo-circle">
+                <div class="logo-text">ECLOF</div>
+            </div>
+        </div>
+
+        <!-- Company info -->
+        <h1 class="company-name">ECLOF Malawi</h1>
+        <p class="tagline">Empowering Communities Through Microfinance</p>
+
+        <!-- Loading section -->
+        <div class="loading-section">
+            <div class="loading-text">Loading your dashboard...</div>
+            
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <div class="loading-dots">...</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="loading-status" id="loadingStatus">Initializing system...</div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate loading process with status updates
+        const loadingMessages = [
+            "Initializing system...",
+            "Connecting to database...",
+            "Loading user preferences...",
+            "Preparing dashboard...",
+            "Almost ready!"
+        ];
+
+        let currentMessage = 0;
+        const statusElement = document.getElementById('loadingStatus');
+        
+        // Update loading messages
+        const messageInterval = setInterval(() => {
+            if (currentMessage < loadingMessages.length - 1) {
+                currentMessage++;
+                statusElement.textContent = loadingMessages[currentMessage];
+            }
+        }, 500);
+
+        // Simulate loading completion
+        setTimeout(() => {
+            clearInterval(messageInterval);
+            statusElement.textContent = "Ready!";
+            
+            // Hide splash screen after 2.5 seconds total
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('splash-hidden');
+                
+                // Redirect to main app after fade out
+                setTimeout(() => {
+                    // Replace with your main dashboard URL
+                    window.location.href = 'onboarding.html'; // or 'onboarding.html'
+                }, 500);
+            }, 300);
+        }, 2000);
+
+        // Optional: Allow click to skip
+        document.addEventListener('click', () => {
+            clearInterval(messageInterval);
+            document.getElementById('splashScreen').classList.add('splash-hidden');
+            setTimeout(() => {
+                window.location.href = 'onboarding.html'; // or 'branchmanager (3).html'
+            }, 500);
+        });
+
+        // Prevent right-click during splash
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add User - ECLOF Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      min-height: 100vh;
+    }
+    
+    .form-container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(6, 78, 59, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #22c55e, #34d399);
+      border-radius: 20px 20px 0 0;
+    }
+    
+    .form-label {
+      color: #064e3b;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #6b7280, #9ca3af);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #4b5563, #6b7280);
+      transform: translateY(-1px);
+    }
+    
+    .role-info {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .header-title {
+      color: #064e3b;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .input-group-text {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border: 1px solid #d1d5db;
+      color: #064e3b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="form-container position-relative">
+          <h2 class="header-title">
+            <i class="bi bi-person-plus-fill me-2 text-success"></i>
+            Add New User to ECLOF System
+          </h2>
+
+          <form id="addUserForm" class="needs-validation" novalidate>
+            <!-- Full Name Field -->
+            <div class="mb-3">
+              <label for="fullName" class="form-label">
+                <i class="bi bi-person me-1"></i>Full Name
+              </label>
+              <input 
+                type="text" 
+                id="fullName" 
+                class="form-control" 
+                placeholder="Enter full name (e.g., John Banda)" 
+                required 
+              />
+              <div class="invalid-feedback">Full name is required.</div>
+              <small class="text-muted">This name will be displayed in the user's portal</small>
+            </div>
+
+            <!-- Username Field -->
+            <div class="mb-3">
+              <label for="username" class="form-label">
+                <i class="bi bi-at me-1"></i>Username
+              </label>
+              <input 
+                type="text" 
+                id="username" 
+                class="form-control" 
+                placeholder="Enter username (e.g., jbanda)" 
+                required 
+              />
+              <div class="invalid-feedback">Username is required.</div>
+              <small class="text-muted">Used for login authentication</small>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <i class="bi bi-lock me-1"></i>Password
+              </label>
+              <div class="input-group">
+                <input 
+                  type="password" 
+                  id="password" 
+                  class="form-control" 
+                  placeholder="Enter secure password" 
+                  required 
+                  minlength="6"
+                />
+                <button type="button" id="togglePassword" class="btn btn-outline-secondary">
+                  <i class="bi bi-eye" id="eyeIcon"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback">Password must be at least 6 characters.</div>
+            </div>
+
+            <!-- Role Field -->
+            <div class="mb-3">
+              <label for="role" class="form-label">
+                <i class="bi bi-shield-check me-1"></i>Role
+              </label>
+              <select id="role" class="form-select" required>
+                <option value="">Select user role</option>
+                <option value="loan_officer">Loan Officer</option>
+                <option value="branch_manager">Branch Manager</option>
+                <option value="admin">System Admin</option>
+              </select>
+              <div class="invalid-feedback">Role selection is required.</div>
+              
+              <!-- Role Information Display -->
+              <div id="roleInfo" class="role-info" style="display: none;">
+                <strong>Permissions:</strong>
+                <div id="rolePermissions"></div>
+              </div>
+            </div>
+
+            <!-- Branch Field (for non-admin users) -->
+            <div class="mb-3" id="branchField" style="display: none;">
+              <label for="branch" class="form-label">
+                <i class="bi bi-building me-1"></i>Branch
+              </label>
+              <select id="branch" class="form-select">
+                <option value="">Select branch</option>
+                <option value="Lilongwe">Lilongwe</option>
+                <option value="Blantyre">Blantyre</option>
+                <option value="Mzuzu">Mzuzu</option>
+                <option value="Zomba">Zomba</option>
+                <option value="Kasungu">Kasungu</option>
+              </select>
+              <small class="text-muted">Optional: Assign user to specific branch</small>
+            </div>
+
+            <!-- Email Field (Optional) -->
+            <div class="mb-3">
+              <label for="email" class="form-label">
+                <i class="bi bi-envelope me-1"></i>Email Address (Optional)
+              </label>
+              <input 
+                type="email" 
+                id="email" 
+                class="form-control" 
+                placeholder="Enter email address" 
+              />
+              <small class="text-muted">For notifications and password recovery</small>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button type="submit" class="btn btn-success" id="submitBtn">
+                <i class="bi bi-check-lg me-1"></i>Add User
+              </button>
+              <a href="users.html" class="btn btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Users
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">
+        User added successfully to ECLOF system!
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Role permissions mapping
+    const rolePermissions = {
+      'loan_officer': [
+        '✅ Approve/Reject loan applications',
+        '✅ Disburse approved loans', 
+        '✅ Add new borrowers',
+        '✅ Edit borrower information',
+        '✅ Delete borrowers',
+        '✅ Record loan repayments',
+        '✅ Generate reports',
+        '❌ Cannot access admin settings'
+      ],
+      'branch_manager': [
+        '👁️ View all loan applications',
+        '👁️ View borrower information', 
+        '👁️ View repayment records',
+        '👁️ View branch reports',
+        '👁️ View dashboard analytics',
+        '❌ Cannot approve/reject loans',
+        '❌ Cannot add/edit/delete borrowers',
+        '❌ Cannot access admin settings'
+      ],
+      'admin': [
+        '🛡️ Full system access',
+        '🛡️ Manage all users',
+        '🛡️ System configuration',
+        '🛡️ Access all branches',
+        '🛡️ Generate system reports',
+        '🛡️ Database management',
+        '🛡️ Security settings'
+      ]
+    };
+
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const pwInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+      
+      if (pwInput.type === 'password') {
+        pwInput.type = 'text';
+        eyeIcon.className = 'bi bi-eye-slash';
+      } else {
+        pwInput.type = 'password';
+        eyeIcon.className = 'bi bi-eye';
+      }
+    });
+
+    // Role selection handler
+    document.getElementById('role').addEventListener('change', function() {
+      const roleInfo = document.getElementById('roleInfo');
+      const rolePermissionsDiv = document.getElementById('rolePermissions');
+      const branchField = document.getElementById('branchField');
+      const selectedRole = this.value;
+
+      if (selectedRole) {
+        roleInfo.style.display = 'block';
+        rolePermissionsDiv.innerHTML = rolePermissions[selectedRole]
+          .map(perm => `<div class="mb-1">${perm}</div>`)
+          .join('');
+        
+        // Show branch field for non-admin users
+        if (selectedRole !== 'admin') {
+          branchField.style.display = 'block';
+        } else {
+          branchField.style.display = 'none';
+        }
+      } else {
+        roleInfo.style.display = 'none';
+        branchField.style.display = 'none';
+      }
+    });
+
+    // Form validation and submission
+    const form = document.getElementById('addUserForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
+      
+      try {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Adding User...';
+
+        const fullName = document.getElementById('fullName').value.trim();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const role = document.getElementById('role').value;
+        const branch = document.getElementById('branch').value;
+        const email = document.getElementById('email').value.trim();
+
+        // Check if username already exists
+        const usernameQuery = query(collection(db, "users"), where("username", "==", username));
+        const existingUsers = await getDocs(usernameQuery);
+        
+        if (!existingUsers.empty) {
+          alert("❌ Username already exists. Please choose a different username.");
+          return;
+        }
+
+        // Prepare user data
+        const userData = {
+          fullName,
+          username,
+          password,
+          role,
+          permissions: rolePermissions[role].join('\n'),
+          createdAt: serverTimestamp(),
+          isActive: true,
+          lastLogin: null
+        };
+
+        // Add optional fields
+        if (branch) userData.branch = branch;
+        if (email) userData.email = email;
+
+        // Add user to Firestore
+        await addDoc(collection(db, "users"), userData);
+        
+        // Show success notification
+        const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+        successToast.show();
+        
+        // Reset form
+        form.reset();
+        form.classList.remove('was-validated');
+        document.getElementById('roleInfo').style.display = 'none';
+        document.getElementById('branchField').style.display = 'none';
+        
+        console.log("✅ User added successfully:", { fullName, username, role });
+
+      } catch (error) {
+        console.error("❌ Error adding user:", error);
+        alert("Failed to add user. Please try again.");
+      } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+
+    // Auto-generate username from full name
+    document.getElementById('fullName').addEventListener('input', function() {
+      const fullName = this.value.trim();
+      const usernameField = document.getElementById('username');
+      
+      if (fullName && !usernameField.value) {
+        // Generate username from full name (first name + first letter of last name)
+        const nameParts = fullName.toLowerCase().split(' ');
+        if (nameParts.length >= 2) {
+          const suggestedUsername = nameParts[0] + nameParts[nameParts.length - 1].charAt(0);
+          usernameField.placeholder = `Suggested: ${suggestedUsername}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

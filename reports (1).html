@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECLOF Malawi - Loan Reports</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Updated library versions for better compatibility -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Updated PDF libraries with better compatibility -->
+  <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.min.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+      color: white;
+      padding: 2rem 0;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-header.btn-success {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .btn-header.btn-success:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      color: white;
+    }
+
+    .btn-header.btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+
+    .btn-header.btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+    }
+
+    .main-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 
+        0 10px 40px rgba(6, 78, 59, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      overflow: hidden;
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 1.5rem;
+    }
+
+    .stats-row {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #047857, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .search-section {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+    }
+
+    .search-box input {
+      padding-left: 2.5rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+
+    .table-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody tr:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(34, 197, 94, 0.03));
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border: none;
+    }
+
+    .borrower-name {
+      font-weight: 600;
+      color: #064e3b;
+    }
+
+    .amount-display {
+      font-weight: 700;
+      color: #047857;
+      font-size: 1.1rem;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-active {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    .status-overdue {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      border: 1px solid #fbbf24;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+      top: 15%;
+      right: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08), rgba(52, 211, 153, 0.04));
+      bottom: 20%;
+      left: 5%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+      50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    /* Export button loading states */
+    .btn-loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      margin: auto;
+      border: 2px solid transparent;
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Financial reporting enhancements */
+    .financial-metrics {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.1);
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .date-filter-section {
+      background: linear-gradient(135deg, #fefce8, #fef3c7);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .performance-indicator {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .indicator-excellent { background: #dcfce7; color: #166534; }
+    .indicator-good { background: #dbeafe; color: #1e40af; }
+    .indicator-warning { background: #fef3c7; color: #92400e; }
+    .indicator-poor { background: #fee2e2; color: #dc2626; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        text-align: center;
+      }
+      
+      .header-actions {
+        justify-content: center;
+        width: 100%;
+      }
+      
+      .btn-header {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+      }
+      
+      .table-responsive {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating background shapes -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1><i class="bi bi-file-earmark-text me-2"></i>📊 Loan Reports</h1>
+        <div class="header-actions">
+          <button class="btn-header btn-success" onclick="exportToPDF()" id="pdfBtn">
+            <i class="bi bi-file-earmark-pdf"></i>Export PDF
+          </button>
+          <button class="btn-header btn-primary" onclick="exportToExcel()" id="excelBtn">
+            <i class="bi bi-file-earmark-excel"></i>Export Excel
+          </button>
+          <a href="branchmanager (3).html" class="btn-header">
+            <i class="bi bi-house-door"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    
+    <!-- Financial Year Filter Section -->
+    <div class="date-filter-section">
+      <div class="row align-items-center">
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Financial Year:</label>
+          <select class="form-select" id="financialYear">
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Quarter:</label>
+          <select class="form-select" id="quarter">
+            <option value="all">All Quarters</option>
+            <option value="Q1">Q1 (Jan-Mar)</option>
+            <option value="Q2">Q2 (Apr-Jun)</option>
+            <option value="Q3">Q3 (Jul-Sep)</option>
+            <option value="Q4">Q4 (Oct-Dec)</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Loan Status:</label>
+          <select class="form-select" id="statusFilter">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="overdue">Overdue</option>
+            <option value="defaulted">Defaulted</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-success w-100" onclick="applyFilters()">
+            <i class="bi bi-funnel"></i> Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Financial Metrics Section -->
+    <div class="financial-metrics">
+      <h5 class="text-primary mb-3"><i class="bi bi-graph-up me-2"></i>Financial Performance Metrics</h5>
+      <div class="row">
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="portfolioValue">MWK 0</div>
+            <div class="metric-label">Portfolio Value</div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="interestEarned">MWK 0</div>
+            <div class="metric-label">Interest Earned</div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="defaultRate">0%</div>
+            <div class="metric-label">Default Rate</div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="recoveryRate">0%</div>
+            <div class="metric-label">Recovery Rate</div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="avgLoanSize">MWK 0</div>
+            <div class="metric-label">Avg Loan Size</div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="metric-card">
+            <div class="metric-value" id="portfolioRisk">Low</div>
+            <div class="metric-label">Portfolio Risk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Row -->
+    <div class="stats-row">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="totalLoans">0</div>
+            <div class="stat-label">Total Loans</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="totalAmount">MWK 0</div>
+            <div class="stat-label">Total Amount</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="totalPaid">MWK 0</div>
+            <div class="stat-label">Total Paid</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="activeLoans">0</div>
+            <div class="stat-label">Active Loans</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+      <div class="card-header-custom">
+        <h4 class="mb-0 text-success">
+          <i class="bi bi-table me-2"></i>
+          Loan Report Data
+        </h4>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-section">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input type="text" id="filterInput" class="form-control" placeholder="Filter by borrower name or status...">
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading report data...</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-container" id="tableContainer" style="display: none;">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="18%">Borrower</th>
+                <th width="10%">Loan Term</th>
+                <th width="12%">Principal Amount</th>
+                <th width="10%">Interest (15%)</th>
+                <th width="12%">Total Due</th>
+                <th width="10%">Status</th>
+                <th width="12%">Total Paid</th>
+                <th width="11%">Outstanding</th>
+              </tr>
+            </thead>
+            <tbody id="reportTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="bi bi-inbox"></i>
+        <h4>No Report Data Found</h4>
+        <p>No loan data is available for the report.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        Report exported successfully!
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="errorToast" class="toast" role="alert">
+      <div class="toast-header bg-danger text-white">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong class="me-auto">Error</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="errorMessage">
+        An error occurred while exporting the report.
+      </div>
+    </div>
+  </div>
+
+  <!-- ECLOF Watermark -->
+  <div id="watermark">ECLOF Malawi</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script type="module">
+    console.log("🔥 ECLOF Financial Reports System Loading...");
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, onSnapshot, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let reportData = [];
+    let filteredData = [];
+    let paymentsData = []; // Store payments separately
+
+    // Calculate loan amounts with 15% interest - using actual loan term from database
+    function calculateLoanAmounts(principalAmount, loanTermMonths) {
+      if (!loanTermMonths || loanTermMonths <= 0) {
+        console.warn("Invalid loan term provided:", loanTermMonths);
+        return {
+          principal: principalAmount,
+          interestAmount: 0,
+          totalAmount: principalAmount,
+          monthlyPayment: 0,
+          termMonths: 0
+        };
+      }
+      
+      const interestRate = 0.15; // 15% annual interest rate
+      const interestAmount = principalAmount * interestRate;
+      const totalLoanAmount = principalAmount + interestAmount;
+      const monthlyPayment = totalLoanAmount / loanTermMonths;
+      
+      return {
+        principal: principalAmount,
+        interestAmount: interestAmount,
+        totalAmount: totalLoanAmount,
+        monthlyPayment: monthlyPayment,
+        termMonths: loanTermMonths
+      };
+    }
+
+    // Helper function to format large numbers with abbreviations
+    function formatCurrency(amount) {
+      if (amount >= 1000000000) {
+        return `MWK ${(amount / 1000000000).toFixed(1)}B`;
+      } else if (amount >= 1000000) {
+        return `MWK ${(amount / 1000000).toFixed(1)}M`;
+      } else if (amount >= 1000) {
+        return `MWK ${(amount / 1000).toFixed(1)}K`;
+      }
+      return `MWK ${amount.toLocaleString()}`;
+    }
+
+    function showLoading() {
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("tableContainer").style.display = "block";
+    }
+
+    function showEmptyState() {
+      document.getElementById("emptyState").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+    }
+
+    function showNotification(message, type = 'success') {
+      const toastId = type === 'success' ? 'successToast' : 'errorToast';
+      const messageId = type === 'success' ? 'toastMessage' : 'errorMessage';
+      
+      document.getElementById(messageId).textContent = message;
+      const toast = new bootstrap.Toast(document.getElementById(toastId));
+      toast.show();
+    }
+
+    function getStatusClass(status) {
+      const statusLower = status.toLowerCase();
+      if (statusLower.includes('active') || statusLower.includes('approved')) return 'status-active';
+      if (statusLower.includes('completed') || statusLower.includes('paid')) return 'status-completed';
+      if (statusLower.includes('overdue') || statusLower.includes('defaulter')) return 'status-overdue';
+      return 'status-pending';
+    }
+
+    function formatDate(dateValue) {
+      if (!dateValue) return '-';
+      
+      let date;
+      if (dateValue.toDate) {
+        date = dateValue.toDate();
+      } else if (typeof dateValue === 'string') {
+        date = new Date(dateValue);
+      } else {
+        date = new Date(dateValue);
+      }
+      
+      if (isNaN(date.getTime())) return '-';
+      
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
+    function calculateFinancialMetrics(data) {
+      const totalPortfolio = data.reduce((sum, loan) => sum + (loan.principalAmount || 0), 0);
+      const totalInterest = data.reduce((sum, loan) => {
+        const principal = loan.principalAmount || 0;
+        const rate = 0.15; // 15% interest rate
+        return sum + (principal * rate);
+      }, 0);
+      
+      const overdueLoans = data.filter(loan => {
+        return loan.outstandingBalance > 0 && loan.status.toLowerCase() !== 'completed';
+      });
+      
+      const defaultRate = data.length > 0 ? (overdueLoans.length / data.length) * 100 : 0;
+      const avgLoanSize = data.length > 0 ? totalPortfolio / data.length : 0;
+      
+      // Calculate recovery rate
+      const totalPaid = data.reduce((sum, loan) => sum + (loan.totalPaid || 0), 0);
+      const totalDue = totalPortfolio + totalInterest;
+      const recoveryRate = totalDue > 0 ? (totalPaid / totalDue) * 100 : 0;
+      
+      // Portfolio risk assessment
+      let riskLevel = 'Low';
+      if (defaultRate > 15) riskLevel = 'High';
+      else if (defaultRate > 8) riskLevel = 'Medium';
+      
+      return {
+        portfolioValue: totalPortfolio,
+        interestEarned: totalInterest,
+        defaultRate: defaultRate.toFixed(1),
+        recoveryRate: recoveryRate.toFixed(1),
+        avgLoanSize: avgLoanSize,
+        portfolioRisk: riskLevel
+      };
+    }
+
+    function getPerformanceIndicator(loan) {
+      const outstandingBalance = loan.outstandingBalance || 0;
+      const totalDue = loan.totalLoanAmount || 0;
+      const paidRatio = totalDue > 0 ? (loan.totalPaid || 0) / totalDue : 0;
+      
+      if (outstandingBalance === 0 || loan.status.toLowerCase() === 'completed') {
+        return { class: 'indicator-excellent', text: 'Fully Paid' };
+      } else if (paidRatio > 0.8) {
+        return { class: 'indicator-good', text: 'Good' };
+      } else if (paidRatio > 0.5) {
+        return { class: 'indicator-warning', text: 'Fair' };
+      } else if (paidRatio > 0.2) {
+        return { class: 'indicator-warning', text: 'Behind' };
+      } else {
+        return { class: 'indicator-poor', text: 'Poor' };
+      }
+    }
+
+    // Fetch and consolidate data from both collections
+    async function fetchData() {
+      showLoading();
+      
+      try {
+        console.log("📊 Fetching loan applications and payments data...");
+        
+        // First fetch all payments to create a lookup map
+        const paymentsSnapshot = await getDocs(collection(db, "payments"));
+        const paymentsByLoanId = {};
+        
+        paymentsSnapshot.forEach(doc => {
+          const paymentData = doc.data();
+          const loanId = paymentData.loanId;
+          
+          if (!paymentsByLoanId[loanId]) {
+            paymentsByLoanId[loanId] = [];
+          }
+          
+          paymentsByLoanId[loanId].push({
+            id: doc.id,
+            amount: paymentData.amount || 0,
+            date: paymentData.date,
+            method: paymentData.method,
+            status: paymentData.status || 'completed',
+            recordedBy: paymentData.recordedBy,
+            recordedAt: paymentData.recordedAt
+          });
+        });
+
+        console.log(`💰 Found payments for ${Object.keys(paymentsByLoanId).length} loans`);
+
+        // Now fetch loan applications and merge with payment data
+        onSnapshot(collection(db, "loan_applications"), (querySnapshot) => {
+          reportData = [];
+          let totalAmount = 0;
+          let totalPaid = 0;
+          let activeCount = 0;
+
+          querySnapshot.forEach(doc => {
+            const data = doc.data();
+            const loanId = doc.id;
+            
+            // Get loan term from various possible fields - NO DEFAULT VALUE
+            let loanTermMonths = null;
+            if (data.loanTerm) {
+              loanTermMonths = parseInt(data.loanTerm);
+            } else if (data.loanTermMonths) {
+              loanTermMonths = parseInt(data.loanTermMonths);
+            } else if (data.termInMonths) {
+              loanTermMonths = parseInt(data.termInMonths);
+            } else if (data.repaymentPeriod) {
+              loanTermMonths = parseInt(data.repaymentPeriod);
+            } else if (data.loanPeriod) {
+              loanTermMonths = parseInt(data.loanPeriod);
+            }
+            
+            // Skip loans without valid loan terms
+            if (!loanTermMonths || loanTermMonths <= 0) {
+              console.warn(`Skipping loan ${loanId}: Invalid or missing loan term. Available fields:`, {
+                loanTerm: data.loanTerm,
+                loanTermMonths: data.loanTermMonths,
+                termInMonths: data.termInMonths,
+                repaymentPeriod: data.repaymentPeriod,
+                loanPeriod: data.loanPeriod
+              });
+              return; // Skip this loan
+            }
+            
+            // Get principal amount
+            const principalAmount = parseFloat(data.loanAmount) || parseFloat(data.requestedLoanAmount) || 0;
+            
+            if (principalAmount <= 0) {
+              console.warn(`Skipping loan ${loanId}: Invalid loan amount`);
+              return; // Skip this loan
+            }
+            
+            // Calculate total loan amount with 15% interest using actual term
+            const loanAmounts = calculateLoanAmounts(principalAmount, loanTermMonths);
+            
+            // Get payment history from both sources
+            let allPayments = [];
+            
+            // 1. From loan application's repaymentHistory
+            if (data.repaymentHistory && Array.isArray(data.repaymentHistory)) {
+              allPayments = [...data.repaymentHistory];
+            }
+            
+            // 2. From separate payments collection
+            if (paymentsByLoanId[loanId]) {
+              // Merge payments, avoiding duplicates by checking dates and amounts
+              const existingPayments = allPayments.map(p => `${p.date}-${p.amount}`);
+              
+              paymentsByLoanId[loanId].forEach(payment => {
+                const paymentKey = `${payment.date}-${payment.amount}`;
+                if (!existingPayments.includes(paymentKey)) {
+                  allPayments.push(payment);
+                }
+              });
+            }
+            
+            // Calculate total paid from all payments
+            const totalPaidAmount = allPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+            
+            // Calculate outstanding balance
+            const outstandingBalance = Math.max(0, loanAmounts.totalAmount - totalPaidAmount);
+            
+            // Determine status based on payments and outstanding balance
+            let loanStatus = data.status || "Unknown";
+            if (outstandingBalance === 0 && totalPaidAmount > 0) {
+              loanStatus = "Completed";
+            } else if (loanStatus.toLowerCase() === 'approved' && totalPaidAmount > 0) {
+              loanStatus = "Active";
+            }
+            
+            // Count active loans
+            if (loanStatus.toLowerCase() === 'approved' || loanStatus.toLowerCase() === 'active') {
+              activeCount++;
+            }
+            
+            totalAmount += principalAmount;
+            totalPaid += totalPaidAmount;
+            
+            // Determine display name based on loan type
+            const displayName = data.loanType === 'Group' ? 
+              (data.groupName || 'No Group Name') : 
+              (data.fullName || data.borrowerName || "N/A");
+            
+            reportData.push({
+              id: loanId,
+              name: displayName,
+              principalAmount: principalAmount,
+              interestAmount: loanAmounts.interestAmount,
+              totalLoanAmount: loanAmounts.totalAmount,
+              monthlyPayment: loanAmounts.monthlyPayment,
+              loanTermMonths: loanTermMonths, // Actual term from database
+              status: loanStatus,
+              totalPaid: totalPaidAmount,
+              outstandingBalance: outstandingBalance,
+              loanType: data.loanType || "Individual",
+              approvedDate: data.approvedDate,
+              repaymentHistory: allPayments,
+              paymentCount: allPayments.length
+            });
+          });
+
+          console.log(`📋 Processed ${reportData.length} loan records`);
+          console.log(`💵 Total payments tracked: MWK ${totalPaid.toLocaleString()}`);
+
+          // Update statistics with formatted currency
+          document.getElementById('totalLoans').textContent = reportData.length;
+          document.getElementById('totalAmount').textContent = formatCurrency(totalAmount);
+          document.getElementById('totalPaid').textContent = formatCurrency(totalPaid);
+          document.getElementById('activeLoans').textContent = activeCount;
+
+          // Update financial metrics
+          const metrics = calculateFinancialMetrics(reportData);
+          document.getElementById('portfolioValue').textContent = formatCurrency(metrics.portfolioValue);
+          document.getElementById('interestEarned').textContent = formatCurrency(metrics.interestEarned);
+          document.getElementById('defaultRate').textContent = `${metrics.defaultRate}%`;
+          document.getElementById('recoveryRate').textContent = `${metrics.recoveryRate}%`;
+          document.getElementById('avgLoanSize').textContent = formatCurrency(metrics.avgLoanSize);
+          document.getElementById('portfolioRisk').textContent = metrics.portfolioRisk;
+
+          filteredData = [...reportData];
+          populateTable(filteredData);
+          hideLoading();
+        });
+
+      } catch (error) {
+        console.error("❌ Error fetching data:", error);
+        showEmptyState();
+        showNotification("Error loading report data", "error");
+      }
+    }
+
+    function populateTable(data) {
+      const table = document.getElementById("reportTable");
+      table.innerHTML = "";
+      
+      if (data.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      data.forEach((row, i) => {
+        const performance = getPerformanceIndicator(row);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="text-center fw-bold">${i + 1}</td>
+          <td>
+            <div class="borrower-name">${row.name}</div>
+            <small class="text-muted">${row.loanType} • ${row.paymentCount} payments</small>
+          </td>
+          <td class="text-center">${row.loanTermMonths} months</td>
+          <td><span class="amount-display">${formatCurrency(row.principalAmount)}</span></td>
+          <td><span class="amount-display">${formatCurrency(row.interestAmount)}</span></td>
+          <td><span class="amount-display">${formatCurrency(row.totalLoanAmount)}</span></td>
+          <td>
+            <span class="status-badge ${getStatusClass(row.status)}">${row.status}</span>
+          </td>
+          <td><span class="amount-display">${formatCurrency(row.totalPaid)}</span></td>
+          <td>
+            <span class="amount-display ${row.outstandingBalance > 0 ? 'text-warning' : 'text-success'}">
+              ${formatCurrency(row.outstandingBalance)}
+            </span>
+            <div class="mt-1">
+              <span class="performance-indicator ${performance.class}">${performance.text}</span>
+            </div>
+          </td>
+        `;
+        table.appendChild(tr);
+      });
+    }
+
+    window.applyFilters = function() {
+      const year = document.getElementById('financialYear').value;
+      const quarter = document.getElementById('quarter').value;
+      const status = document.getElementById('statusFilter').value;
+      
+      filteredData = reportData.filter(loan => {
+        // Year filter
+        const loanYear = loan.approvedDate ? 
+          (loan.approvedDate.toDate ? loan.approvedDate.toDate().getFullYear() : new Date(loan.approvedDate).getFullYear()) : 
+          new Date().getFullYear();
+        
+        if (loanYear.toString() !== year) return false;
+        
+        // Quarter filter
+        if (quarter !== 'all') {
+          const loanMonth = loan.approvedDate ? 
+            (loan.approvedDate.toDate ? loan.approvedDate.toDate().getMonth() : new Date(loan.approvedDate).getMonth()) : 
+            new Date().getMonth();
+          
+          const quarterMonths = {
+            'Q1': [0, 1, 2], 'Q2': [3, 4, 5], 'Q3': [6, 7, 8], 'Q4': [9, 10, 11]
+          };
+          
+          if (!quarterMonths[quarter].includes(loanMonth)) return false;
+        }
+        
+        // Status filter
+        if (status !== 'all') {
+          if (status === 'completed' && loan.outstandingBalance > 0) return false;
+          if (status === 'active' && loan.outstandingBalance === 0) return false;
+          if (status !== 'completed' && status !== 'active' && loan.status.toLowerCase() !== status.toLowerCase()) return false;
+        }
+        
+        return true;
+      });
+      
+      populateTable(filteredData);
+      
+      // Update metrics for filtered data
+      const metrics = calculateFinancialMetrics(filteredData);
+      document.getElementById('portfolioValue').textContent = formatCurrency(metrics.portfolioValue);
+      document.getElementById('interestEarned').textContent = formatCurrency(metrics.interestEarned);
+      document.getElementById('defaultRate').textContent = `${metrics.defaultRate}%`;
+      document.getElementById('recoveryRate').textContent = `${metrics.recoveryRate}%`;
+      document.getElementById('avgLoanSize').textContent = formatCurrency(metrics.avgLoanSize);
+      document.getElementById('portfolioRisk').textContent = metrics.portfolioRisk;
+    };
+
+    // Enhanced PDF Export Function
+    window.exportToPDF = function() {
+      const pdfBtn = document.getElementById('pdfBtn');
+      const originalText = pdfBtn.innerHTML;
+      
+      try {
+        pdfBtn.classList.add('btn-loading');
+        pdfBtn.innerHTML = '<span style="opacity: 0;">Generating PDF...</span>';
+        
+        setTimeout(() => {
+          try {
+            const { jsPDF } = window.jspdf || window;
+            
+            if (!jsPDF) {
+              throw new Error('jsPDF not available');
+            }
+
+            const doc = new jsPDF('landscape', 'mm', 'a4');
+
+            // Header
+            doc.setFontSize(24);
+            doc.setTextColor(6, 78, 59);
+            doc.text("ECLOF Malawi", 20, 25);
+            
+            doc.setFontSize(18);
+            doc.setTextColor(4, 120, 87);
+            doc.text("Comprehensive Loan Report", 20, 35);
+            
+            // Generation info
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 45);
+            doc.text(`Total Records: ${filteredData.length}`, 20, 50);
+
+            // Financial summary
+            const totalPrincipal = filteredData.reduce((sum, item) => sum + (item.principalAmount || 0), 0);
+            const totalInterest = filteredData.reduce((sum, item) => sum + (item.interestAmount || 0), 0);
+            const totalPaid = filteredData.reduce((sum, item) => sum + (item.totalPaid || 0), 0);
+            const totalOutstanding = filteredData.reduce((sum, item) => sum + (item.outstandingBalance || 0), 0);
+            const completedLoans = filteredData.filter(item => item.outstandingBalance === 0).length;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(6, 78, 59);
+            doc.text("Financial Summary:", 20, 65);
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Total Principal: ${formatCurrency(totalPrincipal)}`, 20, 72);
+            doc.text(`Total Interest (15%): ${formatCurrency(totalInterest)}`, 20, 78);
+            doc.text(`Total Portfolio Value: ${formatCurrency(totalPrincipal + totalInterest)}`, 20, 84);
+            doc.text(`Total Amount Collected: ${formatCurrency(totalPaid)}`, 20, 90);
+            doc.text(`Outstanding Balance: ${formatCurrency(totalOutstanding)}`, 20, 96);
+            doc.text(`Completed Loans: ${completedLoans} of ${filteredData.length}`, 20, 102);
+
+            const tableData = filteredData.map((item, index) => [
+              (index + 1).toString(),
+              `${item.name} (${item.loanType})`,
+              `${item.loanTermMonths}m`,
+              formatCurrency(item.principalAmount),
+              formatCurrency(item.interestAmount),
+              formatCurrency(item.totalLoanAmount),
+              item.status,
+              formatCurrency(item.totalPaid),
+              formatCurrency(item.outstandingBalance)
+            ]);
+
+            doc.autoTable({
+              head: [['#', 'Borrower', 'Term', 'Principal', 'Interest', 'Total Due', 'Status', 'Paid', 'Outstanding']],
+              body: tableData,
+              startY: 110,
+              theme: 'striped',
+              headStyles: {
+                fillColor: [6, 78, 59],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 9
+              },
+              bodyStyles: {
+                fontSize: 8,
+                textColor: [0, 0, 0]
+              },
+              alternateRowStyles: {
+                fillColor: [240, 253, 244]
+              },
+              columnStyles: {
+                0: { cellWidth: 15, halign: 'center' },
+                1: { cellWidth: 55, halign: 'left' },
+                2: { cellWidth: 20, halign: 'center' },
+                3: { cellWidth: 30, halign: 'right' },
+                4: { cellWidth: 25, halign: 'right' },
+                5: { cellWidth: 35, halign: 'right' },
+                6: { cellWidth: 25, halign: 'center' },
+                7: { cellWidth: 30, halign: 'right' },
+                8: { cellWidth: 35, halign: 'right' }
+              },
+              margin: { left: 15, right: 15 },
+              styles: {
+                overflow: 'linebreak',
+                cellPadding: 2,
+                fontSize: 8
+              }
+            });
+
+            // Footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+              doc.setPage(i);
+              doc.setFontSize(8);
+              doc.setTextColor(100, 100, 100);
+              doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+              doc.text("ECLOF Malawi - Empowering Communities Through Microfinance", 20, doc.internal.pageSize.height - 10);
+            }
+
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `ECLOF_Comprehensive_Report_${timestamp}.pdf`;
+            doc.save(filename);
+            
+            showNotification("PDF report generated successfully!");
+
+          } catch (innerError) {
+            console.error("Inner PDF Error:", innerError);
+            showNotification("Error generating PDF. Please try again.", "error");
+          } finally {
+            pdfBtn.classList.remove('btn-loading');
+            pdfBtn.innerHTML = originalText;
+          }
+        }, 100);
+
+      } catch (error) {
+        console.error("PDF Export Error:", error);
+        showNotification("Error generating PDF. Please try again.", "error");
+        pdfBtn.classList.remove('btn-loading');
+        pdfBtn.innerHTML = originalText;
+      }
+    };
+
+    window.exportToExcel = function() {
+      const excelBtn = document.getElementById('excelBtn');
+      const originalText = excelBtn.innerHTML;
+      
+      try {
+        excelBtn.classList.add('btn-loading');
+        excelBtn.innerHTML = '<span style="opacity: 0;">Generating Excel...</span>';
+
+        const wb = XLSX.utils.book_new();
+        
+        // Financial summary
+        const totalPrincipal = filteredData.reduce((sum, item) => sum + (item.principalAmount || 0), 0);
+        const totalInterest = filteredData.reduce((sum, item) => sum + (item.interestAmount || 0), 0);
+        const totalPaid = filteredData.reduce((sum, item) => sum + (item.totalPaid || 0), 0);
+        const totalOutstanding = filteredData.reduce((sum, item) => sum + (item.outstandingBalance || 0), 0);
+        const completedLoans = filteredData.filter(item => item.outstandingBalance === 0).length;
+        
+        const summaryData = [
+          ["ECLOF Malawi - Comprehensive Loan Report"],
+          [`Generated on: ${new Date().toLocaleDateString()}`],
+          [`Financial Year: ${document.getElementById('financialYear').value}`],
+          [`Report includes payments from both loan records and payment transactions`],
+          [],
+          ["FINANCIAL SUMMARY"],
+          ["Total Principal Amount", formatCurrency(totalPrincipal)],
+          ["Total Interest Amount (15%)", formatCurrency(totalInterest)],
+          ["Total Portfolio Value", formatCurrency(totalPrincipal + totalInterest)],
+          ["Total Amount Collected", formatCurrency(totalPaid)],
+          ["Outstanding Balance", formatCurrency(totalOutstanding)],
+          ["Completed Loans", `${completedLoans} of ${filteredData.length}`],
+          ["Collection Rate", `${((totalPaid / (totalPrincipal + totalInterest)) * 100).toFixed(1)}%`],
+          [],
+          ["DETAILED LOAN DATA"],
+          ["#", "Borrower", "Type", "Term", "Principal", "Interest", "Total Due", "Status", "Paid", "Outstanding", "Payments", "Performance"],
+          ...filteredData.map((item, i) => {
+            const performance = getPerformanceIndicator(item);
+            return [
+              i + 1,
+              item.name,
+              item.loanType,
+              `${item.loanTermMonths} months`,
+              formatCurrency(item.principalAmount),
+              formatCurrency(item.interestAmount),
+              formatCurrency(item.totalLoanAmount),
+              item.status,
+              formatCurrency(item.totalPaid),
+              formatCurrency(item.outstandingBalance),
+              item.paymentCount,
+              performance.text
+            ];
+          })
+        ];
+        
+        const ws = XLSX.utils.aoa_to_sheet(summaryData);
+        
+        ws['!cols'] = [
+          { wch: 5 }, { wch: 25 }, { wch: 12 }, { wch: 10 }, { wch: 15 }, 
+          { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 15 }, 
+          { wch: 15 }, { wch: 10 }, { wch: 12 }
+        ];
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Loan Report");
+        XLSX.writeFile(wb, `ECLOF_Comprehensive_Report_FY${document.getElementById('financialYear').value}.xlsx`);
+        
+        showNotification("Excel report exported successfully!");
+
+      } catch (error) {
+        console.error("Excel Export Error:", error);
+        showNotification("Error generating Excel report. Please try again.", "error");
+      } finally {
+        setTimeout(() => {
+          excelBtn.classList.remove('btn-loading');
+          excelBtn.innerHTML = originalText;
+        }, 1000);
+      }
+    };
+
+    // Filter functionality
+    document.getElementById("filterInput").addEventListener("input", function() {
+      const filter = this.value.toLowerCase();
+      filteredData = reportData.filter(row =>
+        row.name.toLowerCase().includes(filter) ||
+        row.status.toLowerCase().includes(filter)
+      );
+      populateTable(filteredData);
+    });
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", fetchData);
+  </script>
+
+</body>
+</html>

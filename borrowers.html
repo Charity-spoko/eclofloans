@@ -1,195 +1,1020 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Borrower List</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore, collection, getDocs, getDoc, updateDoc, deleteDoc, doc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
-      authDomain: "job-application-44096.firebaseapp.com",
-      projectId: "job-application-44096",
-      storageBucket: "job-application-44096.appspot.com",
-      messagingSenderId: "139219604583",
-      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function loadBorrowers() {
-      const tbody = document.getElementById("borrowerTableBody");
-      tbody.innerHTML = "";
-      try {
-        const snap = await getDocs(collection(db, "loan_applications"));
-        let i = 1;
-        snap.forEach(docSnap => {
-          const data = docSnap.data();
-          if (data.status !== 'Approved') return;
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td class="text-center">${i++}</td>
-            <td>
-              <p><b>${data.fullName || ''}</b></p>
-              <p><small>Loan Type: <b>${data.isGroupLoan ? 'Group' : 'Individual'}</b></small></p>
-              <p><small>Username: <b>${data.username || 'N/A'}</b></small></p>
-            </td>
-            <td>MWK ${data.requestedLoanAmount || 0}</td>
-            <td>${data.paymentSchedule || 'N/A'}</td>
-            <td class="text-center">
-              <button class="btn btn-outline-primary btn-sm" onclick="editBorrower('${docSnap.id}')">
-                <i class="fa fa-edit"></i>
-              </button>
-              <button class="btn btn-outline-danger btn-sm" onclick="deleteBorrower('${docSnap.id}')">
-                <i class="fa fa-trash"></i>
-              </button>
-              <button class="btn btn-outline-success btn-sm" onclick="openLoanCalculator('${docSnap.id}', '${encodeURIComponent(data.fullName || '')}')">
-                <i class="fa fa-calculator"></i> Calculate Loan
-              </button>
-            </td>`;
-          tbody.appendChild(tr);
-        });
-      } catch (e) {
-        console.error(e);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="5" class="text-center text-danger">Failed to load borrowers.</td>`;
-        tbody.appendChild(tr);
-      }
-    }
-
-    window.deleteBorrower = async (id) => {
-      if (!confirm("Delete borrower?")) return;
-      await deleteDoc(doc(db, "loan_applications", id));
-      loadBorrowers();
-    };
-
-    window.openLoanCalculator = (id, encName) => {
-      const name = decodeURIComponent(encName);
-      window.location.href = `loan_calculation.html?borrowerId=${id}&borrowerName=${encodeURIComponent(name)}`;
-    };
-
-    window.editBorrower = async (id) => {
-      const docRef = doc(db, "loan_applications", id);
-      const snapshot = await getDoc(docRef);
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        document.getElementById("editBorrowerId").value = id;
-        document.getElementById("editFullName").value = data.fullName || "";
-        document.getElementById("editLoanType").value = data.isGroupLoan ? 'group' : 'individual';
-        document.getElementById("editLoanAmount").value = data.requestedLoanAmount || 0;
-        document.getElementById("editSchedule").value = data.paymentSchedule || "";
-        new bootstrap.Modal(document.getElementById("editBorrowerModal")).show();
-      }
-    };
-
-    window.saveEdit = async () => {
-      const id = document.getElementById("editBorrowerId").value;
-      const updatedData = {
-        fullName: document.getElementById("editFullName").value,
-        isGroupLoan: document.getElementById("editLoanType").value === 'group',
-        requestedLoanAmount: parseFloat(document.getElementById("editLoanAmount").value),
-        paymentSchedule: document.getElementById("editSchedule").value
-      };
-      await updateDoc(doc(db, "loan_applications", id), updatedData);
-      bootstrap.Modal.getInstance(document.getElementById("editBorrowerModal")).hide();
-      const successToast = new bootstrap.Toast(document.getElementById("successToast"));
-      successToast.show();
-      loadBorrowers();
-    };
-
-    document.addEventListener("DOMContentLoaded", loadBorrowers);
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowers Management - ECLOF Malawi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #28a745;
+            --dark-green: #1e7e34;
+            --light-green: #d4edda;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+            margin: 0;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 
+                0 4px 20px rgba(6, 78, 59, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #d1fae5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 
+                0 10px 40px rgba(6, 78, 59, 0.1),
+                0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #064e3b, #047857);
+            color: white;
+        }
+        
+        .stats-card .card-body {
+            padding: 2rem;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #d1fae5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            color: #d1fae5;
+            font-weight: 600;
+        }
+        
+        .filter-section {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .search-container {
+            position: relative;
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            z-index: 2;
+        }
+        
+        .search-input {
+            border-radius: 25px;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-input:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+            outline: none;
+        }
+        
+        .filter-select {
+            border-radius: 15px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-select:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+            outline: none;
+        }
+        
+        .filter-label {
+            color: #064e3b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(6, 78, 59, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            position: relative;
+        }
+        
+        .table-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #064e3b, #047857);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1.5rem 1rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        }
+        
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(34, 197, 94, 0.03));
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+        }
+        
+        .table tbody td {
+            padding: 1.5rem 1rem;
+            vertical-align: middle;
+            border: none;
+        }
+        
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-approved {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #065f46;
+            border: 1px solid #86efac;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #15803d, #16a34a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+        }
+        
+        .action-buttons .btn {
+            margin: 0 0.25rem;
+            border-radius: 20px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary {
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+        
+        .btn-outline-primary:hover {
+            background: #16a34a;
+            border-color: #16a34a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(221, 53, 69, 0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #064e3b, #047857);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border-bottom: none;
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-title {
+            font-weight: 700;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 4rem;
+        }
+        
+        .empty-state {
+            display: none;
+            text-align: center;
+            padding: 4rem;
+            color: #6b7280;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+        
+        #watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 6rem;
+            font-weight: 900;
+            color: rgba(16, 185, 129, 0.06);
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+            font-family: 'Arial Black', sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-number {
+                font-size: 2rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+            
+            .filter-section {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Adding original header styling for back to dashboard button */
+        .header {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 
+                0 4px 20px rgba(6, 78, 59, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ffffff, #d1fae5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .btn-back {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            margin-left: 1rem;
+        }
+        
+        .btn-back:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-back i {
+            margin-right: 0.5rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
-  <div class="container-fluid mt-4">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <a href="loanofficer.html" class="btn btn-outline-secondary">🏠 Back to Home</a>
-        <h4 class="mb-0">Approved Borrowers</h4>
-      </div>
-      <div class="card-body">
-        <table class="table table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>#</th>
-              <th>Borrower</th>
-              <th>Current Loan Amount</th>
-              <th>Payment Schedule</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="borrowerTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Edit Borrower Modal -->
-  <div class="modal fade" id="editBorrowerModal" tabindex="-1" aria-labelledby="editBorrowerLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editBorrowerLabel">Edit Borrower</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<body>
+    <!-- Updated header structure with original styling and removed calculate button -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-users me-2"></i>Borrowers Management</h1>
+                <a href="loanofficer (4).html" class="btn-back">
+                    <i class="fas fa-home me-1"></i>Back to Dashboard
+                </a>
+            </div>
         </div>
-        <div class="modal-body">
-          <input type="hidden" id="editBorrowerId">
-          <div class="mb-3">
-            <label class="form-label">Full Name</label>
-            <input type="text" id="editFullName" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Loan Type</label>
-            <select id="editLoanType" class="form-select" required>
-              <option value="individual">Individual</option>
-              <option value="group">Group</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Loan Amount</label>
-            <input type="number" id="editLoanAmount" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Payment Schedule</label>
-            <select id="editSchedule" class="form-select" required>
-              <option value="">Select</option>
-              <option value="weekly">Weekly</option>
-              <option value="biweekly">Bi-Weekly</option>
-              <option value="monthly">Monthly</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Success Toast -->
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-    <div id="successToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header bg-success text-white">
-        <strong class="me-auto">Update Successful</strong>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        Borrower information updated successfully.
-      </div>
+    <div class="container mt-4">
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number" id="totalBorrowers">0</div>
+                        <div class="stats-label">Total Borrowers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number" id="individualLoans">0</div>
+                        <div class="stats-label">Individual Loans</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number" id="groupLoans">0</div>
+                        <div class="stats-label">Group Loans</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <div class="stats-number">MWK <span id="totalAmount">0</span></div>
+                        <div class="stats-label">Total Amount (with Interest)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Search and Filters -->
+        <div class="filter-section position-relative">
+            <h5 class="text-success mb-4">
+                <i class="fas fa-filter me-2"></i>
+                Search & Filter Borrowers
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="filter-label">Search Borrowers</label>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control search-input" id="searchInput" 
+                               placeholder="Search by name, email, phone, or purpose...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">Loan Type</label>
+                    <select class="form-select filter-select" id="loanTypeFilter">
+                        <option value="">All Loan Types</option>
+                        <option value="individual">Individual</option>
+                        <option value="group">Group</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="filter-label">Amount Range</label>
+                    <select class="form-select filter-select" id="amountFilter">
+                        <option value="">All Amounts</option>
+                        <option value="0-100000">Below MWK 100K</option>
+                        <option value="100000-500000">MWK 100K - 500K</option>
+                        <option value="500000-1000000">MWK 500K - 1M</option>
+                        <option value="1000000-999999999">Above MWK 1M</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <label class="filter-label">Application Period</label>
+                    <select class="form-select filter-select" id="dateFilter">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="filter-label">Income Range</label>
+                    <select class="form-select filter-select" id="incomeFilter">
+                        <option value="">All Income Levels</option>
+                        <option value="0-500000">Below MWK 500K</option>
+                        <option value="500000-1000000">MWK 500K - 1M</option>
+                        <option value="1000000-5000000">MWK 1M - 5M</option>
+                        <option value="5000000-999999999">Above MWK 5M</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="clearAllFilters()">
+                        <i class="fas fa-refresh me-2"></i>
+                        Clear All Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrowers Table -->
+        <div class="table-container">
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading borrowers...</p>
+            </div>
+
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h5>No borrowers found</h5>
+                <p>No approved loan applications match your search criteria.</p>
+            </div>
+
+            <div class="table-responsive" id="tableContainer">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Loan Amount</th>
+                            <th>Loan Type</th>
+                            <th>Monthly Income</th>
+                            <th>Application Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="borrowerTableBody">
+                        <!-- Dynamic content will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <style>
-    td p { margin: 0; }
-    td { vertical-align: middle !important; }
-  </style>
+    <!-- Borrower Details Modal -->
+    <div class="modal fade" id="borrowerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user me-2"></i>
+                        Borrower Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="borrowerDetails">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ECLOF Watermark -->
+    <div id="watermark">ECLOF Malawi</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getFirestore, collection, getDocs, getDoc, updateDoc, deleteDoc, doc, onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqcqc04d4ix7K0",
+            authDomain: "job-application-44096.firebaseapp.com",
+            projectId: "job-application-44096",
+            storageBucket: "job-application-44096.appspot.com",
+            messagingSenderId: "139219604583",
+            appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allBorrowers = [];
+        let filteredBorrowers = [];
+
+        // Enhanced number formatting function similar to dashboard
+        function formatLargeNumber(amount) {
+            if (amount >= 1000000000) {
+                return (amount / 1000000000).toFixed(1) + 'B';
+            } else if (amount >= 1000000) {
+                return (amount / 1000000).toFixed(1) + 'M';
+            } else if (amount >= 1000) {
+                return (amount / 1000).toFixed(1) + 'K';
+            } else {
+                return amount.toLocaleString();
+            }
+        }
+
+        // Format currency display with MWK prefix and smart formatting
+        function formatCurrency(amount, useShortFormat = false) {
+            const numAmount = Number(amount) || 0;
+            if (useShortFormat && numAmount >= 1000) {
+                return `MWK ${formatLargeNumber(numAmount)}`;
+            }
+            return `MWK ${numAmount.toLocaleString()}`;
+        }
+
+        async function loadBorrowers() {
+            showLoading();
+            const tbody = document.getElementById("borrowerTableBody");
+            tbody.innerHTML = "";
+            
+            try {
+                onSnapshot(collection(db, "loan_applications"), (querySnapshot) => {
+                    allBorrowers = [];
+                    let totalAmount = 0;
+                    let individualCount = 0;
+                    let groupCount = 0;
+
+                    querySnapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        if (data.status === 'Approved') {
+                            data.id = docSnap.id;
+                            allBorrowers.push(data);
+                            
+                            const loanAmount = Number(data.loanAmount || 0);
+                            const interestRate = 15; // 15% interest rate
+                            const interestAmount = loanAmount * (interestRate / 100);
+                            const totalAmountWithInterest = loanAmount + interestAmount;
+                            
+                            console.log(`Loan Amount: ${loanAmount}, Interest: ${interestAmount}, Total: ${totalAmountWithInterest}`);
+                            totalAmount += totalAmountWithInterest;
+                            
+                            if ((data.loanType || '').toLowerCase() === 'group' || data.isGroupLoan === true) {
+                                groupCount++;
+                            } else {
+                                individualCount++;
+                            }
+                        }
+                    });
+
+                    // Update statistics with enhanced formatting
+                    document.getElementById('totalBorrowers').textContent = formatLargeNumber(allBorrowers.length);
+                    document.getElementById('individualLoans').textContent = formatLargeNumber(individualCount);
+                    document.getElementById('groupLoans').textContent = formatLargeNumber(groupCount);
+                    document.getElementById('totalAmount').textContent = formatLargeNumber(totalAmount);
+
+                    filteredBorrowers = [...allBorrowers];
+                    displayBorrowers();
+                    hideLoading();
+                });
+
+            } catch (e) {
+                console.error("Error loading borrowers:", e);
+                showEmptyState();
+            }
+        }
+
+        function displayBorrowers() {
+            const tbody = document.getElementById("borrowerTableBody");
+            tbody.innerHTML = "";
+
+            if (filteredBorrowers.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            hideEmptyState();
+
+            filteredBorrowers.forEach(borrower => {
+                const row = document.createElement("tr");
+                const loanAmount = Number(borrower.loanAmount || 0);
+                const monthlyIncome = Number(borrower.monthlyIncome || 0);
+                
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${borrower.fullName || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${borrower.email || 'N/A'}</td>
+                    <td>${borrower.phoneNumber || 'N/A'}</td>
+                    <td>
+                        <span class="fw-bold text-success">
+                            ${formatCurrency(loanAmount, true)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${borrower.loanType === 'Group' ? 'bg-info' : 'bg-primary'}">
+                            ${borrower.loanType || 'Individual'}
+                        </span>
+                    </td>
+                    <td>${formatCurrency(monthlyIncome, true)}</td>
+                    <td>${formatDate(borrower.applicationDate)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewBorrower('${borrower.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteBorrower('${borrower.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-MW', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                return 'N/A';
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'block';
+        }
+
+        function showEmptyState() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function hideEmptyState() {
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        // Enhanced search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            applyFilters();
+        });
+
+        document.getElementById('loanTypeFilter').addEventListener('change', applyFilters);
+        document.getElementById('amountFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFilter').addEventListener('change', applyFilters);
+        document.getElementById('incomeFilter').addEventListener('change', applyFilters);
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const loanTypeFilter = document.getElementById('loanTypeFilter').value.toLowerCase();
+            const amountFilter = document.getElementById('amountFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const incomeFilter = document.getElementById('incomeFilter').value;
+
+            filteredBorrowers = allBorrowers.filter(borrower => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    (borrower.fullName || '').toLowerCase().includes(searchTerm) ||
+                    (borrower.email || '').toLowerCase().includes(searchTerm) ||
+                    (borrower.phoneNumber || '').toLowerCase().includes(searchTerm) ||
+                    (borrower.purpose || '').toLowerCase().includes(searchTerm);
+
+                // Loan type filter
+                const matchesLoanType = !loanTypeFilter || 
+                    (borrower.loanType || 'individual').toLowerCase() === loanTypeFilter;
+
+                // Amount filter
+                const loanAmount = Number(borrower.loanAmount || 0);
+                let matchesAmount = true;
+                if (amountFilter) {
+                    const [min, max] = amountFilter.split('-').map(Number);
+                    matchesAmount = loanAmount >= min && loanAmount <= max;
+                }
+
+                // Income filter
+                const monthlyIncome = Number(borrower.monthlyIncome || 0);
+                let matchesIncome = true;
+                if (incomeFilter) {
+                    const [minIncome, maxIncome] = incomeFilter.split('-').map(Number);
+                    matchesIncome = monthlyIncome >= minIncome && monthlyIncome <= maxIncome;
+                }
+
+                // Date filter
+                let matchesDate = true;
+                if (dateFilter && borrower.applicationDate) {
+                    const appDate = new Date(borrower.applicationDate);
+                    const now = new Date();
+                    
+                    switch(dateFilter) {
+                        case 'today':
+                            matchesDate = appDate.toDateString() === now.toDateString();
+                            break;
+                        case 'week':
+                            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            matchesDate = appDate >= weekAgo;
+                            break;
+                        case 'month':
+                            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                            matchesDate = appDate >= monthAgo;
+                            break;
+                        case 'quarter':
+                            const quarterAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+                            matchesDate = appDate >= quarterAgo;
+                            break;
+                    }
+                }
+
+                return matchesSearch && matchesLoanType && matchesAmount && matchesIncome && matchesDate;
+            });
+
+            displayBorrowers();
+        }
+
+        // Clear all filters function
+        window.clearAllFilters = function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('loanTypeFilter').value = '';
+            document.getElementById('amountFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('incomeFilter').value = '';
+            filteredBorrowers = [...allBorrowers];
+            displayBorrowers();
+        };
+
+        // View borrower details
+        window.viewBorrower = async function(borrowerId) {
+            try {
+                const borrower = allBorrowers.find(b => b.id === borrowerId);
+                if (!borrower) return;
+
+                const loanAmount = Number(borrower.loanAmount || 0);
+                const monthlyIncome = Number(borrower.monthlyIncome || 0);
+                const interestAmount = loanAmount * 0.15;
+                const totalWithInterest = loanAmount + interestAmount;
+
+                document.getElementById('borrowerDetails').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">Personal Information</h6>
+                            <p><strong>Full Name:</strong> ${borrower.fullName || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${borrower.email || 'N/A'}</p>
+                            <p><strong>Phone:</strong> ${borrower.phoneNumber || 'N/A'}</p>
+                            <p><strong>Monthly Income:</strong> ${formatCurrency(monthlyIncome, true)}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success mb-3">Loan Information</h6>
+                            <p><strong>Loan Amount:</strong> ${formatCurrency(loanAmount, true)}</p>
+                            <p><strong>Interest (15%):</strong> ${formatCurrency(interestAmount, true)}</p>
+                            <p><strong>Total Amount:</strong> ${formatCurrency(totalWithInterest, true)}</p>
+                            <p><strong>Loan Type:</strong> ${borrower.loanType || 'Individual'}</p>
+                            <p><strong>Repayment Period:</strong> ${borrower.repaymentPeriod || 'N/A'} months</p>
+                            <p><strong>Purpose:</strong> ${borrower.purpose || 'N/A'}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="status-badge status-approved">${borrower.status}</span>
+                            </p>
+                            <p><strong>Application Date:</strong> ${formatDate(borrower.applicationDate)}</p>
+                            <p><strong>Approved Date:</strong> ${formatDate(borrower.approvedDate)}</p>
+                            <p><strong>Approved By:</strong> ${borrower.approvedBy || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+
+                const modal = new bootstrap.Modal(document.getElementById('borrowerModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error viewing borrower:', error);
+                alert('Error loading borrower details');
+            }
+        };
+
+        // Delete borrower functionality
+        window.deleteBorrower = async function(borrowerId) {
+            if (!confirm("Are you sure you want to delete this borrower? This action cannot be undone.")) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, "loan_applications", borrowerId));
+                
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+                notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    Borrower deleted successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Error deleting borrower:', error);
+                
+                // Show error notification
+                const notification = document.createElement('div');
+                notification.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+                notification.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error deleting borrower. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBorrowers();
+        });
+    </script>
 </body>
 </html>

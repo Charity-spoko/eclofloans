@@ -8,36 +8,76 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(to bottom right, #ffffff, #dfffe0);
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slider-background {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+    }
+
+    .slider-background::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+
+    .slider-background img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      animation: slideShow 36s infinite ease-in-out;
+      transition: opacity 1s ease;
+      z-index: 0;
+    }
+
+    .slider-background img:nth-child(1) { animation-delay: 0s; }
+    .slider-background img:nth-child(2) { animation-delay: 6s; }
+    .slider-background img:nth-child(3) { animation-delay: 12s; }
+    .slider-background img:nth-child(4) { animation-delay: 18s; }
+    .slider-background img:nth-child(5) { animation-delay: 24s; }
+    .slider-background img:nth-child(6) { animation-delay: 30s; }
+
+    @keyframes slideShow {
+      0% { opacity: 0.3; }
+      10% { opacity: 1; }
+      30% { opacity: 1; }
+      40% { opacity: 0.3; }
+      100% { opacity: 0.3; }
+    }
+
+    .d-flex-center {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      z-index: 2;
+      position: relative;
     }
 
     .login-container {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.97);
       border-radius: 12px;
       padding: 2rem 2.5rem;
-      box-shadow: 0 4px 20px rgba(0, 128, 0, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 128, 0, 0.3);
       width: 100%;
-      max-width: 400px;
-      animation: fadeIn 1s ease-in-out;
+      max-width: 450px;
+      animation: fadeIn 1.5s ease-in-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-container h3 {
-      color: green;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-control:focus {
-      border-color: green;
-      box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25);
     }
 
     .logo {
@@ -51,87 +91,388 @@
       50% { transform: translateY(-10px); }
     }
 
+    .form-control:focus, .form-select:focus {
+      border-color: green;
+      box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25);
+    }
+
     .toggle-password {
       position: absolute;
-      right: 10px;
-      top: 50%;
+      right: 15px;
+      top: 65%;
       transform: translateY(-50%);
       cursor: pointer;
-      color: gray;
+      color: #6b7280;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-password:hover {
+      color: #4f46e5;
+    }
+
+    .btn-success {
+      background-color: #198754;
+      border-color: #198754;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      background-color: #157347;
+      border-color: #157347;
+      transform: translateY(-2px);
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .alert {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+    }
+
+    .debug-info {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      font-family: monospace;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-<div class="login-container text-center">
-  <img src="eclof.png" class="logo mb-3" alt="ECLOF Logo">
-  <h3>ECLOF Loan Management System</h3>
-  <form id="loginForm">
-    <div class="form-group mb-3 text-start">
-      <label>Username</label>
-      <input type="text" class="form-control" id="username" required>
+<!-- Background slideshow -->
+<div class="slider-background">
+  <img src="farmer1.png" alt="">
+  <img src="farmer2.png" alt="">
+  <img src="farmer3.png" alt="">
+  <img src="loanofficers.png" alt="">
+  <img src="sme.png" alt="">
+  <img src="sme2.png" alt="">
+</div>
+
+<!-- Login Form -->
+<div class="d-flex-center">
+  <div class="login-container text-center">
+    <div class="mb-4">
+      <img src="eclof.png" class="logo mb-3" alt="ECLOF Logo">
+      <h3 class="mb-1">ECLOF Loan Management System</h3>
+      <p class="text-muted mb-0">Please sign in to continue</p>
     </div>
-    <div class="form-group mb-3 text-start position-relative">
-      <label>Password</label>
-      <input type="password" class="form-control" id="password" required>
-      <span class="toggle-password" onclick="togglePassword()">👁️</span>
+    
+    <form id="loginForm">
+      <div class="form-group mb-3 text-start">
+        <label class="form-label fw-semibold">Full Name</label>
+        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
+      </div>
+      
+      <div class="form-group mb-3 text-start">
+        <label class="form-label fw-semibold">Username</label>
+        <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+      </div>
+      
+      <div class="form-group mb-3 text-start position-relative">
+        <label class="form-label fw-semibold">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+        <span class="toggle-password" onclick="togglePassword()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+      </div>
+      
+      <div class="form-group mb-4 text-start">
+        <label class="form-label fw-semibold">Role</label>
+        <select class="form-select" id="role" required>
+          <option value="">Select your role</option>
+          <option value="admin">Administrator</option>
+          <option value="loan_officer">Loan Officer</option>
+          <option value="branch_manager">Branch Manager</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center" id="loginBtn">
+        <span class="loading-spinner me-2" id="loadingSpinner"></span>
+        <span id="loginBtnText">Sign In</span>
+      </button>
+    </form>
+    
+    <div id="messageArea"></div>
+    
+    <!-- Debug Information -->
+    <div id="debugInfo" class="debug-info">
+      <strong>Debug Information:</strong>
+      <div id="debugContent"></div>
     </div>
-    <div class="form-group mb-4 text-start">
-      <label>Role</label>
-      <select class="form-select" id="role" required>
-        <option value="">Select Role</option>
-        <option value="admin">Admin</option>
-        <option value="loan_officer">Loan Officer</option>
-        <option value="branch_manager">Branch Manager</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-success w-100">Login</button>
-  </form>
-  <div id="errorMsg" class="text-danger mt-2" style="display: none;">Invalid credentials. Try again.</div>
+    
+    <!-- Toggle Debug Button (for testing) -->
+    <button type="button" class="btn btn-outline-secondary btn-sm mt-3" onclick="toggleDebug()">
+      Toggle Debug Info
+    </button>
+  </div>
 </div>
 
 <!-- Firebase Scripts -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // Firebase Config
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+    apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+    authDomain: "job-application-44096.firebaseapp.com",
+    projectId: "job-application-44096",
+    storageBucket: "job-application-44096.appspot.com",
+    messagingSenderId: "139219604583",
+    appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
   };
 
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
+  // Global functions
+  window.togglePassword = function() {
+    const passInput = document.getElementById("password");
+    const icon = document.querySelector(".toggle-password svg");
+    
+    if (passInput.type === "password") {
+      passInput.type = "text";
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+    } else {
+      passInput.type = "password";
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+    }
+  };
+
+  window.toggleDebug = function() {
+    const debugInfo = document.getElementById("debugInfo");
+    debugInfo.style.display = debugInfo.style.display === "none" ? "block" : "none";
+  };
+
+  // Utility functions
+  function showMessage(message, type = 'danger') {
+    const messageArea = document.getElementById("messageArea");
+    messageArea.innerHTML = `
+      <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    `;
+  }
+
+  function updateDebugInfo(info) {
+    const debugContent = document.getElementById("debugContent");
+    const timestamp = new Date().toLocaleTimeString();
+    debugContent.innerHTML += `<div><strong>${timestamp}:</strong> ${info}</div>`;
+  }
+
+  function setLoadingState(loading) {
+    const loginBtn = document.getElementById("loginBtn");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const loginBtnText = document.getElementById("loginBtnText");
+    
+    if (loading) {
+      loginBtn.disabled = true;
+      loadingSpinner.style.display = "inline-block";
+      loginBtnText.textContent = "Signing In...";
+    } else {
+      loginBtn.disabled = false;
+      loadingSpinner.style.display = "none";
+      loginBtnText.textContent = "Sign In";
+    }
+  }
+
+  // Normalize text function for better matching
+  function normalizeText(text) {
+    return text.toLowerCase().trim().replace(/\s+/g, ' ');
+  }
+
+  // Test Firebase connection
+  async function testFirebaseConnection() {
+    try {
+      updateDebugInfo("Testing Firebase connection...");
+      const testQuery = query(collection(db, "users"), limit(1));
+      const snapshot = await getDocs(testQuery);
+      updateDebugInfo(`Firebase connection successful. Collection exists: ${!snapshot.empty}`);
+      
+      if (!snapshot.empty) {
+        const sampleDoc = snapshot.docs[0];
+        updateDebugInfo(`Sample document fields: ${Object.keys(sampleDoc.data()).join(', ')}`);
+      }
+    } catch (error) {
+      updateDebugInfo(`Firebase connection error: ${error.message}`);
+    }
+  }
+
+  // Login Form Submit
   document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    
+    const fullName = document.getElementById("fullName").value.trim();
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
-    const role = document.getElementById("role").value;
-
-    const snapshot = await db.collection("users")
-      .where("username", "==", username)
-      .where("password", "==", password)
-      .where("role", "==", role)
-      .get();
-
-    if (!snapshot.empty) {
-      if (role === "admin") window.location.href = "admin.html";
-      else if (role === "loan_officer") window.location.href = "loanofficer.html";
-      else if (role === "branch_manager") window.location.href = "branchmanager.html";
-    } else {
-      document.getElementById("errorMsg").style.display = "block";
+    const role = document.getElementById("role").value.trim();
+    
+    // Clear previous messages
+    document.getElementById("messageArea").innerHTML = "";
+    
+    // Validation
+    if (!fullName || !username || !password || !role) {
+      showMessage("Please fill in all fields.", "warning");
+      return;
     }
+    
+    setLoadingState(true);
+    updateDebugInfo(`Login attempt - Name: ${fullName}, Username: ${username}, Role: ${role}`);
+
+    try {
+      // First, let's see what users exist in the database
+      updateDebugInfo("Querying all users to check database structure...");
+      const allUsersQuery = query(collection(db, "users"));
+      const allUsersSnapshot = await getDocs(allUsersQuery);
+      
+      updateDebugInfo(`Total users in database: ${allUsersSnapshot.size}`);
+      
+      if (allUsersSnapshot.empty) {
+        showMessage("No users found in the database. Please contact your administrator.", "danger");
+        setLoadingState(false);
+        return;
+      }
+
+      // Log all users for debugging
+      allUsersSnapshot.forEach((doc, index) => {
+        const userData = doc.data();
+        updateDebugInfo(`User ${index + 1}: ${JSON.stringify(userData)}`);
+      });
+
+      // Now search for matching user by username
+      updateDebugInfo("Searching for user by username...");
+      const usernameQuery = query(collection(db, "users"), where("username", "==", username));
+      const usernameSnapshot = await getDocs(usernameQuery);
+      
+      if (usernameSnapshot.empty) {
+        updateDebugInfo("No user found with that username");
+        showMessage("Invalid username. Please check your credentials.", "danger");
+        setLoadingState(false);
+        return;
+      }
+      
+      let userFound = false;
+      let userData = null;
+      
+      usernameSnapshot.forEach(doc => {
+        const data = doc.data();
+        updateDebugInfo(`Found user data: ${JSON.stringify(data)}`);
+        
+        // Normalize all text fields for comparison
+        const dbName = normalizeText(data.name || data.fullName || data.full_name || '');
+        const dbUsername = normalizeText(data.username || '');
+        const dbPassword = data.password || '';
+        const dbRole = normalizeText(data.role || '');
+        
+        const inputName = normalizeText(fullName);
+        const inputUsername = normalizeText(username);
+        const inputRole = normalizeText(role);
+        
+        updateDebugInfo(`Comparing - Name: "${inputName}" vs "${dbName}"`);
+        updateDebugInfo(`Comparing - Username: "${inputUsername}" vs "${dbUsername}"`);
+        updateDebugInfo(`Comparing - Password: "${password}" vs "${dbPassword}"`);
+        updateDebugInfo(`Comparing - Role: "${inputRole}" vs "${dbRole}"`);
+        
+        if (dbName === inputName && 
+            dbUsername === inputUsername && 
+            dbPassword === password && 
+            dbRole === inputRole) {
+          userFound = true;
+          userData = data;
+          updateDebugInfo("✅ All credentials match!");
+        }
+      });
+
+      if (userFound) {
+        showMessage("Login successful! Redirecting...", "success");
+        updateDebugInfo(`Redirecting user with role: ${userData.role}`);
+        
+        // Store user info in session storage for the target page
+        sessionStorage.setItem('currentUser', JSON.stringify({
+          name: userData.name || userData.fullName || userData.full_name,
+          username: userData.username,
+          role: userData.role
+        }));
+        
+        // Log the user login activity to activity_logs collection
+        try {
+          const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+          const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+          
+          const app = initializeApp(firebaseConfig);
+          const db = getFirestore(app);
+          
+          await addDoc(collection(db, "activity_logs"), {
+            user: userData.name || userData.fullName || userData.full_name,
+            action: `${userData.role} logged into the system`,
+            timestamp: serverTimestamp(),
+            type: userData.role,
+            userId: userData.username
+          });
+        } catch (error) {
+          console.log("Could not log activity:", error);
+        }
+        
+        // Redirect based on role after a brief delay
+        setTimeout(() => {
+          const normalizedRole = normalizeText(userData.role);
+          if (normalizedRole === "admin" || normalizedRole === "administrator") {
+            window.location.href = "admin.html";
+          } else if (normalizedRole === "loan_officer" || normalizedRole === "loan officer") {
+            window.location.href = "loanofficer (4).html";
+          } else if (normalizedRole === "branch_manager" || normalizedRole === "branch manager") {
+            window.location.href = "branchmanager (3).html";
+          } else {
+            showMessage(`Unknown role: ${userData.role}. Please contact your administrator.`, "warning");
+            updateDebugInfo(`Unknown role for redirection: ${userData.role}`);
+          }
+        }, 1500);
+        
+      } else {
+        updateDebugInfo("❌ Credentials do not match");
+        showMessage("Invalid credentials. Please check your name, username, password, and role.", "danger");
+      }
+
+    } catch (error) {
+      console.error("Login error:", error);
+      updateDebugInfo(`Error during login: ${error.message}`);
+      showMessage("An error occurred during login. Please try again.", "danger");
+    }
+    
+    setLoadingState(false);
   });
 
-  function togglePassword() {
-    const passInput = document.getElementById("password");
-    passInput.type = passInput.type === "password" ? "text" : "password";
-  }
+  // Test connection when page loads
+  document.addEventListener('DOMContentLoaded', () => {
+    testFirebaseConnection();
+  });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

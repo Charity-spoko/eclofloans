@@ -1,118 +1,1331 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-  <title>Payment List with Filters & History</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <title>ECLOF Malawi - Repayment Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+      color: white;
+      padding: 2rem 0;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-header.btn-primary {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-header.btn-primary:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      color: white;
+    }
+
+    .main-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 
+        0 10px 40px rgba(6, 78, 59, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      overflow: hidden;
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 1.5rem;
+    }
+
+    .stats-row {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #047857, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .filters-section {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .form-label {
+      color: #064e3b;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+
+    .btn-filter {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .btn-filter:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      color: white;
+    }
+
+    .table-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody tr:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(34, 197, 94, 0.03));
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border: none;
+    }
+
+    .loan-ref {
+      font-weight: 700;
+      color: #047857;
+      font-family: 'Courier New', monospace;
+    }
+
+    .borrower-name {
+      font-weight: 600;
+      color: #064e3b;
+    }
+
+    .amount-display {
+      font-weight: 700;
+      color: #047857;
+      font-size: 1.1rem;
+    }
+
+    .penalty-amount {
+      font-weight: 600;
+      color: #dc2626;
+    }
+
+    .repayment-count {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1e40af;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-action {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-decoration: none;
+    }
+
+    .btn-view {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      color: white;
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: linear-gradient(135deg, #059669, #10b981);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      color: white;
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      color: white;
+    }
+
+    .modal-content {
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      border-radius: 16px 16px 0 0;
+      border-bottom: none;
+    }
+
+    .modal-title {
+      font-weight: 700;
+    }
+
+    .btn-close {
+      filter: invert(1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6b7280, #9ca3af);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #4b5563, #6b7280);
+      transform: translateY(-1px);
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+      top: 15%;
+      right: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08), rgba(52, 211, 153, 0.04));
+      bottom: 20%;
+      left: 5%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+      50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        text-align: center;
+      }
+      
+      .header-actions {
+        justify-content: center;
+        width: 100%;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-action {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .table-responsive {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating background shapes -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1><i class="bi bi-credit-card me-2"></i>💰 Repayment Management</h1>
+        <div class="header-actions">
+          <a href="loanofficer (4).html" class="btn-header">
+            <i class="bi bi-house-door"></i>Back to Dashboard
+          </a>
+          <button class="btn-header btn-primary" id="newPaymentBtn">
+            <i class="bi bi-plus-circle"></i>New Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    
+    <!-- Statistics Row -->
+    <div class="stats-row">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="totalPayments">0</div>
+            <div class="stat-label">Total Payments Made</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number">MWK <span id="totalAmount">0</span></div>
+            <div class="stat-label">Total Outstanding Amount</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number">MWK <span id="totalPenalties">0</span></div>
+            <div class="stat-label">Total Penalties</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="activeLoans">0</div>
+            <div class="stat-label">Active Loans</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+      <div class="card-header-custom">
+        <h4 class="mb-0 text-success">
+          <i class="bi bi-list-check me-2"></i>
+          Payment Records
+        </h4>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="filters-section">
+        <div class="row align-items-end">
+          <div class="col-md-4">
+            <label for="statusFilter" class="form-label">
+              <i class="bi bi-funnel me-1"></i>Loan Status
+            </label>
+            <select id="statusFilter" class="form-select">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="defaulter">Defaulter</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="dueDateFilter" class="form-label">
+              <i class="bi bi-calendar me-1"></i>Due Date (on or before)
+            </label>
+            <input type="date" id="dueDateFilter" class="form-control"/>
+          </div>
+          <div class="col-md-4">
+            <button class="btn-filter" id="filterBtn">
+              <i class="bi bi-search me-1"></i>Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading payments...</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-container" id="tableContainer" style="display: none;">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="15%">Loan Ref</th>
+                <th width="20%">Borrower</th>
+                <th width="15%">Amount</th>
+                <th width="15%">Penalty</th>
+                <th width="10%">Repayments</th>
+                <th width="10%">History</th>
+                <th width="10%">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="bi bi-inbox"></i>
+        <h4>No Payments Found</h4>
+        <p>No payment records match your current filters.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Payment Modal -->
+  <div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form id="paymentForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-plus-circle me-2"></i>
+            Add/Edit Payment
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="loanSelect" class="form-label">Loan Type</label>
+            <select id="loanSelect" class="form-select" required>
+              <option value="">Select loan type</option>
+              <option value="individual">Individual Loan</option>
+              <option value="group">Group Loan</option>
+            </select>
+          </div>
+          
+          <div class="mb-3 d-none" id="individualBorrowerGroup">
+            <label for="individualBorrower" class="form-label">Borrower</label>
+            <select id="individualBorrower" class="form-select"></select>
+          </div>
+          
+          <div class="mb-3 d-none" id="groupBorrowerGroup">
+            <label for="groupSelect" class="form-label">Group</label>
+            <select id="groupSelect" class="form-select"></select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="amountInput" class="form-label">Amount (MWK)</label>
+            <input type="number" id="amountInput" class="form-control" step="0.01" required min="0"/>
+          </div>
+          
+          <div class="mb-3">
+            <label for="penaltyInput" class="form-label">Penalty Amount (MWK)</label>
+            <input type="number" id="penaltyInput" class="form-control" step="0.01" min="0"/>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-check-lg me-1"></i>Save Payment
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Enhanced Repayment History Modal with schedule and comprehensive information -->
+  <div class="modal fade" id="repaymentHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="repaymentHistoryLabel">
+            <i class="bi bi-clock-history me-2"></i>
+            Repayment History & Schedule
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Loan Information Section -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card-header-custom">
+                <h6 class="mb-3"><i class="bi bi-info-circle me-2"></i>Loan Information</h6>
+                <div id="loanInfoContent">
+                  <!-- Loan details will be populated here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="stat-item">
+                <div class="stat-number" id="totalLoanAmount">MWK 0</div>
+                <div class="stat-label">Total Loan</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-item">
+                <div class="stat-number" id="totalPaid">MWK 0</div>
+                <div class="stat-label">Total Paid</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-item">
+                <div class="stat-number" id="outstandingBalance">MWK 0</div>
+                <div class="stat-label">Outstanding</div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="stat-item">
+                <div class="stat-number" id="totalPenaltiesModal">MWK 0</div>
+                <div class="stat-label">Total Penalties</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-4">
+            <label class="form-label">Repayment Progress</label>
+            <div class="progress" style="height: 20px;">
+              <div id="repaymentProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Tabs for Schedule and History -->
+          <ul class="nav nav-tabs mb-3" id="historyTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab">
+                <i class="bi bi-calendar-check me-1"></i>Repayment Schedule
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                <i class="bi bi-clock-history me-1"></i>Payment History
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="historyTabContent">
+            <!-- Repayment Schedule Tab -->
+            <div class="tab-pane fade show active" id="schedule" role="tabpanel">
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Due Date</th>
+                      <th>Expected Amount</th>
+                      <th>Status</th>
+                      <th>Amount Paid</th>
+                      <th>Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody id="repaymentScheduleBody">
+                    <!-- Schedule will be populated here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Payment History Tab -->
+            <div class="tab-pane fade" id="history" role="tabpanel">
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Date</th>
+                      <th>Amount</th>
+                      <th>Penalty</th>
+                      <th>Notes</th>
+                      <th>Balance After</th>
+                    </tr>
+                  </thead>
+                  <tbody id="repaymentHistoryBody">
+                    <!-- History will be populated here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        Operation completed successfully!
+      </div>
+    </div>
+  </div>
+
+  <!-- ECLOF Watermark -->
+  <div id="watermark">ECLOF Malawi</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script type="module">
-    console.log("🔥 SCRIPT IS RUNNING");
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    console.log("🔥 ECLOF Repayment System Loading...");
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getFirestore, collection, getDocs, getDoc, doc, addDoc,
-      updateDoc, deleteDoc, query, orderBy, where
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+      updateDoc, deleteDoc, query, orderBy, where, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqcqc04d4ix7K0",
       authDomain: "job-application-44096.firebaseapp.com",
       projectId: "job-application-44096",
       storageBucket: "job-application-44096.appspot.com",
       messagingSenderId: "139219604583",
       appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let currentEditId = null;
+    let allPayments = [];
+
+    // Enhanced number formatting function similar to dashboard
+    function formatLargeNumber(amount) {
+      if (amount >= 1000000000) {
+        return (amount / 1000000000).toFixed(1) + 'B';
+      } else if (amount >= 1000000) {
+        return (amount / 1000000).toFixed(1) + 'M';
+      } else if (amount >= 1000) {
+        return (amount / 1000).toFixed(1) + 'K';
+      } else {
+        return amount.toLocaleString();
+      }
+    }
+
+    // Format currency display with MWK prefix and smart formatting
+    function formatCurrency(amount, useShortFormat = false) {
+      const numAmount = Number(amount) || 0;
+      if (useShortFormat && numAmount >= 1000) {
+        return `MWK ${formatLargeNumber(numAmount)}`;
+      }
+      return `MWK ${numAmount.toLocaleString()}`;
+    }
+
+    function showLoading() {
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("tableContainer").style.display = "block";
+    }
+
+    function showEmptyState() {
+      document.getElementById("emptyState").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+    }
+
+    function showNotification(message, type = 'success') {
+      document.getElementById('toastMessage').textContent = message;
+      const toast = new bootstrap.Toast(document.getElementById('successToast'));
+      toast.show();
+    }
 
     async function loadPayments() {
+      console.log("[v0] Starting loadPayments function");
+      showLoading();
       const tbody = document.getElementById("paymentTableBody");
       tbody.innerHTML = "";
-      const filters = getFilters();
-      let paymentsQ = collection(db, "payments");
+      
+      try {
+        const filters = getFilters();
+        console.log("[v0] Filters:", filters);
+        
+        let loansQ = collection(db, "loan_applications");
+        loansQ = query(loansQ, where("status", "==", "Approved"));
 
-      if (filters.dueDate) {
-        const d = new Date(filters.dueDate);
-        paymentsQ = query(paymentsQ, where("createdAt", "<=", d));
-      } else {
-        paymentsQ = query(paymentsQ, orderBy("createdAt", "asc"));
+        console.log("[v0] Executing query...");
+        
+        const querySnapshot = await getDocs(loansQ);
+        console.log("[v0] Query returned", querySnapshot.size, "documents");
+        
+        allPayments = [];
+        let totalAmount = 0;
+        let totalPenalties = 0;
+        let activeLoansCount = 0;
+        let totalActualPayments = 0;
+
+        for (const ds of querySnapshot.docs) {
+          const loan = ds.data();
+          loan.id = ds.id;
+          console.log("[v0] Processing loan:", loan.id, loan);
+          
+          let borrower = loan.fullName || "N/A";
+          let repayCount = 0;
+          
+          try {
+            const loanAmount = parseFloat(loan.loanAmount) || 0;
+            const interestRate = 15; // Default 15% interest rate since not in database
+
+            const interestAmount = loanAmount * (interestRate / 100);
+            const totalAmountWithInterest = loanAmount + interestAmount;
+
+            // Calculate due date from approvedDate + repaymentPeriod + 1 month (payments start second month)
+            let dueDate = new Date();
+            if (loan.approvedDate && loan.repaymentPeriod) {
+              const approvedDate = new Date(loan.approvedDate);
+              dueDate = new Date(approvedDate);
+              dueDate.setMonth(dueDate.getMonth() + parseInt(loan.repaymentPeriod) + 1);
+            }
+
+            const currentDate = new Date();
+
+            // Calculate penalty if overdue
+            let penalty = 0;
+            if (currentDate > dueDate) {
+              const daysOverdue = Math.floor((currentDate - dueDate) / (1000 * 60 * 60 * 24));
+              penalty = daysOverdue * 100; // 100 MWK per day penalty
+            }
+
+            // Check for existing payments
+            const paymentsSnap = await getDocs(query(collection(db, "payments"), where("loanId", "==", loan.id)));
+            repayCount = paymentsSnap.size;
+            
+            // Calculate total paid amount
+            let totalPaid = 0;
+            paymentsSnap.forEach(payDoc => {
+              const paymentAmount = parseFloat(payDoc.data().amount) || 0;
+              totalPaid += paymentAmount;
+              totalActualPayments += paymentAmount;
+            });
+
+            const totalOwed = totalAmountWithInterest + penalty;
+            const outstandingAmount = totalOwed - totalPaid;
+
+            // Apply status filter
+            if (filters.loanStatus && filters.loanStatus !== "all") {
+              if (filters.loanStatus === "active" && outstandingAmount <= 0) continue;
+              if (filters.loanStatus === "completed" && outstandingAmount > 0) continue;
+            }
+
+            // Apply due date filter
+            if (filters.dueDate) {
+              const filterDate = new Date(filters.dueDate);
+              if (dueDate > filterDate) continue;
+            }
+
+            if (outstandingAmount > 0) activeLoansCount++;
+
+            // Create payment record for display
+            const paymentRecord = {
+              id: loan.id,
+              loanRef: loan.loanRefNo || `LN-${loan.id.substring(0, 8)}`,
+              borrower: borrower,
+              amount: outstandingAmount,
+              penaltyAmount: penalty,
+              repayCount: repayCount,
+              loanId: loan.id,
+              originalLoanAmount: loanAmount,
+              interest: interestAmount,
+              totalPaid: totalPaid,
+              dueDate: dueDate,
+              totalLoanAmount: totalAmountWithInterest
+            };
+            
+            totalAmount += totalAmountWithInterest;
+            totalPenalties += penalty;
+            
+            allPayments.push(paymentRecord);
+            console.log("[v0] Added payment record:", paymentRecord);
+            
+          } catch (error) {
+            console.error("[v0] Error processing loan:", error);
+          }
+        }
+
+        console.log("[v0] Total payments processed:", allPayments.length);
+        
+        // Update statistics with enhanced formatting
+        document.getElementById('totalPayments').textContent = formatLargeNumber(totalActualPayments);
+        document.getElementById('totalAmount').textContent = formatLargeNumber(totalAmount);
+        document.getElementById('totalPenalties').textContent = formatLargeNumber(totalPenalties);
+        document.getElementById('activeLoans').textContent = activeLoansCount;
+
+        displayPayments();
+        hideLoading();
+
+      } catch (e) {
+        console.error("[v0] Error loading loans:", e);
+        hideLoading();
+        showEmptyState();
+      }
+    }
+
+    function displayPayments() {
+      const tbody = document.getElementById("paymentTableBody");
+      tbody.innerHTML = "";
+
+      if (allPayments.length === 0) {
+        showEmptyState();
+        return;
       }
 
-      const snap = await getDocs(paymentsQ);
-      let counter = 1;
+      allPayments.forEach((p, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="text-center fw-bold">${index + 1}</td>
+          <td><span class="loan-ref">${p.loanRef}</span></td>
+          <td><span class="borrower-name">${p.borrower}</span></td>
+          <td><span class="amount-display">${formatCurrency(p.amount, true)}</span></td>
+          <td><span class="penalty-amount">${formatCurrency(p.penaltyAmount || 0, true)}</span></td>
+          <td class="text-center">
+            <span class="repayment-count">${p.repayCount}</span>
+          </td>
+          <td class="text-center">
+            <button class="btn-action btn-view" onclick="viewRepaymentHistory('${p.loanId}', '${p.borrower}')">
+              <i class="bi bi-eye"></i> View
+            </button>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action btn-edit" onclick="openEditPaymentModal('${p.id}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn-action btn-delete" onclick="deletePayment('${p.id}', '${p.borrower}')" style="background-color: #dc3545; margin-left: 5px;">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-      for (const ds of snap.docs) {
-        const p = ds.data();
-        let loanRef = "N/A", borrower = "N/A", repayCount = 0;
-        const loanSnap = await getDoc(doc(db, "loans", p.loanId));
-        if (!loanSnap.exists()) continue;
+    window.viewRepaymentHistory = async function(loanId, borrowerName) {
+      try {
+        // Load loan details
+        const loanDoc = await getDoc(doc(db, "loan_applications", loanId));
+        if (!loanDoc.exists()) {
+          alert("Loan not found!");
+          return;
+        }
 
-        const ld = loanSnap.data();
-        loanRef = ld.refNo || "N/A";
-        if (filters.loanStatus && filters.loanStatus !== "all" && ld.status !== filters.loanStatus) continue;
+        const loan = loanDoc.data();
+        
+        // Update modal title
+        document.getElementById("repaymentHistoryLabel").innerHTML = `
+          <i class="bi bi-clock-history me-2"></i>
+          Repayment History & Schedule - ${borrowerName}
+        `;
 
-        const userSnap = await getDoc(doc(db, "users", ld.borrowerId));
-        if (userSnap.exists()) borrower = userSnap.data().fullName;
+        // Display loan information
+        displayLoanInformation(loan);
+        
+        // Load and display payment history
+        await loadPaymentHistory(loanId, loan);
+        
+        // Generate and display repayment schedule
+        generateRepaymentSchedule(loan, loanId);
+        
+        // Show the modal
+        new bootstrap.Modal(document.getElementById("repaymentHistoryModal")).show();
+        
+      } catch (error) {
+        console.error("Error loading repayment history:", error);
+        alert("Error loading repayment history. Please try again.");
+      }
+    };
 
-        const historySnap = await getDocs(query(collection(db, "payments"), where("loanId", "==", p.loanId)));
-        repayCount = historySnap.size;
+    function displayLoanInformation(loan) {
+      const loanInfoContent = document.getElementById("loanInfoContent");
+      
+      let borrowerInfo = '';
+      if (loan.loanType === "Group") {
+        borrowerInfo = `
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Group Name:</strong> ${loan.groupName || 'N/A'}<br>
+              <strong>Group Leader:</strong> ${loan.groupLeader || loan.fullName}<br>
+              <strong>Loan Type:</strong> <span class="badge bg-info">Group Loan</span>
+            </div>
+            <div class="col-md-6">
+              <strong>Members:</strong> ${loan.groupMembers ? loan.groupMembers.length : 'N/A'}<br>
+              <strong>Contact:</strong> ${loan.phoneNumber}<br>
+              <strong>Email:</strong> ${loan.email}
+            </div>
+          </div>
+          ${loan.groupMembers ? `
+            <div class="mt-3">
+              <strong>Group Members:</strong>
+              <ul class="list-unstyled ms-3">
+                ${loan.groupMembers.map(member => `<li><i class="bi bi-person me-1"></i>${member.name} - ${member.phone}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        `;
+      } else {
+        borrowerInfo = `
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Borrower:</strong> ${loan.fullName}<br>
+              <strong>Loan Type:</strong> <span class="badge bg-primary">Individual Loan</span><br>
+              <strong>Contact:</strong> ${loan.phoneNumber}
+            </div>
+            <div class="col-md-6">
+              <strong>Email:</strong> ${loan.email}<br>
+              <strong>Monthly Income:</strong> ${formatCurrency(loan.monthlyIncome || 0, true)}<br>
+              <strong>Purpose:</strong> ${loan.purpose || 'N/A'}
+            </div>
+          </div>
+        `;
+      }
+
+      const approvedDate = loan.approvedDate ? new Date(loan.approvedDate).toLocaleDateString() : 'N/A';
+      
+      loanInfoContent.innerHTML = `
+        ${borrowerInfo}
+        <hr>
+        <div class="row">
+          <div class="col-md-4">
+            <strong>Loan Amount:</strong> ${formatCurrency(loan.loanAmount, true)}
+          </div>
+          <div class="col-md-4">
+            <strong>Repayment Period:</strong> ${loan.repaymentPeriod} months
+          </div>
+          <div class="col-md-4">
+            <strong>Approved Date:</strong> ${approvedDate}
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadPaymentHistory(loanId, loan) {
+      try {
+        console.log("[v0] Loading payment history for loan:", loanId, loan);
+        
+        const loanAmount = Number(loan.loanAmount || 0);
+        const interestRate = 15; // 15% interest rate
+        const interestAmount = loanAmount * (interestRate / 100);
+        const totalAmountWithInterest = loanAmount + interestAmount;
+        
+        console.log("[v0] Loan calculations:", {
+          loanAmount,
+          interestAmount,
+          totalAmountWithInterest
+        });
+        
+        const paymentsSnap = await getDocs(query(collection(db, "payments"), where("loanId", "==", loanId)));
+        
+        let totalPaid = 0;
+        let paymentHistory = [];
+        
+        paymentsSnap.forEach(doc => {
+          const payment = doc.data();
+          totalPaid += Number(payment.amount || 0);
+          paymentHistory.push({
+            ...payment,
+            id: doc.id,
+            date: payment.paymentDate || payment.createdAt
+          });
+        });
+        
+        let penalty = 0;
+        if (loan.approvedDate && loan.repaymentPeriod) {
+          const approvedDate = new Date(loan.approvedDate);
+          const dueDate = new Date(approvedDate);
+          // Payment starts from second month, so add repaymentPeriod + 1
+          dueDate.setMonth(dueDate.getMonth() + parseInt(loan.repaymentPeriod) + 1);
+          const currentDate = new Date();
+          
+          if (currentDate > dueDate) {
+            const daysOverdue = Math.floor((currentDate - dueDate) / (1000 * 60 * 60 * 24));
+            penalty = daysOverdue * 100; // 100 MWK per day penalty
+          }
+        }
+        
+        console.log("[v0] Final calculations:", {
+          totalAmountWithInterest,
+          totalPaid,
+          outstanding: totalAmountWithInterest - totalPaid,
+          penalty
+        });
+        
+        const totalLoanElement = document.getElementById("totalLoanAmount");
+        const totalPaidElement = document.getElementById("totalPaid");
+        const outstandingElement = document.getElementById("outstandingBalance");
+        const penaltiesElement = document.getElementById("totalPenaltiesModal");
+        
+        if (totalLoanElement) {
+          totalLoanElement.textContent = formatCurrency(totalAmountWithInterest, true);
+          console.log("[v0] Updated Total Loan:", totalAmountWithInterest);
+        }
+        if (totalPaidElement) {
+          totalPaidElement.textContent = formatCurrency(totalPaid, true);
+          console.log("[v0] Updated Total Paid:", totalPaid);
+        }
+        if (outstandingElement) {
+          const outstanding = Math.max(0, totalAmountWithInterest - totalPaid);
+          outstandingElement.textContent = formatCurrency(outstanding, true);
+          console.log("[v0] Updated Outstanding:", outstanding);
+        }
+        if (penaltiesElement) {
+          penaltiesElement.textContent = formatCurrency(penalty, true);
+          console.log("[v0] Updated Penalties:", penalty);
+        }
+        
+        const progressElement = document.getElementById("repaymentProgress");
+        if (progressElement) {
+          const progressPercentage = totalAmountWithInterest > 0 ? (totalPaid / totalAmountWithInterest) * 100 : 0;
+          progressElement.style.width = `${progressPercentage}%`;
+          console.log("[v0] Updated Progress:", progressPercentage + "%");
+        }
+
+        displayPaymentHistory(paymentHistory, totalAmountWithInterest);
+
+      } catch (error) {
+        console.error("Error loading payment history:", error);
+        const totalLoanElement = document.getElementById("totalLoanAmount");
+        if (totalLoanElement) {
+          totalLoanElement.textContent = "Error loading data";
+        }
+      }
+    }
+
+    function displayPaymentHistory(paymentHistory, totalLoanAmount) {
+      const tbody = document.getElementById("repaymentHistoryBody");
+      tbody.innerHTML = "";
+
+      if (paymentHistory.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='6' class='text-center text-muted'>No payments made yet.</td></tr>";
+        return;
+      }
+
+      let runningBalance = totalLoanAmount;
+      let i = 1;
+
+      paymentHistory.sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+        return dateA - dateB;
+      });
+
+      paymentHistory.forEach(p => {
+        const amount = Number(p.amount || 0);
+        const penalty = Number(p.penaltyAmount || 0);
+        runningBalance -= amount;
+
+        const date = p.date?.toDate ? p.date.toDate().toLocaleDateString() :
+                     p.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : 'N/A';
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td class="text-center">${counter++}</td>
-          <td class="text-center">${loanRef}</td>
-          <td class="text-center">${borrower}</td>
-          <td class="text-center">${Number(p.amount).toFixed(2)}</td>
-          <td class="text-center">${Number(p.penaltyAmount || 0).toFixed(2)}</td>
-          <td class="text-center">${repayCount}</td>
-          <td class="text-center">
-            <button class="btn btn-sm btn-info" onclick="viewRepaymentHistory('${p.loanId}', '${borrower}')"><i class="fa fa-list"></i> View</button>
-          </td>
-          <td class="text-center">
-            <button class="btn btn-xs btn-outline-primary" onclick="openEditPaymentModal('${ds.id}')"><i class="fa fa-edit"></i></button>
-            <button class="btn btn-xs btn-outline-danger" onclick="deletePayment('${ds.id}')"><i class="fa fa-trash"></i></button>
-          </td>`;
+          <td>${i++}</td>
+          <td>${date}</td>
+          <td class="amount-display">${formatCurrency(amount, true)}</td>
+          <td class="penalty-amount">${formatCurrency(penalty, true)}</td>
+          <td>${p.notes || '-'}</td>
+          <td class="amount-display">${formatCurrency(Math.max(0, runningBalance), true)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function generateRepaymentSchedule(loan, loanId) {
+      const tbody = document.getElementById("repaymentScheduleBody");
+      tbody.innerHTML = "";
+      
+      const loanAmount = Number(loan.loanAmount);
+      const repaymentPeriod = Number(loan.repaymentPeriod);
+      const interestRate = 0.15; // 15% annual interest rate
+      const totalAmountWithInterest = loanAmount * (1 + interestRate);
+      const monthlyPayment = totalAmountWithInterest / repaymentPeriod;
+      
+      const approvedDate = loan.approvedDate ? new Date(loan.approvedDate) : new Date();
+      
+      for (let month = 1; month <= repaymentPeriod; month++) {
+        const dueDate = new Date(approvedDate);
+        dueDate.setMonth(dueDate.getMonth() + month + 1);
+        
+        const isOverdue = new Date() > dueDate;
+        const statusClass = isOverdue ? 'text-danger' : 'text-success';
+        const statusText = isOverdue ? 'Overdue' : 'Pending';
+        const statusIcon = isOverdue ? 'bi-exclamation-triangle' : 'bi-clock';
+        
+        const remainingBalance = totalAmountWithInterest - (month * monthlyPayment);
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>Month ${month}</strong></td>
+          <td>${dueDate.toLocaleDateString()}</td>
+          <td class="amount-display">${formatCurrency(monthlyPayment, true)}</td>
+          <td><span class="${statusClass}"><i class="bi ${statusIcon} me-1"></i>${statusText}</span></td>
+          <td class="amount-display">${formatCurrency(0, true)}</td>
+          <td class="amount-display">${formatCurrency(Math.max(0, remainingBalance), true)}</td>
+        `;
         tbody.appendChild(tr);
       }
     }
 
-    window.viewRepaymentHistory = async (loanId, borrowerName) => {
-      document.getElementById("repaymentHistoryLabel").innerText = `Repayment History - ${borrowerName}`;
-      const tbody = document.getElementById("repaymentHistoryBody");
-      tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
-
-      const q = query(collection(db, "payments"), where("loanId", "==", loanId), orderBy("createdAt", "asc"));
-      const snap = await getDocs(q);
-      tbody.innerHTML = "";
-
-      if (snap.empty) {
-        tbody.innerHTML = "<tr><td colspan='4'>No repayments found.</td></tr>";
-        return;
-      }
-
-      let i = 1;
-      snap.forEach(docSnap => {
-        const p = docSnap.data();
-        const tr = document.createElement("tr");
-        const date = p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString() : 'N/A';
-        tr.innerHTML = `
-          <td>${i++}</td>
-          <td>${date}</td>
-          <td>MWK ${Number(p.amount).toFixed(2)}</td>
-          <td>MWK ${Number(p.penaltyAmount || 0).toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      new bootstrap.Modal(document.getElementById("repaymentHistoryModal")).show();
-    };
-
-    window.openAddPaymentModal = () => {
+    window.openAddPaymentModal = function() {
       currentEditId = null;
       document.getElementById("paymentForm").reset();
       document.getElementById("individualBorrowerGroup").classList.add("d-none");
@@ -120,29 +1333,126 @@
       new bootstrap.Modal(document.getElementById("paymentModal")).show();
     };
 
-    window.openEditPaymentModal = async (id) => {
-      currentEditId = id;
-      const ds = await getDoc(doc(db, "payments", id));
-      if (!ds.exists()) return alert("Payment not found");
-      const p = ds.data();
-      document.getElementById("loanSelect").value = p.loanType;
-      document.getElementById("amountInput").value = p.amount;
-      document.getElementById("penaltyInput").value = p.penaltyAmount;
-      document.getElementById("loanSelect").dispatchEvent(new Event("change"));
-
-      if (p.loanType === "individual") {
-        document.getElementById("individualBorrower").value = p.borrowerId;
-      } else {
-        document.getElementById("groupSelect").value = p.borrowerId;
+    window.openEditPaymentModal = async function(id) {
+      try {
+        const ds = await getDoc(doc(db, "payments", id));
+        if (!ds.exists()) {
+          showNotification("Payment record not found!", "error");
+          return;
+        }
+        
+        const p = ds.data();
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <form id="editPaymentForm">
+                  <div class="mb-3">
+                    <label class="form-label">Amount (MWK)</label>
+                    <input type="number" class="form-control" id="editAmount" value="${p.amount}" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Penalty Amount (MWK)</label>
+                    <input type="number" class="form-control" id="editPenalty" value="${p.penaltyAmount || 0}">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Payment Date</label>
+                    <input type="date" class="form-control" id="editDate" value="${p.createdAt ? new Date(p.createdAt.seconds * 1000).toISOString().split('T')[0] : ''}" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" id="editNotes" rows="3">${p.notes || ''}</textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updatePayment('${id}')">Update Payment</button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+        
+        modal.addEventListener('hidden.bs.modal', () => {
+          document.body.removeChild(modal);
+        });
+        
+      } catch (error) {
+        console.error("Error opening edit modal:", error);
+        showNotification("Error loading payment details. Please try again.", "error");
       }
-      new bootstrap.Modal(document.getElementById("paymentModal")).show();
     };
 
-    window.deletePayment = async (id) => {
-      if (!confirm("Are you sure?")) return;
-      await deleteDoc(doc(db, "payments", id));
-      alert("Deleted.");
-      loadPayments();
+    window.deletePayment = async function(paymentId, borrowerName) {
+      if (!confirm(`Are you sure you want to delete this payment record for ${borrowerName}?`)) {
+        return;
+      }
+
+      try {
+        showLoading();
+        await deleteDoc(doc(db, "payments", paymentId));
+        
+        showNotification("Payment record deleted successfully!", "success");
+        
+        loadPayments();
+      } catch (error) {
+        console.error("Error deleting payment:", error);
+        showNotification("Error deleting payment record. Please try again.", "error");
+      } finally {
+        hideLoading();
+      }
+    };
+
+    window.updatePayment = async function(paymentId) {
+      try {
+        const amount = document.getElementById('editAmount').value;
+        const penalty = document.getElementById('editPenalty').value;
+        const date = document.getElementById('editDate').value;
+        const notes = document.getElementById('editNotes').value;
+
+        if (!amount || !date) {
+          showNotification("Please fill in all required fields.", "error");
+          return;
+        }
+
+        showLoading();
+
+        const updateData = {
+          amount: parseFloat(amount),
+          penaltyAmount: parseFloat(penalty) || 0,
+          createdAt: new Date(date),
+          notes: notes,
+          updatedAt: new Date()
+        };
+
+        await updateDoc(doc(db, "payments", paymentId), updateData);
+        
+        showNotification("Payment updated successfully!", "success");
+        
+        const modal = document.querySelector('.modal.show');
+        if (modal) {
+          const bootstrapModal = bootstrap.Modal.getInstance(modal);
+          bootstrapModal.hide();
+        }
+        loadPayments();
+        
+      } catch (error) {
+        console.error("Error updating payment:", error);
+        showNotification("Error updating payment. Please try again.", "error");
+      } finally {
+        hideLoading();
+      }
     };
 
     async function loadUsersAndGroups() {
@@ -151,17 +1461,30 @@
       ib.innerHTML = `<option value="">Select borrower</option>`;
       gb.innerHTML = `<option value="">Select group</option>`;
 
-      (await getDocs(collection(db, "users"))).forEach(u => {
-        const data = u.data();
-        if (data.isGroup) return; // Skip groups in individual borrower list
-        const fullName = data.fullName || '${firstName} ${lastName}';
-        ib.innerHTML += `<option value="${u.id}">${data.fullName || u.id}</option>`;
-      });
-      (await getDocs(collection(db, "groups"))).forEach(g => {
-        const data =g.data();
-        if (!data.groupName) return; // Skip if no group name
-        gb.innerHTML += `<option value="${g.id}">${data.groupName || g.id}</option>`;
-      });
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        usersSnap.forEach(u => {
+          const data = u.data();
+          if (data.isGroup) return;
+          ib.innerHTML += `<option value="${u.id}">${data.fullName || u.id}</option>`;
+        });
+
+        const groupsSnap = await getDocs(collection(db, "groups"));
+        groupsSnap.forEach(g => {
+          const data = g.data();
+          if (!data.groupName) return;
+          gb.innerHTML += `<option value="${g.id}">${data.groupName || g.id}</option>`;
+        });
+      } catch (error) {
+        console.error("Error loading users and groups:", error);
+      }
+    }
+
+    function getFilters() {
+      return {
+        loanStatus: document.getElementById("statusFilter").value,
+        dueDate: document.getElementById("dueDateFilter").value
+      };
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -174,9 +1497,11 @@
       });
 
       document.getElementById("filterBtn").addEventListener("click", loadPayments);
+      document.getElementById("newPaymentBtn").addEventListener("click", openAddPaymentModal);
 
       document.getElementById("paymentForm").addEventListener("submit", async e => {
         e.preventDefault();
+        
         const type = document.getElementById("loanSelect").value;
         const borrowerId = type === "individual"
           ? document.getElementById("individualBorrower").value
@@ -184,158 +1509,60 @@
         const amount = parseFloat(document.getElementById("amountInput").value);
         const penalty = parseFloat(document.getElementById("penaltyInput").value) || 0;
 
-        const loanSnap = await getDocs(query(
-          collection(db, "loans_applications"),
-          orderBy("createdAt", "desc"),
-          where("status", "==", "active"),
-          where(type === "individual" ? "borrowerId" : "groupId", "==", borrowerId),
-          where("isGroupLoan", "==", (type === "group"))
-        ));
-        if (loanSnap.empty) return alert("Loan not found");
-        else if (loanSnap.size > 1) return alert("Multiple loans found,please refine your search.");
-        if (borrowerId === "") return alert("please select a borrower or group.");
-        if (isNaN(amount) || amount <=0) return alert("please enter a valid amount.");
-        const loanDoc = loanSnap.docs[0];
-
-        const data = {
-          loanId: loanDoc.id,
-          loanType: type,
-          borrowerId,
-          amount,
-          penaltyAmount: penalty,
-          createdAt: new Date()
-        };
-
-        if (currentEditId) {
-          await updateDoc(doc(db, "payments", currentEditId), data);
-          alert("Updated.");
-        } else {
-          await addDoc(collection(db, "payments"), data);
-          alert("Saved.");
+        if (!borrowerId) {
+          showNotification("Please select a borrower or group", "error");
+          return;
+        }
+        if (isNaN(amount) || amount <= 0) {
+          showNotification("Please enter a valid amount", "error");
+          return;
         }
 
-        bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
-        loadPayments();
+        try {
+          const loanSnap = await getDocs(query(
+            collection(db, "loan_applications"),
+            orderBy("createdAt", "desc"),
+            where("status", "==", "Approved"),
+            where(type === "individual" ? "borrowerId" : "groupId", "==", borrowerId),
+            where("isGroupLoan", "==", (type === "group"))
+          ));
+
+          if (loanSnap.empty) {
+            showNotification("No active loan found for this borrower/group", "error");
+            return;
+          }
+          if (loanSnap.size > 1) {
+            showNotification("Multiple loans found, please contact administrator", "error");
+            return;
+          }
+
+          const loanDoc = loanSnap.docs[0];
+          const data = {
+            loanId: loanDoc.id,
+            loanType: type,
+            borrowerId,
+            amount,
+            penaltyAmount: penalty,
+            createdAt: new Date()
+          };
+
+          if (currentEditId) {
+            await updateDoc(doc(db, "payments", currentEditId), data);
+            showNotification("Payment updated successfully!");
+          } else {
+            await addDoc(collection(db, "payments"), data);
+            showNotification("Payment saved successfully!");
+          }
+
+          bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
+          loadPayments();
+        } catch (error) {
+          console.error("Error saving payment:", error);
+          showNotification("Error saving payment", "error");
+        }
       });
-
-      document.getElementById("newPaymentBtn").addEventListener("click", openAddPaymentModal);
     });
-
-    function getFilters() {
-      return {
-        loanStatus: document.getElementById("statusFilter").value,
-        dueDate: document.getElementById("dueDateFilter").value
-      };
-    }
   </script>
-</head>
-<body class="bg-light">
-  <div class="container-fluid mt-4">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between">
-        <a href="loanofficer.html" class="btn btn-outline-secondary">🏠 Back to Home</a>
-        <h4>Payment List</h4>
-        <button class="btn btn-outline-secondary" id="newPaymentBtn"><i class="fa fa-plus"></i> New Payment</button>
-      </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-md-4">
-            <label>Loan Status</label>
-            <select id="statusFilter" class="form-select">
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="defaulter">Defaulter</option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label>Due Date (on or before)</label>
-            <input type="date" id="dueDateFilter" class="form-control"/>
-          </div>
-          <div class="col-md-4 d-flex align-items-end">
-            <button class="btn btn-primary w-100" id="filterBtn">Apply Filters</button>
-          </div>
-        </div>
 
-        <table class="table table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>#</th><th>Loan Ref</th><th>Borrower</th><th>Amount</th><th>Penalty</th><th>Repayments</th><th>History</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="paymentTableBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal for Add/Edit Payment -->
-  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="paymentForm" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="paymentModalLabel">Add/Edit Payment</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label>Loan Type</label>
-            <select id="loanSelect" class="form-select" required>
-              <option value="">Select loan type</option>
-              <option value="individual">Individual Loan</option>
-              <option value="group">Group Loan</option>
-            </select>
-          </div>
-          <div class="mb-3 d-none" id="individualBorrowerGroup">
-            <label>Borrower</label>
-            <select id="individualBorrower" class="form-select"></select>
-          </div>
-          <div class="mb-3 d-none" id="groupBorrowerGroup">
-            <label>Group</label>
-            <select id="groupSelect" class="form-select"></select>
-          </div>
-          <div class="mb-3">
-            <label>Amount</label>
-            <input type="number" id="amountInput" class="form-control" step="0.01" required min="0"/>
-          </div>
-          <div class="mb-3">
-            <label>Penalty Amount</label>
-            <input type="number" id="penaltyInput" class="form-control" step="0.01" min="0"/>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary" type="submit">Save Payment</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Repayment History Modal -->
-  <div class="modal fade" id="repaymentHistoryModal" tabindex="-1" aria-labelledby="repaymentHistoryLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="repaymentHistoryLabel">Repayment History</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <table class="table table-sm table-bordered">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Penalty</th>
-              </tr>
-            </thead>
-            <tbody id="repaymentHistoryBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <style>td { vertical-align: middle !important; }</style>
 </body>
 </html>

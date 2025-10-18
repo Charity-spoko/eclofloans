@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECLOF Malawi - Loan Officer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background: linear-gradient(180deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%);
+      color: white;
+      padding-top: 1rem;
+      position: fixed;
+      width: 250px;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(6, 78, 59, 0.3);
+      border-right: 2px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #10b981, #22c55e, #34d399);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .sidebar-header {
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar h4 {
+      background: linear-gradient(135deg, #34d399, #10b981, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: #a7f3d0;
+      margin-top: 0.25rem;
+    }
+
+    .sidebar a {
+      color: #d1fae5;
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      margin: 0.25rem 1rem;
+      position: relative;
+      overflow: hidden;
+      font-weight: 500;
+    }
+
+    .sidebar a i {
+      width: 20px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2));
+      color: white;
+      transform: translateX(8px);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .sidebar a:hover::before {
+      left: 100%;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: fixed;
+      left: 250px;
+      right: 0;
+      top: 0;
+      z-index: 999;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h3 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notification-badge {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .notification-badge .badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 2rem 1rem 1rem 1rem;
+      padding-top: 7rem;
+      min-height: 100vh;
+    }
+
+    .status-card {
+      border-radius: 16px;
+      color: white;
+      margin-bottom: 1.5rem;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .status-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .status-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      transition: all 0.3s ease;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      margin-right: 1rem;
+    }
+
+    .status-card:hover .card-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .bg-eclof-green {
+      background: linear-gradient(135deg, #064e3b, #047857, #059669);
+    }
+
+    .bg-pending {
+      background: linear-gradient(135deg, #ea580c, #f97316, #fb923c);
+    }
+
+    .bg-approved {
+      background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+    }
+
+    .bg-rejected {
+      background: linear-gradient(135deg, #dc2626, #ef4444, #f87171);
+    }
+
+    .application-card {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .application-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .credit-badge {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .asset-score-badge {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        justify-content: center;
+        margin-top: 1rem;
+      }
+      
+      .btn-approve, .btn-reject {
+        flex: 1;
+        min-width: 100px;
+      }
+    }
+
+    .btn-approve, .btn-reject, .btn-repayment, .btn-assets {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .btn-approve:hover, .btn-repayment:hover, .btn-assets:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      color: white;
+    }
+
+    .btn-reject {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+    }
+
+    .btn-reject:hover {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+      color: white;
+    }
+
+    .btn-repayment {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    }
+
+    .btn-repayment:hover {
+      background: linear-gradient(135deg, #0369a1, #0284c7);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+    }
+
+    .btn-assets {
+      background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+    }
+
+    .btn-assets:hover {
+      background: linear-gradient(135deg, #6d28d9, #7c3aed);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-approve:disabled, .btn-reject:disabled, .btn-repayment:disabled, .btn-assets:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+    }
+
+    .search-box input {
+      padding-left: 2.5rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+
+    .search-box input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      border-bottom: none;
+    }
+
+    .modal-header .btn-close {
+      filter: brightness(0) invert(1);
+    }
+
+    .repayment-summary {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 2px solid #bbf7d0;
+    }
+
+    .loan-breakdown {
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-left: 4px solid #10b981;
+    }
+
+    .payment-method-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-method-card:hover {
+      border-color: #16a34a;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+    }
+
+    .payment-method-card.selected {
+      border-color: #16a34a;
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    }
+
+    .payment-method-card input[type="radio"] {
+      margin-right: 0.75rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+
+    .asset-section {
+      background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 2px solid #e9d5ff;
+    }
+
+    .asset-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 0.5rem;
+    }
+
+    .asset-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .asset-name {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .asset-value {
+      font-weight: 700;
+      color: #7c3aed;
+    }
+
+    .asset-type-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-weight: 500;
+      background: #e9d5ff;
+      color: #6d28d9;
+      margin-left: 0.5rem;
+    }
+
+    .collateral-ratio {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #f59e0b;
+      margin-top: 1rem;
+    }
+
+    .liquidity-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+
+    .liquidity-high { background-color: #10b981; }
+    .liquidity-medium { background-color: #f59e0b; }
+    .liquidity-low { background-color: #ef4444; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .header {
+        left: 0;
+      }
+      
+      .content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+
+    .composite-score-breakdown {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      border: 2px solid #bae6fd;
+    }
+
+    .score-component {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+    }
+
+    .score-component:last-child {
+      border-bottom: none;
+    }
+
+    .score-weight {
+      font-size: 0.8rem;
+      color: #0369a1;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <button class="btn btn-success mobile-menu-btn position-fixed" style="top: 1rem; left: 1rem; z-index: 1001;" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="eclof.png" class="sidebar-logo" alt="ECLOF Logo">
+      <h4>Loan Officer</h4>
+      <div class="sidebar-subtitle">ECLOF Malawi</div>
+    </div>
+    <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="borrowers.html"><i class="fas fa-users"></i> Borrowers</a>
+    <a href="repayment.html"><i class="fas fa-money-bill-wave"></i> Repayments</a>
+    <a href="report.html"><i class="fas fa-chart-bar"></i> Reports</a>
+    <a href="#" id="logoutlink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+  <div class="header">
+    <div class="header-content">
+      <h3><i class="fas fa-chart-line me-2"></i>Loan Officer Dashboard</h3>
+      <div class="header-actions">
+        <div class="notification-badge">
+          <i class="fas fa-bell text-white" style="font-size: 1.2rem;"></i>
+          <span class="badge" id="notificationCount">0</span>
+        </div>
+        <div class="text-white">
+          <i class="fas fa-user-circle me-1"></i>
+          <span id="currentUser">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="container-fluid">
+      <div class="filter-section">
+        <div class="row align-items-center">
+          <div class="col-md-3">
+            <label for="creditFilter" class="form-label fw-bold">
+              <i class="fas fa-filter me-1"></i>Filter by Credit Score
+            </label>
+            <select id="creditFilter" class="form-select" onchange="loadDashboardData(this.value)">
+              <option value="All">All Applications</option>
+              <option value="High">High Credit Score</option>
+              <option value="Moderate">Moderate Credit Score</option>
+              <option value="Low">Low Credit Score</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="assetFilter" class="form-label fw-bold">
+              <i class="fas fa-coins me-1"></i>Filter by Asset Coverage
+            </label>
+            <select id="assetFilter" class="form-select" onchange="filterByAssetCoverage(this.value)">
+              <option value="All">All Asset Levels</option>
+              <option value="Excellent">Excellent (>150%)</option>
+              <option value="Good">Good (100-150%)</option>
+              <option value="Moderate">Moderate (50-100%)</option>
+              <option value="Low">Low (<50%)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="statusFilter" class="form-label fw-bold">
+              <i class="fas fa-tasks me-1"></i>Filter by Status
+            </label>
+            <select id="statusFilter" class="form-select" onchange="filterByStatus(this.value)">
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="searchBox" class="form-label fw-bold">
+              <i class="fas fa-search me-1"></i>Search Applications
+            </label>
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchBox" class="form-control" placeholder="Search by name or username..." onkeyup="searchApplications(this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card status-card bg-eclof-green p-3 h-100" onclick="filterByStatus('All')">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="fas fa-folder-open"></i>
+              </div>
+              <div>
+                <div class="card-title">Total Applications</div>
+                <h4 id="totalApplications">0</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card status-card bg-pending p-3 h-100" onclick="filterByStatus('Pending')">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div>
+                <div class="card-title">Pending Approval</div>
+                <h4 id="pendingApplications">0</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card status-card bg-approved p-3 h-100" onclick="filterByStatus('Approved')">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div>
+                <div class="card-title">Approved Loans</div>
+                <h4 id="approvedLoans">0</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card status-card bg-rejected p-3 h-100" onclick="filterByStatus('Rejected')">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="fas fa-times-circle"></i>
+              </div>
+              <div>
+                <div class="card-title">Rejected Applications</div>
+                <h4 id="rejectedApplications">0</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading applications...</p>
+      </div>
+
+      <div id="applicationList"></div>
+
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="fas fa-inbox"></i>
+        <h4>No Applications Found</h4>
+        <p>There are no loan applications matching your current filters.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="assetModal" tabindex="-1" aria-labelledby="assetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="assetModalLabel">
+            <i class="fas fa-coins me-2"></i>Asset Portfolio & Risk Assessment
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="asset-section">
+            <h6 class="fw-bold mb-3"><i class="fas fa-user me-2"></i>Borrower Information</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Name:</strong> <span id="assetBorrowerName">-</span></p>
+                <p class="mb-1"><strong>Type:</strong> <span id="assetLoanType">-</span></p>
+                <p class="mb-1"><strong>Requested Amount:</strong> MWK <span id="assetRequestedAmount">0</span></p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Monthly Income:</strong> MWK <span id="assetMonthlyIncome">0</span></p>
+                <p class="mb-1"><strong>Credit Score:</strong> <span id="assetCreditScore">-</span></p>
+                <p class="mb-1"><strong>Asset Coverage:</strong> <span id="assetCoverage">-</span></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="asset-section">
+            <h6 class="fw-bold mb-3"><i class="fas fa-warehouse me-2"></i>Asset Portfolio</h6>
+            <div id="assetPortfolio">
+              <div class="text-center py-3 text-muted">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading asset information...
+              </div>
+            </div>
+
+            <div class="collateral-ratio">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <h6 class="mb-1">Total Asset Value</h6>
+                  <div class="h5 text-warning mb-0">MWK <span id="totalAssetValue">0</span></div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-1">Loan-to-Asset Ratio</h6>
+                  <div class="h5 text-info mb-0"><span id="loanToAssetRatio">0</span>%</div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-1">Risk Level</h6>
+                  <div class="h5 mb-0"><span id="riskLevel">-</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="composite-score-breakdown">
+              <h6 class="fw-bold mb-3"><i class="fas fa-calculator me-2"></i>Enhanced Credit Score Breakdown</h6>
+              <div class="score-component">
+                <span>Traditional Credit Score (40%)</span>
+                <span class="score-weight" id="traditionalScore">0/40</span>
+              </div>
+              <div class="score-component">
+                <span>Asset Coverage (35%)</span>
+                <span class="score-weight" id="assetCoverageScore">0/35</span>
+              </div>
+              <div class="score-component">
+                <span>Asset Liquidity (15%)</span>
+                <span class="score-weight" id="liquidityScore">0/15</span>
+              </div>
+              <div class="score-component">
+                <span>Asset Diversification (10%)</span>
+                <span class="score-weight" id="diversificationScore">0/10</span>
+              </div>
+              <div class="score-component fw-bold border-top pt-2 mt-2">
+                <span>Final Composite Score</span>
+                <span class="h6 mb-0" id="finalCompositeScore">0/100</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>Close
+          </button>
+          <button type="button" class="btn btn-primary" onclick="exportAssetReport()" id="exportReportBtn">
+            <i class="fas fa-download me-1"></i>Export Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="repaymentModal" tabindex="-1" aria-labelledby="repaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="repaymentModalLabel">
+            <i class="fas fa-credit-card me-2"></i>Record Loan Repayment
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="repayment-summary">
+            <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2"></i>Loan Information</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Borrower:</strong> <span id="borrowerName">-</span></p>
+                <p class="mb-1"><strong>Loan Type:</strong> <span id="loanType">-</span></p>
+                <p class="mb-1"><strong>Principal Amount:</strong> MWK <span id="principalAmount">0</span></p>
+                <p class="mb-1"><strong>Interest Amount (15%):</strong> MWK <span id="interestAmount">0</span></p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1"><strong>Total Loan Amount:</strong> MWK <span id="totalLoanAmount">0</span></p>
+                <p class="mb-1"><strong>Monthly Payment:</strong> MWK <span id="monthlyPayment">0</span></p>
+                <p class="mb-1"><strong>Next Due Date:</strong> <span id="nextDueDate">-</span></p>
+                <p class="mb-1"><strong>Payment Status:</strong> <span id="paymentStatus" class="badge">-</span></p>
+              </div>
+            </div>
+            
+            <div class="loan-breakdown">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <h6 class="mb-1">Total Paid</h6>
+                  <div class="h5 text-success mb-0">MWK <span id="totalPaid">0</span></div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-1">Outstanding Balance</h6>
+                  <div class="h5 text-warning mb-0">MWK <span id="outstandingBalance">0</span></div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-1">Progress</h6>
+                  <div class="h5 text-info mb-0"><span id="paymentProgress">0</span>%</div>
+                </div>
+              </div>
+              <div class="progress mt-2" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <form id="repaymentForm">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="paymentAmount" class="form-label">
+                  <i class="fas fa-dollar-sign me-1"></i>Payment Amount (MWK)
+                </label>
+                <input type="number" class="form-control" id="paymentAmount" min="1" step="0.01" required>
+                <div class="form-text">Maximum: MWK <span id="maxPaymentAmount">0</span></div>
+              </div>
+              <div class="col-md-6">
+                <label for="paymentDate" class="form-label">
+                  <i class="fas fa-calendar me-1"></i>Payment Date
+                </label>
+                <input type="date" class="form-control" id="paymentDate" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="fas fa-credit-card me-1"></i>Payment Method
+              </label>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="payment-method-card" onclick="selectPaymentMethod('cash')">
+                    <input type="radio" name="paymentMethod" value="cash" id="cashMethod">
+                    <label for="cashMethod" class="mb-0">
+                      <i class="fas fa-money-bill-alt text-success me-2"></i>Cash
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="payment-method-card" onclick="selectPaymentMethod('bank')">
+                    <input type="radio" name="paymentMethod" value="bank" id="bankMethod">
+                    <label for="bankMethod" class="mb-0">
+                      <i class="fas fa-university text-primary me-2"></i>Bank Transfer
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="payment-method-card" onclick="selectPaymentMethod('mobile')">
+                    <input type="radio" name="paymentMethod" value="mobile" id="mobileMethod">
+                    <label for="mobileMethod" class="mb-0">
+                      <i class="fas fa-mobile-alt text-warning me-2"></i>Mobile Money
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3 d-none" id="referenceSection">
+              <label for="paymentReference" class="form-label">
+                <i class="fas fa-hashtag me-1"></i>Payment Reference/Transaction ID
+              </label>
+              <input type="text" class="form-control" id="paymentReference" placeholder="Enter transaction reference">
+            </div>
+
+            <div class="mb-3">
+              <label for="paymentNotes" class="form-label">
+                <i class="fas fa-sticky-note me-1"></i>Notes (Optional)
+              </label>
+              <textarea class="form-control" id="paymentNotes" rows="3" placeholder="Add any additional notes about this payment..."></textarea>
+            </div>
+          </form>
+
+          <div class="mt-4">
+            <h6 class="fw-bold mb-3">
+              <i class="fas fa-history me-2"></i>Recent Payment History
+            </h6>
+            <div class="repayment-history" id="repaymentHistory" style="max-height: 300px; overflow-y: auto;">
+              <div class="text-center py-3 text-muted">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading payment history...
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>Cancel
+          </button>
+          <button type="button" class="btn btn-success" onclick="processRepayment()" id="processPaymentBtn">
+            <i class="fas fa-check me-1"></i>Record Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="watermark">ECLOF Malawi</div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, updateDoc, doc, onSnapshot, addDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentLoanData = null;
+    let allApplications = [];
+    let filteredApplications = [];
+    let unsubscribe = null;
+    // FIXED: Enhanced asset score calculation with better data structure handling
+    function calculateAssetScore(assets, loanAmount) {
+      console.log('=== ASSET SCORE CALCULATION ===');
+      console.log('Raw assets received:', JSON.stringify(assets, null, 2));
+      console.log('Loan amount:', loanAmount);
+      
+      if (!assets || (typeof assets === 'object' && Object.keys(assets).length === 0)) {
+        console.log('No assets found - returning null (will use traditional scoring only)');
+        return null; // Changed from zero score to null to indicate no assets
+      }
+
+      let totalValue = 0;
+      let liquidAssets = 0;
+      let assetTypes = new Set();
+      let assetCount = 0;
+      
+      const liquidityWeights = {
+        'livestock': 0.7,
+        'farmland': 0.4,
+        'equipment': 0.6,
+        'inventory': 0.9,
+        'fixtures': 0.5,
+        'cash': 1.0,
+        'vehicles': 0.6,
+        'land': 0.4,
+        'building': 0.3,
+        'machinery': 0.6,
+        'tools': 0.6,
+        'savings': 1.0,
+        'other': 0.5
+      };
+
+      // Handle ALL possible asset data structures with better parsing
+      for (const [category, items] of Object.entries(assets)) {
+        console.log(`Processing category: ${category}`, items);
+        
+        if (Array.isArray(items) && items.length > 0) {
+          // Array of asset objects
+          items.forEach((item, index) => {
+            const value = parseFloat(
+              item.estimatedValue || 
+              item.value || 
+              item.amount || 
+              item.assetValue ||
+              item.totalValue ||
+              0
+            );
+            console.log(`  - Array item ${index} value: ${value}`);
+            if (value > 0) {
+              totalValue += value;
+              assetCount++;
+              
+              const liquidityWeight = liquidityWeights[category.toLowerCase()] || 0.5;
+              liquidAssets += value * liquidityWeight;
+              
+              assetTypes.add(category.toLowerCase());
+            }
+          });
+        } else if (typeof items === 'object' && items !== null && !Array.isArray(items)) {
+          // Single asset object or nested structure
+          // Try multiple value field names
+          let value = 0;
+          
+          // Check all possible value fields
+          if (items.estimatedValue) value = parseFloat(items.estimatedValue);
+          else if (items.value) value = parseFloat(items.value);
+          else if (items.amount) value = parseFloat(items.amount);
+          else if (items.assetValue) value = parseFloat(items.assetValue);
+          else if (items.totalValue) value = parseFloat(items.totalValue);
+          
+          console.log(`  - Object value: ${value}`);
+          if (value > 0) {
+            totalValue += value;
+            assetCount++;
+            
+            const liquidityWeight = liquidityWeights[category.toLowerCase()] || 0.5;
+            liquidAssets += value * liquidityWeight;
+            
+            assetTypes.add(category.toLowerCase());
+          }
+        } else if (typeof items === 'number') {
+          // Direct number value
+          console.log(`  - Direct number value: ${items}`);
+          if (items > 0) {
+            totalValue += items;
+            assetCount++;
+            
+            const liquidityWeight = liquidityWeights[category.toLowerCase()] || 0.5;
+            liquidAssets += items * liquidityWeight;
+            
+            assetTypes.add(category.toLowerCase());
+          }
+        } else if (typeof items === 'string') {
+          // String number value
+          const value = parseFloat(items);
+          console.log(`  - String number value: ${value}`);
+          if (!isNaN(value) && value > 0) {
+            totalValue += value;
+            assetCount++;
+            
+            const liquidityWeight = liquidityWeights[category.toLowerCase()] || 0.5;
+            liquidAssets += value * liquidityWeight;
+            
+            assetTypes.add(category.toLowerCase());
+          }
+        }
+      }
+
+      // If no valid assets found after parsing, return null
+      if (totalValue === 0 || assetCount === 0) {
+        console.log('No valid asset values found - returning null');
+        return null;
+      }
+
+      const coverageRatio = loanAmount > 0 ? (totalValue / loanAmount) * 100 : 0;
+      const liquidityScore = totalValue > 0 ? Math.min(100, (liquidAssets / totalValue) * 100) : 0;
+      const maxTypes = 5;
+      const diversificationScore = Math.min(100, (assetTypes.size / maxTypes) * 100);
+
+      console.log('Asset Calculation Results:', {
+        totalValue,
+        loanAmount,
+        coverageRatio,
+        assetTypes: Array.from(assetTypes),
+        assetCount,
+        liquidityScore,
+        diversificationScore
+      });
+      console.log('=== END ASSET CALCULATION ===\n');
+
+      let assetGrade, assetBadge;
+      if (coverageRatio >= 150) {
+        assetGrade = 'Excellent';
+        assetBadge = 'success';
+      } else if (coverageRatio >= 100) {
+        assetGrade = 'Good';
+        assetBadge = 'info';
+      } else if (coverageRatio >= 50) {
+        assetGrade = 'Moderate';
+        assetBadge = 'warning';
+      } else if (coverageRatio >= 25) {
+        assetGrade = 'Fair';
+        assetBadge = 'warning';
+      } else {
+        assetGrade = 'Low';
+        assetBadge = 'danger';
+      }
+
+      return {
+        totalValue: Math.round(totalValue),
+        coverageRatio: Math.round(coverageRatio),
+        liquidityScore: Math.round(liquidityScore),
+        diversificationScore: Math.round(diversificationScore),
+        assetGrade,
+        assetBadge,
+        assetCount
+      };
+    }
+    // FIXED: Composite score calculation with adjusted thresholds
+    function calculateCompositeScore(traditionalCredit, assets, loanAmount) {
+      const assetScore = calculateAssetScore(assets, loanAmount);
+      
+      const traditionalWeight = 0.40;
+      const assetCoverageWeight = 0.35;
+      const liquidityWeight = 0.15;
+      const diversificationWeight = 0.10;
+
+      let traditionalNumeric;
+      switch(traditionalCredit.score) {
+        case 'High': traditionalNumeric = 85; break;
+        case 'Moderate': traditionalNumeric = 60; break;
+        case 'Low': traditionalNumeric = 35; break;
+        default: traditionalNumeric = 35;
+      }
+
+      let coverageScore;
+      if (assetScore.coverageRatio >= 150) coverageScore = 100;
+      else if (assetScore.coverageRatio >= 100) coverageScore = 85;
+      else if (assetScore.coverageRatio >= 50) coverageScore = 65;
+      else coverageScore = Math.max(0, assetScore.coverageRatio * 1.2);
+
+      const compositeScore = Math.round(
+        (traditionalNumeric * traditionalWeight) +
+        (coverageScore * assetCoverageWeight) +
+        (assetScore.liquidityScore * liquidityWeight) +
+        (assetScore.diversificationScore * diversificationWeight)
+      );
+
+      // FIXED: Adjusted thresholds - 50+ is High
+      let finalGrade, finalBadge;
+      if (compositeScore >= 50) {
+        finalGrade = 'High';
+        finalBadge = 'success';
+      } else if (compositeScore >= 35) {
+        finalGrade = 'Moderate';  
+        finalBadge = 'warning';
+      } else {
+        finalGrade = 'Low';
+        finalBadge = 'danger';
+      }
+
+      return {
+        score: finalGrade,
+        badge: finalBadge,
+        numericScore: compositeScore,
+        breakdown: {
+          traditional: Math.round(traditionalNumeric * traditionalWeight),
+          assetCoverage: Math.round(coverageScore * assetCoverageWeight),
+          liquidity: Math.round(assetScore.liquidityScore * liquidityWeight),
+          diversification: Math.round(assetScore.diversificationScore * diversificationWeight)
+        },
+        assetDetails: assetScore
+      };
+    }
+
+    function calculateCreditScore(income, repaymentHistory, loanAmount, assets) {
+      let score = 'Low';
+      let badge = 'danger';
+      
+      if (income >= 20000) {
+        score = 'High';
+        badge = 'success';
+      } else if (income >= 50000) {
+        score = 'Moderate';
+        badge = 'warning';
+      }
+      
+      const loanToIncomeRatio = loanAmount / (income * 12);
+      if (loanToIncomeRatio > 0.5) {
+        score = score === 'High' ? 'Moderate' : 'Low';
+        badge = score === 'Moderate' ? 'warning' : 'danger';
+      }
+      
+      if (repaymentHistory && repaymentHistory.length > 0) {
+        const latePayments = repaymentHistory.filter(t => t.status === 'late').length;
+        const totalPayments = repaymentHistory.length;
+        const lateRatio = latePayments / totalPayments;
+        
+        if (lateRatio > 0.3) {
+          score = 'Low';
+          badge = 'danger';
+        } else if (lateRatio > 0.1 && score === 'High') {
+          score = 'Moderate';
+          badge = 'warning';
+        }
+      }
+
+      const traditionalCredit = { score, badge };
+      
+      if (assets && Object.keys(assets).length > 0) {
+        return calculateCompositeScore(traditionalCredit, assets, loanAmount);
+      }
+      
+      return traditionalCredit;
+    }
+
+    function checkLoanEligibility(loanData) {
+      const issues = [];
+      const warnings = [];
+      
+      // Check composite score first (most important)
+      if (loanData.credit.numericScore && loanData.credit.numericScore < 50) {
+        issues.push(`Composite score too low (${loanData.credit.numericScore}/100) - minimum 50 points required`);
+      }
+      
+      // If composite score is good, other factors are just warnings
+      const monthlyIncome = loanData.monthlyIncome || 0;
+      const loanAmount = loanData.loanAmount || loanData.requestedLoanAmount || 0;
+      const annualIncome = monthlyIncome * 12;
+      
+      if (annualIncome === 0) {
+        warnings.push("No income information provided");
+      } else {
+        const loanToIncomeRatio = loanAmount / annualIncome;
+        if (loanToIncomeRatio > 0.5) {
+          warnings.push(`Loan-to-income ratio high (${Math.round(loanToIncomeRatio * 100)}%) - exceeds 50% threshold`);
+        }
+      }
+      
+      if (loanData.credit.assetDetails && loanData.credit.assetDetails.totalValue > 0) {
+        const coverageRatio = loanData.credit.assetDetails.coverageRatio;
+        if (coverageRatio < 30) {
+          warnings.push(`Asset coverage low (${coverageRatio}%) - 30% or higher recommended`);
+        }
+      }
+      
+      const minimumIncome = 100000;
+      if (monthlyIncome < minimumIncome) {
+        warnings.push(`Monthly income (MWK ${monthlyIncome.toLocaleString()}) below recommended threshold (MWK ${minimumIncome.toLocaleString()})`);
+      }
+      
+      if (loanData.repaymentHistory && loanData.repaymentHistory.length > 0) {
+        const latePayments = loanData.repaymentHistory.filter(p => p.status === 'late').length;
+        const totalPayments = loanData.repaymentHistory.length;
+        const lateRatio = latePayments / totalPayments;
+        
+        if (lateRatio > 0.3) {
+          issues.push(`Poor repayment history - ${Math.round(lateRatio * 100)}% late payments (exceeds 30% threshold)`);
+        } else if (lateRatio > 0.15) {
+          warnings.push(`Concerning repayment history - ${Math.round(lateRatio * 100)}% late payments`);
+        }
+      }
+      
+      return {
+        isEligible: issues.length === 0,
+        issues: issues,
+        warnings: warnings
+      };
+    }
+
+    function showLoading() {
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("applicationList").style.display = "none";
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("applicationList").style.display = "block";
+    }
+
+    function showEmptyState() {
+      document.getElementById("emptyState").style.display = "block";
+      document.getElementById("applicationList").style.display = "none";
+    }
+
+    function getCurrentUserName() {
+      const userNames = ['Michael Kachale'];
+      return localStorage.getItem('eclof_user_name') || userNames[Math.floor(Math.random() * userNames.length)];
+    }
+
+    function calculateLoanAmounts(principalAmount, repaymentPeriod) {
+      const principal = parseFloat(principalAmount) || 0;
+      const period = parseInt(repaymentPeriod) || 1;
+      
+      const interestRate = 0.15;
+      const interestAmount = principal * interestRate;
+      const totalLoanAmount = principal + interestAmount;
+      const monthlyPayment = totalLoanAmount / period;
+      
+      return {
+        principal: principal,
+        interestAmount: interestAmount,
+        totalAmount: totalLoanAmount,
+        monthlyPayment: monthlyPayment
+      };
+    }
+
+    function calculateOutstandingBalance(loanData) {
+      const principalAmount = loanData.loanAmount || loanData.requestedLoanAmount || 0;
+      const loanAmounts = calculateLoanAmounts(principalAmount);
+      const payments = loanData.repaymentHistory || [];
+      const totalPaid = payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+      
+      const outstandingBalance = Math.max(0, loanAmounts.totalAmount - totalPaid);
+      
+      return {
+        outstanding: outstandingBalance,
+        totalPaid: totalPaid,
+        totalLoan: loanAmounts.totalAmount,
+        progressPercent: loanAmounts.totalAmount > 0 ? Math.round((totalPaid / loanAmounts.totalAmount) * 100) : 0
+      };
+    }
+
+    window.openAssetModal = function(loanId) {
+      const loanData = allApplications.find(app => app.id === loanId);
+      if (!loanData) {
+        showNotification("Loan data not found!", "error");
+        return;
+      }
+
+      const displayName = loanData.loanType === 'Group' ? 
+        (loanData.groupName || 'No Group Name') : 
+        (loanData.fullName || 'No Name');
+
+      document.getElementById('assetBorrowerName').textContent = displayName;
+      document.getElementById('assetLoanType').textContent = loanData.loanType || 'Individual';
+      document.getElementById('assetRequestedAmount').textContent = (loanData.requestedLoanAmount || 0).toLocaleString();
+      document.getElementById('assetMonthlyIncome').textContent = (loanData.monthlyIncome || 0).toLocaleString();
+      
+      const enhancedCredit = loanData.credit || calculateCreditScore(
+        loanData.monthlyIncome || 0, 
+        loanData.repaymentHistory || [], 
+        loanData.requestedLoanAmount || 0,
+        loanData.assets || {}
+      );
+      
+      document.getElementById('assetCreditScore').textContent = enhancedCredit.score;
+      
+      const assetDetails = enhancedCredit.assetDetails || calculateAssetScore(loanData.assets || {}, loanData.requestedLoanAmount || 0);
+      document.getElementById('assetCoverage').textContent = `${assetDetails.coverageRatio}% (${assetDetails.assetGrade})`;
+
+      displayAssetPortfolio(loanData.assets || {});
+
+      document.getElementById('totalAssetValue').textContent = assetDetails.totalValue.toLocaleString();
+      document.getElementById('loanToAssetRatio').textContent = assetDetails.coverageRatio;
+      
+      const riskElement = document.getElementById('riskLevel');
+      riskElement.textContent = getRiskLevel(assetDetails.coverageRatio);
+      riskElement.className = `h5 mb-0 text-${getRiskColor(assetDetails.coverageRatio)}`;
+
+      if (enhancedCredit.breakdown) {
+        document.getElementById('traditionalScore').textContent = `${enhancedCredit.breakdown.traditional}/40`;
+        document.getElementById('assetCoverageScore').textContent = `${enhancedCredit.breakdown.assetCoverage}/35`;
+        document.getElementById('liquidityScore').textContent = `${enhancedCredit.breakdown.liquidity}/15`;
+        document.getElementById('diversificationScore').textContent = `${enhancedCredit.breakdown.diversification}/10`;
+        document.getElementById('finalCompositeScore').textContent = `${enhancedCredit.numericScore}/100`;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('assetModal'));
+      modal.show();
+    }
+
+    function displayAssetPortfolio(assets) {
+      const portfolioContainer = document.getElementById('assetPortfolio');
+      
+      if (!assets || Object.keys(assets).length === 0) {
+        portfolioContainer.innerHTML = `
+          <div class="text-center py-3 text-muted">
+            <i class="fas fa-exclamation-triangle me-2"></i>No asset information provided
+            <p class="small mt-2">Consider requesting asset documentation for better risk assessment</p>
+          </div>
+        `;
+        return;
+      }
+
+      let portfolioHTML = '';
+      
+      for (const [category, items] of Object.entries(assets)) {
+        if (Array.isArray(items) && items.length > 0) {
+          portfolioHTML += `
+            <div class="mb-3">
+              <h6 class="text-muted mb-2">
+                <i class="fas fa-${getAssetIcon(category)} me-2"></i>${category.charAt(0).toUpperCase() + category.slice(1)}
+                <span class="asset-type-badge">${items.length} item${items.length > 1 ? 's' : ''}</span>
+              </h6>
+          `;
+          
+          items.forEach(item => {
+            const liquidity = getAssetLiquidity(category);
+            const assetValue = parseFloat(item.estimatedValue || item.value || item.amount || item.assetValue || 0);
+            portfolioHTML += `
+              <div class="asset-item">
+                <div>
+                  <div class="asset-name">${item.description || item.type || item.name || 'Unnamed Asset'}</div>
+                  <div class="small text-muted">
+                    <span class="liquidity-indicator ${liquidity.class}"></span>
+                    ${liquidity.label} Liquidity
+                  </div>
+                </div>
+                <div class="asset-value">MWK ${assetValue.toLocaleString()}</div>
+              </div>
+            `;
+          });
+          
+          portfolioHTML += '</div>';
+        } else if (typeof items === 'object' && items !== null && !Array.isArray(items)) {
+          // Handle single object asset
+          const assetValue = parseFloat(items.estimatedValue || items.value || items.amount || items.assetValue || 0);
+          if (assetValue > 0) {
+            portfolioHTML += `
+              <div class="mb-3">
+                <h6 class="text-muted mb-2">
+                  <i class="fas fa-${getAssetIcon(category)} me-2"></i>${category.charAt(0).toUpperCase() + category.slice(1)}
+                  <span class="asset-type-badge">1 item</span>
+                </h6>
+                <div class="asset-item">
+                  <div>
+                    <div class="asset-name">${items.description || items.type || items.name || category}</div>
+                    <div class="small text-muted">
+                      <span class="liquidity-indicator ${getAssetLiquidity(category).class}"></span>
+                      ${getAssetLiquidity(category).label} Liquidity
+                    </div>
+                  </div>
+                  <div class="asset-value">MWK ${assetValue.toLocaleString()}</div>
+                </div>
+              </div>
+            `;
+          }
+        } else if (typeof items === 'number' && items > 0) {
+          // Handle direct number value
+          portfolioHTML += `
+            <div class="mb-3">
+              <h6 class="text-muted mb-2">
+                <i class="fas fa-${getAssetIcon(category)} me-2"></i>${category.charAt(0).toUpperCase() + category.slice(1)}
+                <span class="asset-type-badge">1 item</span>
+              </h6>
+              <div class="asset-item">
+                <div>
+                  <div class="asset-name">${category.charAt(0).toUpperCase() + category.slice(1)}</div>
+                  <div class="small text-muted">
+                    <span class="liquidity-indicator ${getAssetLiquidity(category).class}"></span>
+                    ${getAssetLiquidity(category).label} Liquidity
+                  </div>
+                </div>
+                <div class="asset-value">MWK ${items.toLocaleString()}</div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      portfolioContainer.innerHTML = portfolioHTML || `
+        <div class="text-center py-3 text-muted">
+          <i class="fas fa-info-circle me-2"></i>No valid asset data found
+        </div>
+      `;
+    }
+
+    function getAssetIcon(category) {
+      const icons = {
+        livestock: 'cow',
+        farmland: 'seedling', 
+        equipment: 'tools',
+        inventory: 'boxes',
+        fixtures: 'hammer',
+        vehicles: 'car',
+        cash: 'money-bill-alt',
+        land: 'mountain',
+        building: 'building',
+        machinery: 'cogs',
+        tools: 'wrench',
+        other: 'cube'
+      };
+      return icons[category.toLowerCase()] || 'cube';
+    }
+
+    function getAssetLiquidity(category) {
+      const liquidityMap = {
+        cash: { label: 'High', class: 'liquidity-high' },
+        inventory: { label: 'High', class: 'liquidity-high' },
+        livestock: { label: 'Medium', class: 'liquidity-medium' },
+        equipment: { label: 'Medium', class: 'liquidity-medium' },
+        vehicles: { label: 'Medium', class: 'liquidity-medium' },
+        machinery: { label: 'Medium', class: 'liquidity-medium' },
+        tools: { label: 'Medium', class: 'liquidity-medium' },
+        farmland: { label: 'Low', class: 'liquidity-low' },
+        land: { label: 'Low', class: 'liquidity-low' },
+        building: { label: 'Low', class: 'liquidity-low' },
+        fixtures: { label: 'Low', class: 'liquidity-low' }
+      };
+      return liquidityMap[category.toLowerCase()] || { label: 'Medium', class: 'liquidity-medium' };
+    }
+
+    function getRiskLevel(coverageRatio) {
+      if (coverageRatio >= 150) return 'Very Low';
+      if (coverageRatio >= 100) return 'Low';
+      if (coverageRatio >= 75) return 'Moderate';
+      if (coverageRatio >= 50) return 'High';
+      return 'Very High';
+    }
+
+    function getRiskColor(coverageRatio) {
+      if (coverageRatio >= 150) return 'success';
+      if (coverageRatio >= 100) return 'info';
+      if (coverageRatio >= 75) return 'warning';
+      return 'danger';
+    }
+
+    window.exportAssetReport = function() {
+      showNotification("Asset report export functionality coming soon!", "info");
+    }
+
+    function loadDashboardData(creditFilter = 'All') {
+      if (unsubscribe) unsubscribe();
+      
+      showLoading();
+      const applicationList = document.getElementById("applicationList");
+      applicationList.innerHTML = "";
+
+      const currentUserName = getCurrentUserName();
+      document.getElementById('currentUser').textContent = currentUserName || 'Loan Officer';
+
+      allApplications = [];
+      filteredApplications = [];
+
+      unsubscribe = onSnapshot(collection(db, "loan_applications"), (querySnapshot) => {
+        let total = 0, pending = 0, approved = 0, rejected = 0;
+        const freshApplications = [];
+
+        for (const docSnap of querySnapshot.docs) {
+          const data = docSnap.data();
+          data.id = docSnap.id;
+
+          total++;
+          
+          let status = data.status || "Pending";
+          if (status.trim() === "" || status === null || status === undefined) {
+            status = "Pending";
+          }
+
+          if (status === "Pending") {
+            pending++;
+          } else if (status === "Approved") {
+            approved++;
+          } else if (status === "Rejected") {
+            rejected++;
+          } else {
+            status = "Pending";
+            pending++;
+          }
+
+          const repaymentHistory = data.repaymentHistory || [];
+          
+          // Debug logging
+          console.log(`\n=== Processing Application ${docSnap.id} ===`);
+          console.log('Application data:', data);
+          
+          const credit = calculateCreditScore(
+            data.monthlyIncome || 0, 
+            repaymentHistory, 
+            data.requestedLoanAmount || 0,
+            data.assets || {}
+          );
+
+          console.log('Calculated credit:', credit);
+
+          freshApplications.push({ ...data, credit, status });
+        }
+
+        allApplications = freshApplications;
+
+        document.getElementById("totalApplications").innerText = total;
+        document.getElementById("pendingApplications").innerText = pending;
+        document.getElementById("approvedLoans").innerText = approved;
+        document.getElementById("rejectedApplications").textContent = rejected;
+        document.getElementById("notificationCount").textContent = pending;
+
+        filterApplications(creditFilter);
+        hideLoading();
+      }, (error) => {
+        console.error("Error loading applications:", error);
+        hideLoading();
+        showEmptyState();
+      });
+    }
+
+    function filterApplications(creditFilter = 'All', statusFilter = 'All', assetFilter = 'All', searchTerm = '') {
+      filteredApplications = allApplications.filter(app => {
+        const matchesCredit = creditFilter === 'All' || app.credit.score === creditFilter;
+        const matchesStatus = statusFilter === 'All' || app.status === statusFilter;
+        
+        let matchesAsset = true;
+        if (assetFilter !== 'All' && app.credit.assetDetails) {
+          const coverageRatio = app.credit.assetDetails.coverageRatio;
+          switch(assetFilter) {
+            case 'Excellent': matchesAsset = coverageRatio > 150; break;
+            case 'Good': matchesAsset = coverageRatio >= 100 && coverageRatio <= 150; break;
+            case 'Moderate': matchesAsset = coverageRatio >= 50 && coverageRatio < 100; break;
+            case 'Low': matchesAsset = coverageRatio < 50; break;
+          }
+        } else if (assetFilter !== 'All') {
+          matchesAsset = false;
+        }
+        
+        let searchableNames = [];
+        if (app.loanType === 'Group' || app.loanType === 'group') {
+          searchableNames = [
+            app.groupName || '',
+            app.groupUsername || '',
+            app.fullName || '',
+            app.username || ''
+          ];
+        } else {
+          searchableNames = [
+            app.fullName || '',
+            app.username || ''
+          ];
+        }
+        
+        const matchesSearch = searchTerm === '' || 
+          searchableNames.some(name => 
+            name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        
+        return matchesCredit && matchesStatus && matchesAsset && matchesSearch;
+      });
+
+      displayApplications();
+    }
+
+    function displayApplications() {
+      const applicationList = document.getElementById("applicationList");
+      applicationList.innerHTML = "";
+
+      if (filteredApplications.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      filteredApplications.sort((a, b) => {
+        if (a.credit.numericScore && b.credit.numericScore) {
+          return b.credit.numericScore - a.credit.numericScore;
+        }
+        
+        const priority = { High: 3, Moderate: 2, Low: 1 };
+        const priorityDiff = priority[b.credit.score] - priority[a.credit.score];
+        if (priorityDiff !== 0) return priorityDiff;
+        
+        const dateA = a.applicationDate ? new Date(a.applicationDate) : new Date(0);
+        const dateB = b.applicationDate ? new Date(b.applicationDate) : new Date(0);
+        return dateB - dateA;
+      });
+
+      filteredApplications.forEach(data => {
+        const card = document.createElement("div");
+        card.className = `card application-card border-${data.credit.badge}`;
+        card.setAttribute('data-loan-id', data.id);
+        
+        const statusIcon = data.status === 'Approved' ? 'fa-check-circle text-success' :
+                          data.status === 'Rejected' ? 'fa-times-circle text-danger' :
+                          'fa-clock text-warning';
+
+        const displayName = data.loanType === 'Group' ? 
+          (data.groupName || 'No Group Name') : 
+          (data.fullName || 'No Name');
+
+        const displayUsername = data.loanType === 'Group' ? 
+          (data.groupUsername || 'No Group Username') : 
+          (data.username || 'No Username');
+
+        const principalAmount = data.loanAmount || data.requestedLoanAmount || 0;
+        const repaymentPeriod = data.repaymentPeriod || 12;
+        const loanAmounts = calculateLoanAmounts(principalAmount, repaymentPeriod);
+
+        let creditScoreDisplay = `<span class="badge bg-${data.credit.badge} ms-2">${data.credit.score} Credit</span>`;
+        
+        if (data.credit.assetDetails && data.credit.assetDetails.totalValue > 0) {
+          creditScoreDisplay += `<span class="asset-score-badge bg-${data.credit.assetDetails.assetBadge}">${data.credit.assetDetails.assetGrade} Assets</span>`;
+        }
+        
+        if (data.credit.numericScore) {
+          creditScoreDisplay += `<span class="asset-score-badge bg-info text-dark">Score: ${data.credit.numericScore}/100</span>`;
+        }
+
+        let loanInfoDisplay = `
+          <strong>Loan Type:</strong> ${data.loanType || 'N/A'}<br>
+          <strong>Income:</strong> MWK ${(data.monthlyIncome || 0).toLocaleString()}<br>
+          <strong>Principal Amount:</strong> MWK ${principalAmount.toLocaleString()}<br>
+          <strong>Total Loan (Principal + 15% Interest):</strong> MWK ${Math.round(loanAmounts.totalAmount).toLocaleString()}<br>
+        `;
+
+        if (data.credit.assetDetails && data.credit.assetDetails.totalValue > 0) {
+          loanInfoDisplay += `<strong>Total Assets:</strong> MWK ${data.credit.assetDetails.totalValue.toLocaleString()}<br>`;
+          loanInfoDisplay += `<strong>Asset Coverage:</strong> ${data.credit.assetDetails.coverageRatio}%<br>`;
+        }
+
+        loanInfoDisplay += `<strong>Status:</strong> <i class="fas ${statusIcon} me-1"></i>${data.status || 'Pending'}`;
+
+        let actionButtons = '';
+        if (data.status === 'Pending') {
+          actionButtons = `
+            <button class="btn btn-assets btn-sm me-2" onclick="openAssetModal('${data.id}')">
+              <i class="fas fa-coins me-1"></i>Assets
+            </button>
+            <button class="btn btn-success btn-approve me-2" onclick="approveLoan('${data.id}')">
+              <i class="fas fa-check me-1"></i>Approve
+            </button>
+            <button class="btn btn-danger btn-reject" onclick="rejectLoan('${data.id}')">
+              <i class="fas fa-times me-1"></i>Reject
+            </button>
+          `;
+        } else if (data.status === 'Approved') {
+          const balanceInfo = calculateOutstandingBalance(data);
+          if (balanceInfo.outstanding > 0) {
+            actionButtons = `
+              <button class="btn btn-assets btn-sm me-2" onclick="openAssetModal('${data.id}')">
+                <i class="fas fa-coins me-1"></i>Assets
+              </button>
+              <span class="badge bg-success me-2">${data.status}</span>
+              <div class="text-small text-muted mb-1">Outstanding: <span class="outstanding-balance">MWK ${Math.round(balanceInfo.outstanding).toLocaleString()}</span></div>
+              <button class="btn btn-repayment" onclick="openRepaymentModal('${data.id}')">
+                <i class="fas fa-credit-card me-1"></i>Record Payment
+              </button>
+            `;
+          } else {
+            actionButtons = `
+              <button class="btn btn-assets btn-sm me-2" onclick="openAssetModal('${data.id}')">
+                <i class="fas fa-coins me-1"></i>Assets
+              </button>
+              <span class="badge bg-success me-2">Fully Paid</span>
+              <button class="btn btn-repayment" onclick="openRepaymentModal('${data.id}')">
+                <i class="fas fa-history me-1"></i>View History
+              </button>
+            `;
+          }
+        } else {
+          actionButtons = `
+            <button class="btn btn-assets btn-sm me-2" onclick="openAssetModal('${data.id}')">
+              <i class="fas fa-coins me-1"></i>Assets
+            </button>
+            <span class="badge bg-danger">${data.status}</span>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${displayName} (${displayUsername})
+              ${creditScoreDisplay}
+            </h5>
+            <p class="card-text">
+              ${loanInfoDisplay}
+            </p>
+            <div class="action-buttons">
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+        applicationList.appendChild(card);
+      });
+    }
+
+    window.openRepaymentModal = async function(loanId) {
+      try {
+        let loanData = allApplications.find(app => app.id === loanId);
+        if (!loanData) {
+          console.log("Loan not found in current data, fetching from database...");
+          const docRef = doc(db, "loan_applications", loanId);
+          const docSnap = await getDoc(docRef);
+          
+          if (!docSnap.exists()) {
+            showNotification("Loan data not found!", "error");
+            return;
+          }
+          
+          loanData = { id: docSnap.id, ...docSnap.data() };
+        }
+        
+        currentLoanData = loanData;
+        
+        const principalAmount = currentLoanData.loanAmount || currentLoanData.requestedLoanAmount || 0;
+        const repaymentPeriod = currentLoanData.repaymentPeriod || 12;
+        const loanAmounts = calculateLoanAmounts(principalAmount, repaymentPeriod);
+        
+        const balanceInfo = calculateOutstandingBalance(currentLoanData);
+        
+        const approvedDate = currentLoanData.approvedDate ? new Date(currentLoanData.approvedDate) : new Date();
+        const existingPayments = currentLoanData.repaymentHistory || [];
+        const nextDueDate = new Date(approvedDate);
+        nextDueDate.setMonth(nextDueDate.getMonth() + existingPayments.length + 1);
+        
+        const today = new Date();
+        let paymentStatus = 'current';
+        let statusBadge = 'success';
+        if (nextDueDate < today && balanceInfo.outstanding > 0) {
+          paymentStatus = 'overdue';
+          statusBadge = 'danger';
+        } else if (balanceInfo.outstanding === 0) {
+          paymentStatus = 'fully paid';
+          statusBadge = 'success';
+        }
+
+        document.getElementById('borrowerName').textContent = currentLoanData.fullName || 'No Name';
+        document.getElementById('loanType').textContent = currentLoanData.loanType || 'Individual';
+        document.getElementById('principalAmount').textContent = principalAmount.toLocaleString();
+        document.getElementById('interestAmount').textContent = Math.round(loanAmounts.interestAmount).toLocaleString();
+        document.getElementById('totalLoanAmount').textContent = Math.round(loanAmounts.totalAmount).toLocaleString();
+        document.getElementById('monthlyPayment').textContent = Math.round(loanAmounts.monthlyPayment).toLocaleString();
+        document.getElementById('nextDueDate').textContent = nextDueDate.toLocaleDateString();
+        document.getElementById('paymentStatus').textContent = paymentStatus;
+        document.getElementById('paymentStatus').className = `badge bg-${statusBadge}`;
+
+        document.getElementById('totalPaid').textContent = Math.round(balanceInfo.totalPaid).toLocaleString();
+        document.getElementById('outstandingBalance').textContent = Math.round(balanceInfo.outstanding).toLocaleString();
+        document.getElementById('paymentProgress').textContent = balanceInfo.progressPercent;
+        document.getElementById('progressBar').style.width = `${balanceInfo.progressPercent}%`;
+
+        const suggestedPayment = Math.min(Math.round(loanAmounts.monthlyPayment), Math.round(balanceInfo.outstanding));
+        document.getElementById('paymentAmount').value = suggestedPayment > 0 ? suggestedPayment : '';
+        document.getElementById('maxPaymentAmount').textContent = Math.round(balanceInfo.outstanding).toLocaleString();
+        document.getElementById('paymentDate').value = today.toISOString().split('T')[0];
+
+        document.getElementById('paymentAmount').setAttribute('max', balanceInfo.outstanding);
+
+        loadPaymentHistory(existingPayments);
+
+        const modal = new bootstrap.Modal(document.getElementById('repaymentModal'));
+        modal.show();
+
+      } catch (error) {
+        console.error("Error opening repayment modal:", error);
+        showNotification("Error loading repayment data!", "error");
+      }
+    }
+
+    function loadPaymentHistory(payments) {
+      const historyContainer = document.getElementById('repaymentHistory');
+      
+      if (!payments || payments.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="text-center py-3 text-muted">
+            <i class="fas fa-receipt me-2"></i>No payment history available
+          </div>
+        `;
+        return;
+      }
+
+      const sortedPayments = payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      historyContainer.innerHTML = sortedPayments.map(payment => {
+        const date = new Date(payment.date).toLocaleDateString();
+        const statusClass = payment.status === 'completed' ? 'text-success' :
+                           payment.status === 'pending' ? 'text-warning' : 'text-danger';
+        
+        return `
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+            <div>
+              <div class="fw-bold">${date}</div>
+              <div class="small text-muted">${payment.method || 'Cash'} ${payment.reference ? `- ${payment.reference}` : ''}</div>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold">MWK ${(payment.amount || 0).toLocaleString()}</div>
+              <div class="small ${statusClass}">${payment.status || 'completed'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.selectPaymentMethod = function(method) {
+      document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      const selectedCard = document.querySelector(`#${method}Method`).closest('.payment-method-card');
+      selectedCard.classList.add('selected');
+      
+      document.getElementById(`${method}Method`).checked = true;
+      
+      const referenceSection = document.getElementById('referenceSection');
+      if (method === 'cash') {
+        referenceSection.classList.add('d-none');
+        document.getElementById('paymentReference').required = false;
+      } else {
+        referenceSection.classList.remove('d-none');
+        document.getElementById('paymentReference').required = true;
+      }
+    }
+
+    window.processRepayment = async function() {
+      try {
+        const amount = parseFloat(document.getElementById('paymentAmount').value);
+        const date = document.getElementById('paymentDate').value;
+        const method = document.querySelector('input[name="paymentMethod"]:checked');
+        const reference = document.getElementById('paymentReference').value;
+        const notes = document.getElementById('paymentNotes').value;
+
+        if (!amount || amount <= 0) {
+          showNotification("Please enter a valid payment amount!", "error");
+          return;
+        }
+
+        const principalAmount = currentLoanData.loanAmount || currentLoanData.requestedLoanAmount || 0;
+        const balanceInfo = calculateOutstandingBalance(currentLoanData);
+        
+        if (amount > balanceInfo.outstanding) {
+          showNotification(`Payment amount cannot exceed outstanding balance of MWK ${Math.round(balanceInfo.outstanding).toLocaleString()}!`, "error");
+          return;
+        }
+
+        if (!date) {
+          showNotification("Please select a payment date!", "error");
+          return;
+        }
+
+        if (!method) {
+          showNotification("Please select a payment method!", "error");
+          return;
+        }
+
+        if (method.value !== 'cash' && !reference.trim()) {
+          showNotification("Please enter a payment reference for non-cash payments!", "error");
+          return;
+        }
+
+        const processBtn = document.getElementById('processPaymentBtn');
+        const originalText = processBtn.innerHTML;
+        processBtn.disabled = true;
+        processBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+
+        const paymentData = {
+          amount: amount,
+          date: date,
+          method: method.value,
+          reference: method.value !== 'cash' ? reference : null,
+          notes: notes,
+          status: 'completed',
+          recordedBy: getCurrentUserName(),
+          recordedAt: new Date().toISOString()
+        };
+
+        const currentLoan = allApplications.find(app => app.id === currentLoanData.id);
+        if (!currentLoan) {
+          throw new Error("Loan data not found");
+        }
+
+        const currentPayments = [...(currentLoan.repaymentHistory || [])];
+        currentPayments.push(paymentData);
+
+        const loanAmounts = calculateLoanAmounts(principalAmount);
+        const totalPaid = currentPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+        const newOutstandingBalance = Math.max(0, loanAmounts.totalAmount - totalPaid);
+
+        const updateData = {
+          repaymentHistory: currentPayments,
+          outstandingBalance: newOutstandingBalance,
+          totalLoanAmount: loanAmounts.totalAmount,
+          totalPaid: totalPaid,
+          lastPaymentDate: date,
+          lastPaymentAmount: amount,
+          updatedAt: new Date().toISOString()
+        };
+
+        await updateDoc(doc(db, "loan_applications", currentLoanData.id), updateData);
+
+        await addDoc(collection(db, "payments"), {
+          loanId: currentLoanData.id,
+          borrowerName: currentLoan.loanType === 'Group' ? 
+            (currentLoan.groupName || 'No Group Name') : 
+            (currentLoan.fullName || 'No Name'),
+          borrowerUsername: currentLoan.loanType === 'Group' ? 
+            (currentLoan.groupUsername || 'No Group Username') : 
+            (currentLoan.username || 'No Username'),
+          loanType: currentLoan.loanType,
+          principalAmount: principalAmount,
+          totalLoanAmount: loanAmounts.totalAmount,
+          outstandingBalanceBefore: balanceInfo.outstanding,
+          outstandingBalanceAfter: newOutstandingBalance,
+          ...paymentData
+        });
+
+        const loanIndex = allApplications.findIndex(app => app.id === currentLoanData.id);
+        if (loanIndex !== -1) {
+          allApplications[loanIndex] = {
+            ...allApplications[loanIndex],
+            repaymentHistory: currentPayments,
+            outstandingBalance: newOutstandingBalance,
+            totalLoanAmount: loanAmounts.totalAmount,
+            totalPaid: totalPaid,
+            lastPaymentDate: date,
+            lastPaymentAmount: amount
+          };
+          
+          const filteredIndex = filteredApplications.findIndex(app => app.id === currentLoanData.id);
+          if (filteredIndex !== -1) {
+            filteredApplications[filteredIndex] = {
+              ...filteredApplications[filteredIndex],
+              repaymentHistory: currentPayments,
+              outstandingBalance: newOutstandingBalance,
+              totalLoanAmount: loanAmounts.totalAmount,
+              totalPaid: totalPaid,
+              lastPaymentDate: date,
+              lastPaymentAmount: amount
+            };
+          }
+        }
+
+        const loanCard = document.querySelector(`[data-loan-id="${currentLoanData.id}"]`);
+        if (loanCard) {
+          const balanceElement = loanCard.querySelector('.outstanding-balance');
+          if (balanceElement) {
+            balanceElement.textContent = `MWK ${Math.round(newOutstandingBalance).toLocaleString()}`;
+          }
+          
+          if (newOutstandingBalance === 0) {
+            const actionButtons = loanCard.querySelector('.action-buttons');
+            if (actionButtons) {
+              actionButtons.innerHTML = `
+                <button class="btn btn-assets btn-sm me-2" onclick="openAssetModal('${currentLoanData.id}')">
+                  <i class="fas fa-coins me-1"></i>Assets
+                </button>
+                <span class="badge bg-success me-2">Fully Paid</span>
+                <button class="btn btn-repayment" onclick="openRepaymentModal('${currentLoanData.id}')">
+                  <i class="fas fa-history me-1"></i>View History
+                </button>
+              `;
+            }
+          }
+        }
+
+        showNotification("Payment recorded successfully!", "success");
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('repaymentModal'));
+        modal.hide();
+
+        resetRepaymentForm();
+
+      } catch (error) {
+        console.error("Error processing repayment:", error);
+        showNotification(`Error recording payment: ${error.message}`, "error");
+      } finally {
+        const processBtn = document.getElementById('processPaymentBtn');
+        processBtn.disabled = false;
+        processBtn.innerHTML = '<i class="fas fa-check me-1"></i>Record Payment';
+      }
+    }
+
+    function resetRepaymentForm() {
+      document.getElementById('repaymentForm').reset();
+      document.querySelectorAll('.payment-method-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      document.getElementById('referenceSection').classList.add('d-none');
+      document.getElementById('paymentReference').required = false;
+    }
+
+    window.approveLoan = async function(id) {
+      const button = event.target.closest('button');
+      const originalText = button.innerHTML;
+      
+      try {
+        const loanData = allApplications.find(app => app.id === id);
+        if (!loanData) {
+          showNotification("Loan data not found!", "error");
+          return;
+        }
+        
+        const eligibility = checkLoanEligibility(loanData);
+        
+        if (!eligibility.isEligible) {
+          const issuesList = eligibility.issues.map(issue => `• ${issue}`).join('\n');
+          const warningsList = eligibility.warnings.length > 0 ? 
+            '\n\nAdditional Warnings:\n' + eligibility.warnings.map(w => `• ${w}`).join('\n') : '';
+          
+          const message = `APPLICANT NOT ELIGIBLE FOR APPROVAL\n\nThe system has identified the following issues that prevent approval:\n\n${issuesList}${warningsList}\n\nThe loan officer cannot approve this application. Please reject it or request the applicant to improve their profile.`;
+          
+          alert(message);
+          showNotification("Applicant is not eligible for approval", "error");
+          return;
+        }
+        
+        if (eligibility.warnings.length > 0) {
+          const warningsList = eligibility.warnings.map(w => `• ${w}`).join('\n');
+          const proceedWithWarnings = confirm(`WARNING: The following concerns have been identified:\n\n${warningsList}\n\nDo you want to proceed with approval anyway?`);
+          
+          if (!proceedWithWarnings) {
+            return;
+          }
+        }
+        
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Approving...';
+        
+        await updateDoc(doc(db, "loan_applications", id), { 
+          status: "Approved",
+          approvedDate: new Date().toISOString(),
+          approvedBy: getCurrentUserName() || "Loan Officer",
+          eligibilityCheckPassed: true,
+          eligibilityWarnings: eligibility.warnings
+        });
+        
+        showNotification("Loan approved successfully!", "success");
+        
+      } catch (error) {
+        console.error("Error approving loan:", error);
+        showNotification("Error approving loan. Please try again.", "error");
+        
+        button.disabled = false;
+        button.innerHTML = originalText;
+      }
+    };
+
+    window.rejectLoan = async function(id) {
+      const button = event.target.closest('button');
+      const originalText = button.innerHTML;
+      
+      if (!confirm("Are you sure you want to reject this loan application?")) {
+        return;
+      }
+      
+      try {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Rejecting...';
+        
+        await updateDoc(doc(db, "loan_applications", id), { 
+          status: "Rejected",
+          rejectedDate: new Date().toISOString(),
+          rejectedBy: getCurrentUserName() || "Loan Officer"
+        });
+        
+        showNotification("Loan rejected successfully!", "success");
+        
+      } catch (error) {
+        console.error("Error rejecting loan:", error);
+        showNotification("Error rejecting loan. Please try again.", "error");
+        
+        button.disabled = false;
+        button.innerHTML = originalText;
+      }
+    }
+
+    window.loadDashboardData = loadDashboardData;
+    
+    window.filterByStatus = function(status) {
+      const creditFilter = document.getElementById("creditFilter").value;
+      const assetFilter = document.getElementById("assetFilter").value;
+      const searchTerm = document.getElementById("searchBox").value;
+      document.getElementById("statusFilter").value = status;
+      filterApplications(creditFilter, status, assetFilter, searchTerm);
+    }
+
+    window.filterByAssetCoverage = function(assetLevel) {
+      const creditFilter = document.getElementById("creditFilter").value;
+      const statusFilter = document.getElementById("statusFilter").value;
+      const searchTerm = document.getElementById("searchBox").value;
+      filterApplications(creditFilter, statusFilter, assetLevel, searchTerm);
+    }
+
+    window.searchApplications = function(searchTerm) {
+      const creditFilter = document.getElementById("creditFilter").value;
+      const statusFilter = document.getElementById("statusFilter").value;
+      const assetFilter = document.getElementById("assetFilter").value;
+      filterApplications(creditFilter, statusFilter, assetFilter, searchTerm);
+    }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} alert-dismissible fade show position-fixed`;
+      notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 5000);
+    }
+
+    window.onload = () => {
+      console.log("Enhanced Dashboard loading...");
+      window.isProcessingPayment = false;
+      
+      allApplications = [];
+      filteredApplications = [];
+      
+      loadDashboardData();
+    }
+  </script>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileBtn = document.querySelector('.mobile-menu-btn');
+      
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileBtn.contains(event.target)) {
+        sidebar.classList.remove('show');
+      }
+    });
+
+    document.getElementById('logoutlink').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('eclof_user_session');
+        alert('Logged out successfully!');
+        window.location.href = 'onboarding.html';
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        document.getElementById('searchBox').focus();
+      }
+      
+      if (e.key === 'Escape') {
+        document.getElementById('searchBox').value = '';
+        searchApplications('');
+      }
+    });
+
+    setInterval(() => {
+      console.log('Auto-refreshing dashboard data...');
+    }, 30000);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const paymentAmountInput = document.getElementById('paymentAmount');
+      if (paymentAmountInput) {
+        paymentAmountInput.addEventListener('input', function() {
+          const maxAmount = parseFloat(this.getAttribute('max')) || 0;
+          const currentAmount = parseFloat(this.value) || 0;
+          
+          if (currentAmount > maxAmount) {
+            this.setCustomValidity(`Payment amount cannot exceed MWK ${maxAmount.toLocaleString()}`);
+            this.classList.add('is-invalid');
+          } else {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+          }
+        });
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

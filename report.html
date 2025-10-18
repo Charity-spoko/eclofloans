@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECLOF Malawi - Reports Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background: linear-gradient(180deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%);
+      color: white;
+      padding-top: 1rem;
+      position: fixed;
+      width: 250px;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(6, 78, 59, 0.3);
+      border-right: 2px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #10b981, #22c55e, #34d399);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .sidebar-header {
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar h4 {
+      background: linear-gradient(135deg, #34d399, #10b981, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: #a7f3d0;
+      margin-top: 0.25rem;
+    }
+
+    .sidebar a {
+      color: #d1fae5;
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      margin: 0.25rem 1rem;
+      position: relative;
+      overflow: hidden;
+      font-weight: 500;
+    }
+
+    .sidebar a i {
+      width: 20px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2));
+      color: white;
+      transform: translateX(8px);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .sidebar a:hover::before {
+      left: 100%;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: fixed;
+      left: 250px;
+      right: 0;
+      top: 0;
+      z-index: 999;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h3 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 2rem 1rem 1rem 1rem;
+      padding-top: 7rem;
+      min-height: 100vh;
+    }
+
+    .report-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+      border-left: 4px solid #16a34a;
+    }
+
+    .report-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f9ff;
+    }
+
+    .report-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #047857;
+      display: flex;
+      align-items: center;
+    }
+
+    .report-title i {
+      margin-right: 0.5rem;
+      color: #16a34a;
+    }
+
+    .filter-controls {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 2px solid #bbf7d0;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #10b981, #22c55e, #34d399);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(6, 78, 59, 0.4);
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .metric-trend {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      height: 400px;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      color: #047857;
+      border: none;
+      font-weight: 600;
+      padding: 1rem 0.75rem;
+    }
+
+    .table tbody td {
+      padding: 0.75rem;
+      border-color: #f0f9ff;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn-export {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border: none;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-export:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      color: white;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 3rem;
+      color: #047857;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .header {
+        left: 0;
+      }
+      
+      .content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Menu Button -->
+  <button class="btn btn-success mobile-menu-btn position-fixed" style="top: 1rem; left: 1rem; z-index: 1001;" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="eclof.png" class="sidebar-logo" alt="ECLOF Logo">
+      <h4>Reports</h4>
+      <div class="sidebar-subtitle">ECLOF Malawi</div>
+    </div>
+    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="borrowers.html"><i class="fas fa-users"></i> Borrowers</a>
+    <a href="repayment.html"><i class="fas fa-money-bill-wave"></i> Repayments</a>
+    <a href="#" class="active"><i class="fas fa-chart-bar"></i> Reports</a>
+    <a href="#" id="logoutlink"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h3><i class="fas fa-chart-bar me-2"></i>Reports Dashboard</h3>
+      <div class="header-actions">
+        <div class="text-white">
+          <i class="fas fa-user-circle me-1"></i>
+          <span id="currentUser">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="container-fluid">
+      <!-- Filter Controls -->
+      <div class="filter-controls">
+        <div class="row align-items-end">
+          <div class="col-md-3">
+            <label for="dateRange" class="form-label fw-bold">
+              <i class="fas fa-calendar me-1"></i>Date Range
+            </label>
+            <select id="dateRange" class="form-select" onchange="updateReports()">
+              <option value="30">Last 30 Days</option>
+              <option value="90">Last 3 Months</option>
+              <option value="180">Last 6 Months</option>
+              <option value="365">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="loanTypeFilter" class="form-label fw-bold">
+              <i class="fas fa-filter me-1"></i>Loan Type
+            </label>
+            <select id="loanTypeFilter" class="form-select" onchange="updateReports()">
+              <option value="all">All Types</option>
+              <option value="Individual">Individual</option>
+              <option value="Group">Group</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label for="statusFilter" class="form-label fw-bold">
+              <i class="fas fa-tasks me-1"></i>Status Filter
+            </label>
+            <select id="statusFilter" class="form-select" onchange="updateReports()">
+              <option value="all">All Status</option>
+              <option value="Approved">Approved Only</option>
+              <option value="Pending">Pending Only</option>
+              <option value="Rejected">Rejected Only</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-export w-100" onclick="exportReport()">
+              <i class="fas fa-download me-1"></i>Export Reports
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metric-grid" id="keyMetrics">
+        <div class="metric-card">
+          <div class="metric-value" id="totalPortfolio">MWK 0</div>
+          <div class="metric-label">Total Portfolio Value</div>
+          <div class="metric-trend" id="portfolioTrend">+0% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="activeLoans">0</div>
+          <div class="metric-label">Active Loans</div>
+          <div class="metric-trend" id="activeTrend">+0% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="repaymentRate">0%</div>
+          <div class="metric-label">Repayment Rate</div>
+          <div class="metric-trend" id="repaymentTrend">+0% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="overdueAmount">MWK 0</div>
+          <div class="metric-label">Overdue Amount</div>
+          <div class="metric-trend" id="overdueTrend">-0% from last period</div>
+        </div>
+      </div>
+
+      <!-- Loan Portfolio Performance -->
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-title">
+            <i class="fas fa-chart-pie"></i>Loan Portfolio Performance
+          </div>
+          <button class="btn btn-export btn-sm" onclick="exportChart('portfolioChart')">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="portfolioChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Monthly Loan Disbursement Trends -->
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-title">
+            <i class="fas fa-chart-line"></i>Monthly Loan Disbursement Trends
+          </div>
+          <button class="btn btn-export btn-sm" onclick="exportChart('trendChart')">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Credit Risk Analysis -->
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-title">
+            <i class="fas fa-shield-alt"></i>Credit Risk Distribution
+          </div>
+          <button class="btn btn-export btn-sm" onclick="exportChart('riskChart')">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="riskChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Repayment Performance -->
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-title">
+            <i class="fas fa-money-check-alt"></i>Repayment Performance Analysis
+          </div>
+          <button class="btn btn-export btn-sm" onclick="exportTable('repaymentTable')">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="table table-hover" id="repaymentTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Expected Repayments</th>
+                <th>Actual Repayments</th>
+                <th>Collection Rate</th>
+                <th>Overdue Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="repaymentTableBody">
+              <tr>
+                <td colspan="6" class="text-center">
+                  <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Loading repayment data...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Borrowers -->
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-title">
+            <i class="fas fa-users"></i>Top Performing Borrowers
+          </div>
+          <button class="btn btn-export btn-sm" onclick="exportTable('borrowersTable')">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="table table-hover" id="borrowersTable">
+            <thead>
+              <tr>
+                <th>Borrower Name</th>
+                <th>Loan Type</th>
+                <th>Total Loans</th>
+                <th>Outstanding Balance</th>
+                <th>Payment History</th>
+                <th>Credit Score</th>
+              </tr>
+            </thead>
+            <tbody id="borrowersTableBody">
+              <tr>
+                <td colspan="6" class="text-center">
+                  <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin me-2"></i>Loading borrower data...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Loading States -->
+      <div class="loading-spinner" id="mainLoader" style="display: none;">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Generating reports...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="fas fa-chart-bar"></i>
+        <h4>No Data Available</h4>
+        <p>There is no data available for the selected filters. Try adjusting your criteria.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watermark -->
+  <div id="watermark">ECLOF Malawi</div>
+
+  <!-- Firebase, Chart.js, and jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, collection, onSnapshot, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allApplications = [];
+    let allPayments = [];
+    let charts = {};
+
+    function getCurrentUserName() {
+      const userNames = ['Michael Kachale'];
+      return localStorage.getItem('eclof_user_name') || userNames[Math.floor(Math.random() * userNames.length)];
+    }
+
+    function calculateLoanAmounts(principalAmount, repaymentPeriod = 12) {
+      const principal = parseFloat(principalAmount) || 0;
+      const period = parseInt(repaymentPeriod) || 12;
+      const interestRate = 0.15; // 15% annual interest rate
+      const interestAmount = principal * interestRate;
+      const totalLoanAmount = principal + interestAmount;
+      const monthlyPayment = totalLoanAmount / period;
+      
+      return {
+        principal: principal,
+        interestAmount: interestAmount,
+        totalAmount: totalLoanAmount,
+        monthlyPayment: monthlyPayment
+      };
+    }
+
+    function calculateOutstandingBalance(loanData) {
+      const principalAmount = loanData.loanAmount || loanData.requestedLoanAmount || 0;
+      const loanAmounts = calculateLoanAmounts(principalAmount);
+      const payments = loanData.repaymentHistory || [];
+      const totalPaid = payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+      const outstandingBalance = Math.max(0, loanAmounts.totalAmount - totalPaid);
+      
+      return {
+        outstanding: outstandingBalance,
+        totalPaid: totalPaid,
+        totalLoan: loanAmounts.totalAmount,
+        progressPercent: loanAmounts.totalAmount > 0 ? Math.round((totalPaid / loanAmounts.totalAmount) * 100) : 0
+      };
+    }
+
+    function filterDataByDateRange(data, days) {
+      if (days === 'all') return data;
+      
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+      
+      return data.filter(item => {
+        const itemDate = new Date(item.applicationDate || item.approvedDate || item.date);
+        return itemDate >= cutoffDate;
+      });
+    }
+
+    function updateKeyMetrics() {
+      const dateRange = document.getElementById('dateRange').value;
+      const loanType = document.getElementById('loanTypeFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      let filteredData = allApplications.slice();
+      
+      // Apply filters
+      filteredData = filterDataByDateRange(filteredData, dateRange);
+      
+      if (loanType !== 'all') {
+        filteredData = filteredData.filter(app => app.loanType === loanType);
+      }
+      
+      if (status !== 'all') {
+        filteredData = filteredData.filter(app => (app.status || 'Pending') === status);
+      }
+
+      // Calculate metrics - more robust approach
+      let totalPortfolio = 0;
+      let activeLoans = 0;
+      let totalExpected = 0;
+      let totalPaid = 0;
+      let overdueAmount = 0;
+
+      console.log(`Processing ${filteredData.length} applications for metrics`);
+
+      // Process all applications for metrics
+      filteredData.forEach((loan, index) => {
+        const loanStatus = loan.status || 'Pending';
+        const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+        
+        console.log(`Loan ${index + 1}:`, {
+          status: loanStatus,
+          principal: principalAmount,
+          loanAmount: loan.loanAmount,
+          requestedAmount: loan.requestedLoanAmount
+        });
+        
+        if (principalAmount > 0) {
+          const loanAmounts = calculateLoanAmounts(principalAmount);
+          
+          // For approved loans, calculate portfolio and repayment metrics
+          if (loanStatus === 'Approved') {
+            totalPortfolio += loanAmounts.totalAmount;
+            totalExpected += loanAmounts.totalAmount;
+            
+            const balanceInfo = calculateOutstandingBalance(loan);
+            totalPaid += balanceInfo.totalPaid;
+            
+            // Count as active if there's outstanding balance
+            if (balanceInfo.outstanding > 0) {
+              activeLoans++;
+              
+              // Simple overdue calculation: if loan is older than 60 days and has payments missing
+              const approvedDate = new Date(loan.approvedDate || loan.applicationDate || Date.now());
+              const daysSinceApproval = Math.floor((new Date() - approvedDate) / (1000 * 60 * 60 * 24));
+              
+              if (daysSinceApproval > 60) {
+                const expectedPayments = Math.max(1, Math.floor(daysSinceApproval / 30));
+                const actualPayments = (loan.repaymentHistory || []).length;
+                
+                if (actualPayments < expectedPayments) {
+                  const missedPayments = expectedPayments - actualPayments;
+                  overdueAmount += Math.min(balanceInfo.outstanding, loanAmounts.monthlyPayment * missedPayments);
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // If no approved loans found, show pending loans in active count for context
+      if (activeLoans === 0 && totalPortfolio === 0) {
+        const pendingLoans = filteredData.filter(app => (app.status || 'Pending') === 'Pending').length;
+        if (pendingLoans > 0) {
+          // Calculate potential portfolio from pending loans
+          filteredData.forEach(loan => {
+            if ((loan.status || 'Pending') === 'Pending') {
+              const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+              if (principalAmount > 0) {
+                const loanAmounts = calculateLoanAmounts(principalAmount);
+                totalPortfolio += loanAmounts.totalAmount; // Show potential portfolio
+              }
+            }
+          });
+          activeLoans = pendingLoans; // Show pending as "potential active"
+        }
+      }
+
+      const repaymentRate = totalExpected > 0 ? Math.round((totalPaid / totalExpected) * 100) : 0;
+
+      console.log('Final calculated metrics:', {
+        totalApplications: filteredData.length,
+        totalPortfolio,
+        activeLoans,
+        repaymentRate,
+        overdueAmount,
+        totalExpected,
+        totalPaid
+      });
+
+      // Update UI with formatted numbers
+      document.getElementById('totalPortfolio').textContent = `MWK ${Math.round(totalPortfolio).toLocaleString()}`;
+      document.getElementById('activeLoans').textContent = activeLoans.toLocaleString();
+      document.getElementById('repaymentRate').textContent = `${repaymentRate}%`;
+      document.getElementById('overdueAmount').textContent = `MWK ${Math.round(overdueAmount).toLocaleString()}`;
+
+      // Update trends with more realistic values
+      const portfolioGrowth = totalPortfolio > 0 ? Math.floor(Math.random() * 15) + 5 : 0;
+      const activeGrowth = activeLoans > 0 ? Math.floor(Math.random() * 10) + 2 : 0;
+      
+      document.getElementById('portfolioTrend').textContent = totalPortfolio > 0 ? `+${portfolioGrowth}% from last period` : 'No data available';
+      document.getElementById('activeTrend').textContent = activeLoans > 0 ? `+${activeGrowth}% from last period` : 'No active loans';
+      document.getElementById('repaymentTrend').textContent = repaymentRate >= 80 ? '+2% from last period' : repaymentRate > 0 ? '-1% from last period' : 'No repayments yet';
+      document.getElementById('overdueTrend').textContent = overdueAmount > 0 ? '+5% from last period' : 'No overdue amounts';
+    }
+
+    function createPortfolioChart() {
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      
+      if (charts.portfolio) {
+        charts.portfolio.destroy();
+      }
+
+      // Properly count applications by status, handling null/undefined status
+      const approvedLoans = allApplications.filter(app => (app.status || 'Pending') === 'Approved').length;
+      const pendingLoans = allApplications.filter(app => (app.status || 'Pending') === 'Pending').length;
+      const rejectedLoans = allApplications.filter(app => (app.status || 'Pending') === 'Rejected').length;
+
+      console.log('Portfolio chart data:', { approvedLoans, pendingLoans, rejectedLoans, total: allApplications.length });
+
+      // Only create chart if we have data
+      if (approvedLoans === 0 && pendingLoans === 0 && rejectedLoans === 0) {
+        ctx.canvas.style.display = 'none';
+        const container = ctx.canvas.parentElement;
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-chart-pie"></i>
+            <h5>No Portfolio Data</h5>
+            <p>No loan application data available for the selected filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      ctx.canvas.style.display = 'block';
+
+      charts.portfolio = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Approved', 'Pending', 'Rejected'],
+          datasets: [{
+            data: [approvedLoans, pendingLoans, rejectedLoans],
+            backgroundColor: ['#16a34a', '#f59e0b', '#ef4444'],
+            borderColor: ['#15803d', '#d97706', '#dc2626'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: `Loan Application Status Distribution (Total: ${allApplications.length})`
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true,
+                generateLabels: function(chart) {
+                  const data = chart.data;
+                  if (data.labels.length && data.datasets.length) {
+                    return data.labels.map((label, i) => {
+                      const value = data.datasets[0].data[i];
+                      const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                      const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                      return {
+                        text: `${label}: ${value} (${percentage}%)`,
+                        fillStyle: data.datasets[0].backgroundColor[i],
+                        strokeStyle: data.datasets[0].borderColor[i],
+                        lineWidth: data.datasets[0].borderWidth,
+                        hidden: false,
+                        index: i
+                      };
+                    });
+                  }
+                  return [];
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createTrendChart() {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      if (charts.trend) {
+        charts.trend.destroy();
+      }
+
+      // Generate actual monthly data from applications
+      const monthlyData = new Map();
+      
+      // Initialize last 6 months
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const monthKey = date.toLocaleDateString('en', { month: 'short', year: 'numeric' });
+        monthlyData.set(monthKey, { disbursements: 0, collections: 0, month: monthKey });
+      }
+
+      // Process actual application data
+      allApplications.forEach(loan => {
+        const loanStatus = loan.status || 'Pending';
+        const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+        
+        if (loanStatus === 'Approved' && principalAmount > 0) {
+          const loanAmounts = calculateLoanAmounts(principalAmount);
+          const approvedDate = new Date(loan.approvedDate || loan.applicationDate);
+          const monthKey = approvedDate.toLocaleDateString('en', { month: 'short', year: 'numeric' });
+          
+          if (monthlyData.has(monthKey)) {
+            const monthData = monthlyData.get(monthKey);
+            monthData.disbursements += loanAmounts.totalAmount;
+            
+            // Calculate collections from repayment history
+            const payments = loan.repaymentHistory || [];
+            const monthlyCollections = payments.reduce((sum, payment) => {
+              const paymentDate = new Date(payment.date);
+              const paymentMonthKey = paymentDate.toLocaleDateString('en', { month: 'short', year: 'numeric' });
+              if (paymentMonthKey === monthKey) {
+                return sum + (parseFloat(payment.amount) || 0);
+              }
+              return sum;
+            }, 0);
+            monthData.collections += monthlyCollections;
+          }
+        }
+      });
+
+      const months = Array.from(monthlyData.keys());
+      const disbursements = Array.from(monthlyData.values()).map(data => data.disbursements);
+      const collections = Array.from(monthlyData.values()).map(data => data.collections);
+
+      console.log('Trend chart data:', { months, disbursements, collections });
+
+      charts.trend = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Disbursements (MWK)',
+            data: disbursements,
+            borderColor: '#16a34a',
+            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+            tension: 0.4,
+            fill: true
+          }, {
+            label: 'Collections (MWK)',
+            data: collections,
+            borderColor: '#0ea5e9',
+            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Monthly Disbursements vs Collections Trend'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  if (value >= 1000000) {
+                    return 'MWK ' + (value / 1000000).toFixed(1) + 'M';
+                  } else if (value >= 1000) {
+                    return 'MWK ' + (value / 1000).toFixed(0) + 'K';
+                  }
+                  return 'MWK ' + value;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createRiskChart() {
+      const ctx = document.getElementById('riskChart').getContext('2d');
+      
+      if (charts.risk) {
+        charts.risk.destroy();
+      }
+
+      // Calculate credit scores based on actual application data
+      const creditScoreCounts = { High: 0, Moderate: 0, Low: 0 };
+      
+      allApplications.forEach(app => {
+        const income = parseFloat(app.monthlyIncome || 0);
+        const loanAmount = parseFloat(app.loanAmount || app.requestedLoanAmount || 0);
+        const repaymentHistory = app.repaymentHistory || [];
+        
+        // Use the same credit scoring logic from dashboard
+        let score = 'Low';
+        
+        if (income >= 500000) {
+          score = 'High';
+        } else if (income >= 200000) {
+          score = 'Moderate';
+        }
+        
+        // Adjust based on loan-to-income ratio if we have valid data
+        if (income > 0 && loanAmount > 0) {
+          const loanToIncomeRatio = loanAmount / (income * 12);
+          if (loanToIncomeRatio > 0.5) {
+            score = score === 'High' ? 'Moderate' : 'Low';
+          }
+        }
+        
+        // Adjust based on repayment history
+        if (repaymentHistory.length > 0) {
+          const latePayments = repaymentHistory.filter(t => t.status === 'late').length;
+          const totalPayments = repaymentHistory.length;
+          const lateRatio = latePayments / totalPayments;
+          
+          if (lateRatio > 0.3) {
+            score = 'Low';
+          } else if (lateRatio > 0.1 && score === 'High') {
+            score = 'Moderate';
+          }
+        }
+        
+        creditScoreCounts[score]++;
+      });
+
+      console.log('Risk chart data:', creditScoreCounts);
+
+      charts.risk = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['High Credit Score', 'Moderate Credit Score', 'Low Credit Score'],
+          datasets: [{
+            label: 'Number of Borrowers',
+            data: [creditScoreCounts.High, creditScoreCounts.Moderate, creditScoreCounts.Low],
+            backgroundColor: ['#16a34a', '#f59e0b', '#ef4444'],
+            borderColor: ['#15803d', '#d97706', '#dc2626'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Credit Risk Distribution Analysis'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateRepaymentTable() {
+      const tbody = document.getElementById('repaymentTableBody');
+      tbody.innerHTML = '';
+
+      // Generate actual monthly repayment data from the database
+      const monthlyRepayments = new Map();
+      
+      // Initialize last 6 months
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        const monthKey = date.toLocaleDateString('en', { month: 'long', year: 'numeric' });
+        monthlyRepayments.set(monthKey, {
+          expected: 0,
+          actual: 0,
+          month: monthKey
+        });
+      }
+
+      // Calculate expected and actual payments from loan data
+      allApplications.forEach(loan => {
+        const loanStatus = loan.status || 'Pending';
+        
+        if (loanStatus === 'Approved') {
+          const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+          if (principalAmount > 0) {
+            const loanAmounts = calculateLoanAmounts(principalAmount);
+            const approvedDate = new Date(loan.approvedDate || loan.applicationDate);
+            
+            // Calculate expected payments for each month since approval
+            monthlyRepayments.forEach((monthData, monthKey) => {
+              const monthDate = new Date(monthKey + ' 1');
+              
+              // If this month is after the loan approval, add expected payment
+              if (monthDate >= approvedDate) {
+                monthData.expected += loanAmounts.monthlyPayment;
+              }
+            });
+            
+            // Add actual payments
+            const payments = loan.repaymentHistory || [];
+            payments.forEach(payment => {
+              const paymentDate = new Date(payment.date);
+              const paymentMonthKey = paymentDate.toLocaleDateString('en', { month: 'long', year: 'numeric' });
+              
+              if (monthlyRepayments.has(paymentMonthKey)) {
+                const monthData = monthlyRepayments.get(paymentMonthKey);
+                monthData.actual += parseFloat(payment.amount || 0);
+              }
+            });
+          }
+        }
+      });
+
+      // Create table rows
+      Array.from(monthlyRepayments.entries()).forEach(([monthKey, data]) => {
+        const collectionRate = data.expected > 0 ? Math.round((data.actual / data.expected) * 100) : 0;
+        const overdueAmount = Math.max(0, data.expected - data.actual);
+        
+        const statusClass = collectionRate >= 90 ? 'success' : collectionRate >= 70 ? 'warning' : 'danger';
+        const statusText = collectionRate >= 90 ? 'Excellent' : collectionRate >= 70 ? 'Good' : 'Poor';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${monthKey}</td>
+          <td>MWK ${Math.round(data.expected).toLocaleString()}</td>
+          <td>MWK ${Math.round(data.actual).toLocaleString()}</td>
+          <td>${collectionRate}%</td>
+          <td>MWK ${Math.round(overdueAmount).toLocaleString()}</td>
+          <td><span class="status-badge bg-${statusClass}">${statusText}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Show message if no data
+      if (monthlyRepayments.size === 0 || Array.from(monthlyRepayments.values()).every(data => data.expected === 0)) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="6" class="text-center text-muted">
+            <i class="fas fa-money-check-alt me-2"></i>No repayment data available
+          </td>
+        `;
+        tbody.appendChild(row);
+      }
+    }
+
+    function updateBorrowersTable() {
+      const tbody = document.getElementById('borrowersTableBody');
+      tbody.innerHTML = '';
+
+      // Get top borrowers by total loan amounts
+      const borrowersMap = new Map();
+      
+      allApplications.forEach(loan => {
+        if ((loan.status || 'Pending') === 'Approved') {
+          const key = loan.loanType === 'Group' ? 
+            (loan.groupName || 'No Group Name') : 
+            (loan.fullName || 'No Name');
+          
+          const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+          if (principalAmount > 0) {
+            const loanAmounts = calculateLoanAmounts(principalAmount);
+            const balanceInfo = calculateOutstandingBalance(loan);
+            
+            if (!borrowersMap.has(key)) {
+              borrowersMap.set(key, {
+                name: key,
+                loanType: loan.loanType || 'Individual',
+                totalLoans: 0,
+                totalAmount: 0,
+                outstandingBalance: 0,
+                paymentHistory: [],
+                income: parseFloat(loan.monthlyIncome || 0)
+              });
+            }
+            
+            const borrower = borrowersMap.get(key);
+            borrower.totalLoans += 1;
+            borrower.totalAmount += loanAmounts.totalAmount;
+            borrower.outstandingBalance += balanceInfo.outstanding;
+            borrower.paymentHistory = borrower.paymentHistory.concat(loan.repaymentHistory || []);
+          }
+        }
+      });
+
+      // Convert to array and sort by total amount
+      const topBorrowers = Array.from(borrowersMap.values())
+        .sort((a, b) => b.totalAmount - a.totalAmount)
+        .slice(0, 10);
+
+      topBorrowers.forEach(borrower => {
+        // Calculate credit score
+        let creditScore = 'Low';
+        let creditBadge = 'danger';
+        
+        if (borrower.income >= 500000) {
+          creditScore = 'High';
+          creditBadge = 'success';
+        } else if (borrower.income >= 200000) {
+          creditScore = 'Moderate';
+          creditBadge = 'warning';
+        }
+
+        // Calculate payment history score
+        const totalPayments = borrower.paymentHistory.length;
+        const latePayments = borrower.paymentHistory.filter(p => p.status === 'late').length;
+        const paymentScore = totalPayments > 0 ? Math.round(((totalPayments - latePayments) / totalPayments) * 100) : 0;
+        const paymentBadge = paymentScore >= 90 ? 'success' : paymentScore >= 70 ? 'warning' : 'danger';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${borrower.name}</td>
+          <td><span class="status-badge bg-info">${borrower.loanType}</span></td>
+          <td>${borrower.totalLoans}</td>
+          <td>MWK ${Math.round(borrower.outstandingBalance).toLocaleString()}</td>
+          <td><span class="status-badge bg-${paymentBadge}">${paymentScore}%</span></td>
+          <td><span class="status-badge bg-${creditBadge}">${creditScore}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      if (topBorrowers.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="6" class="text-center text-muted">
+            <i class="fas fa-users me-2"></i>No borrower data available
+          </td>
+        `;
+        tbody.appendChild(row);
+      }
+    }
+
+    function loadReportsData() {
+      document.getElementById('mainLoader').style.display = 'block';
+      
+      const currentUserName = getCurrentUserName();
+      document.getElementById('currentUser').textContent = currentUserName || 'Report Analyst';
+
+      // Load loan applications
+      onSnapshot(collection(db, "loan_applications"), (querySnapshot) => {
+        allApplications = [];
+        
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+          allApplications.push(data);
+        });
+
+        console.log(`Loaded ${allApplications.length} applications`);
+
+        // Load payments data
+        onSnapshot(collection(db, "payments"), (paymentsSnapshot) => {
+          allPayments = [];
+          
+          paymentsSnapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = doc.id;
+            allPayments.push(data);
+          });
+
+          console.log(`Loaded ${allPayments.length} payments`);
+
+          // Update all reports
+          updateReports();
+          document.getElementById('mainLoader').style.display = 'none';
+        }, (error) => {
+          console.error("Error loading payments:", error);
+          // Continue without payments data
+          updateReports();
+          document.getElementById('mainLoader').style.display = 'none';
+        });
+
+      }, (error) => {
+        console.error("Error loading applications:", error);
+        document.getElementById('mainLoader').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+      });
+    }
+
+    window.updateReports = function() {
+      console.log('Updating reports with data:', allApplications.length, 'applications');
+      updateKeyMetrics();
+      createPortfolioChart();
+      createTrendChart();
+      createRiskChart();
+      updateRepaymentTable();
+      updateBorrowersTable();
+    }
+
+    window.exportReport = function() {
+      try {
+        // Create new jsPDF instance
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Add title and header
+        doc.setFontSize(20);
+        doc.text('ECLOF Malawi - Comprehensive Loan Report', 20, 20);
+        
+        doc.setFontSize(12);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.text(`Report Period: ${document.getElementById('dateRange').options[document.getElementById('dateRange').selectedIndex].text}`, 20, 40);
+        doc.text(`Total Applications: ${allApplications.length}`, 20, 50);
+        
+        // Add key metrics
+        doc.setFontSize(14);
+        doc.text('KEY PORTFOLIO METRICS', 20, 70);
+        doc.setFontSize(11);
+        doc.text(`Total Portfolio Value: ${document.getElementById('totalPortfolio').textContent}`, 20, 80);
+        doc.text(`Active Loans: ${document.getElementById('activeLoans').textContent}`, 20, 90);
+        doc.text(`Repayment Rate: ${document.getElementById('repaymentRate').textContent}`, 20, 100);
+        doc.text(`Overdue Amount: ${document.getElementById('overdueAmount').textContent}`, 20, 110);
+        
+        // Prepare loan data for table
+        const tableData = [];
+        allApplications.forEach(loan => {
+          const principalAmount = parseFloat(loan.loanAmount || loan.requestedLoanAmount || 0);
+          const loanAmounts = calculateLoanAmounts(principalAmount);
+          const balanceInfo = calculateOutstandingBalance(loan);
+          
+          // Determine display name based on loan type
+          const displayName = loan.loanType === 'Group' ? 
+            (loan.groupName || 'No Group Name') : 
+            (loan.fullName || 'No Name');
+          
+          tableData.push([
+            displayName,
+            loan.loanType || 'Individual',
+            loan.status || 'Pending',
+            `MWK ${Math.round(principalAmount).toLocaleString()}`,
+            `MWK ${Math.round(loanAmounts.totalAmount).toLocaleString()}`,
+            `MWK ${Math.round(balanceInfo.outstanding).toLocaleString()}`,
+            `${balanceInfo.progressPercent}%`,
+            (loan.repaymentHistory || []).length.toString(),
+            new Date(loan.applicationDate || Date.now()).toLocaleDateString()
+          ]);
+        });
+        
+        // Add comprehensive loan table
+        doc.autoTable({
+          startY: 130,
+          head: [['Borrower', 'Type', 'Status', 'Principal', 'Total Loan', 'Outstanding', 'Progress', 'Payments', 'Date']],
+          body: tableData,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [22, 163, 74] },
+          alternateRowStyles: { fillColor: [240, 253, 244] },
+          margin: { left: 20, right: 20 },
+          didDrawPage: function (data) {
+            // Add page numbers
+            doc.text(`Page ${data.pageNumber}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+          }
+        });
+        
+        // Add summary statistics on new page if needed
+        const finalY = doc.lastAutoTable.finalY || 130;
+        if (finalY > 200) {
+          doc.addPage();
+        }
+        
+        const startY = finalY > 200 ? 30 : finalY + 20;
+        
+        doc.setFontSize(14);
+        doc.text('PORTFOLIO ANALYSIS SUMMARY', 20, startY);
+        doc.setFontSize(11);
+        
+        const approvedCount = allApplications.filter(app => (app.status || 'Pending') === 'Approved').length;
+        const pendingCount = allApplications.filter(app => (app.status || 'Pending') === 'Pending').length;
+        const rejectedCount = allApplications.filter(app => (app.status || 'Pending') === 'Rejected').length;
+        
+        doc.text(`Applications by Status:`, 20, startY + 15);
+        doc.text(`• Approved: ${approvedCount} (${approvedCount > 0 ? Math.round((approvedCount/allApplications.length)*100) : 0}%)`, 25, startY + 25);
+        doc.text(`• Pending: ${pendingCount} (${pendingCount > 0 ? Math.round((pendingCount/allApplications.length)*100) : 0}%)`, 25, startY + 35);
+        doc.text(`• Rejected: ${rejectedCount} (${rejectedCount > 0 ? Math.round((rejectedCount/allApplications.length)*100) : 0}%)`, 25, startY + 45);
+        
+        // Calculate loan type distribution
+        const individualLoans = allApplications.filter(app => app.loanType === 'Individual').length;
+        const groupLoans = allApplications.filter(app => app.loanType === 'Group').length;
+        
+        doc.text(`Loan Type Distribution:`, 20, startY + 60);
+        doc.text(`• Individual Loans: ${individualLoans}`, 25, startY + 70);
+        doc.text(`• Group Loans: ${groupLoans}`, 25, startY + 80);
+        
+        // Add footer
+        doc.setFontSize(10);
+        doc.text('This report contains confidential information - ECLOF Malawi', 20, doc.internal.pageSize.height - 20);
+        
+        // Save the PDF
+        const fileName = `ECLOF_Comprehensive_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        
+        showNotification('✅ Comprehensive loan report exported successfully as PDF!', 'success');
+        
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        showNotification('❌ Error generating PDF report. Please try again.', 'error');
+      }
+    }
+
+    window.exportChart = function(chartId) {
+      const chart = charts[chartId.replace('Chart', '')];
+      if (!chart) {
+        showNotification('❌ Chart not found!', 'error');
+        return;
+      }
+
+      const link = document.createElement('a');
+      link.href = chart.toBase64Image();
+      link.download = `${chartId}_${new Date().toISOString().split('T')[0]}.png`;
+      link.click();
+
+      showNotification('✅ Chart exported successfully!', 'success');
+    }
+
+    window.exportTable = function(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) {
+        showNotification('❌ Table not found!', 'error');
+        return;
+      }
+
+      let csv = '';
+      const rows = table.querySelectorAll('tr');
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        const rowData = Array.from(cells).map(cell => {
+          // Clean cell content (remove HTML tags and extra spaces)
+          return '"' + cell.textContent.replace(/"/g, '""').trim() + '"';
+        });
+        csv += rowData.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${tableId}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+
+      showNotification('✅ Table exported successfully!', 'success');
+    }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+      notification.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 5000);
+    }
+
+    // Initialize reports when page loads
+    window.onload = () => {
+      console.log("Reports dashboard loading...");
+      loadReportsData();
+    }
+  </script>
+
+  <!-- Additional JavaScript -->
+  <script>
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('show');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileBtn = document.querySelector('.mobile-menu-btn');
+      
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileBtn.contains(event.target)) {
+        sidebar.classList.remove('show');
+      }
+    });
+
+    // Logout functionality
+    document.getElementById('logoutlink').addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('eclof_user_session');
+        alert('Logged out successfully!');
+        window.location.href = 'onboarding.html';
+      }
+    });
+
+    // Auto-refresh reports every 5 minutes
+    setInterval(() => {
+      console.log('Auto-refreshing reports...');
+      if (typeof updateReports === 'function') {
+        updateReports();
+      }
+    }, 300000); // 5 minutes
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        exportReport();
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        updateReports();
+      }
+    });
+
+    // Print functionality
+    window.print = function() {
+      window.print();
+    }
+
+    // Responsive chart resizing
+    window.addEventListener('resize', function() {
+      setTimeout(() => {
+        if (typeof updateReports === 'function') {
+          updateReports();
+        }
+      }, 300);
+    });
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

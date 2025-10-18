@@ -1,100 +1,927 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Users</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECLOF Malawi - User Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f8f9fa;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
     }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
     .header {
-      background-color: green;
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
       color: white;
-      padding: 1rem;
+      padding: 2rem 0;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-header:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .btn-header.btn-success {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .btn-header.btn-success:hover {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      color: white;
+    }
+
+    .main-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 
+        0 10px 40px rgba(6, 78, 59, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+      overflow: hidden;
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .main-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #22c55e, #34d399, #10b981);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+      padding: 1.5rem;
+    }
+
+    .stats-row {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .stat-item {
       text-align: center;
+      padding: 1rem;
     }
-    .container {
-      margin-top: 2rem;
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #047857, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
     }
-    .password-toggle {
-      cursor: pointer;
+
+    .stat-label {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .search-section {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+    }
+
+    .search-box input {
+      padding-left: 2.5rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 0 0 0.2rem rgba(22, 163, 74, 0.25);
+    }
+
+    .table-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #064e3b, #047857);
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody tr:hover {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(34, 197, 94, 0.03));
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border: none;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .user-details h6 {
+      margin: 0;
+      color: #064e3b;
+      font-weight: 600;
+    }
+
+    .user-details small {
+      color: #6b7280;
+      display: block;
+      margin-top: 0.25rem;
+    }
+
+    .role-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-admin {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+    }
+
+    .role-loan-officer {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+
+    .role-branch-manager {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      border: 1px solid #fbbf24;
+    }
+
+    .status-badge {
+      padding: 0.3rem 0.6rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .status-inactive {
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .permissions-list {
+      font-size: 0.85rem;
+      color: #4b5563;
+      max-width: 200px;
+    }
+
+    .permissions-list ul {
+      margin: 0;
+      padding-left: 1rem;
+      list-style: none;
+    }
+
+    .permissions-list li {
+      margin-bottom: 0.25rem;
+      position: relative;
+    }
+
+    .permissions-list li::before {
+      content: '✓';
+      color: #16a34a;
+      font-weight: bold;
+      position: absolute;
+      left: -1rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-action {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-decoration: none;
+    }
+
+    .btn-edit {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      color: white;
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      color: white;
+    }
+
+    .btn-toggle {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+    }
+
+    .btn-toggle:hover {
+      background: linear-gradient(135deg, #059669, #10b981);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      color: white;
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    #watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+      font-family: 'Arial Black', sans-serif;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+      top: 15%;
+      right: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08), rgba(52, 211, 153, 0.04));
+      bottom: 20%;
+      left: 5%;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+      50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        text-align: center;
+      }
+      
+      .header-actions {
+        justify-content: center;
+        width: 100%;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn-action {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .table-responsive {
+        font-size: 0.9rem;
+      }
+      
+      .user-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+
+      .permissions-list {
+        max-width: none;
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- Floating background shapes -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <!-- Header -->
   <div class="header">
-    <h3>System Users <a href="di.html" class="btn btn-sm btn-outline-light float-end">Go to Home</a></h3>
+    <div class="container">
+      <div class="header-content">
+        <h1><i class="bi bi-people-fill me-2"></i>👥 User Management</h1>
+        <div class="header-actions">
+          <a href="add-user.html" class="btn-header btn-success">
+            <i class="bi bi-person-plus"></i>Add New User
+          </a>
+          <a href="admin.html" class="btn-header">
+            <i class="bi bi-house-door"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="container">
-    <table class="table table-striped">
-      <thead class="table-success">
-        <tr>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Role</th>
-          <th>Permissions</th>
-        </tr>
-      </thead>
+  <!-- Main Content -->
+  <div class="container mt-4">
     
-    </table>
+    <!-- Statistics Row -->
+    <div class="stats-row">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="adminCount">0</div>
+            <div class="stat-label">Administrators</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="loanOfficerCount">0</div>
+            <div class="stat-label">Loan Officers</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-item">
+            <div class="stat-number" id="branchManagerCount">0</div>
+            <div class="stat-label">Branch Managers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="main-card">
+      <div class="card-header-custom">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <h4 class="mb-0 text-success">
+              <i class="bi bi-shield-check me-2"></i>
+              System Users
+            </h4>
+          </div>
+          <div class="col-md-6">
+            <div class="search-section mb-0">
+              <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="searchBox" class="form-control" placeholder="Search users by name, username, or role..." onkeyup="searchUsers(this.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-success" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading users...</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-container" id="tableContainer" style="display: none;">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th width="5%">#</th>
+                <th width="25%">User</th>
+                <th width="15%">Role</th>
+                <th width="10%">Status</th>
+                <th width="25%">Permissions</th>
+                <th width="10%">Branch</th>
+                <th width="10%">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <i class="bi bi-inbox"></i>
+        <h4>No Users Found</h4>
+        <p>No users match your current search criteria.</p>
+      </div>
+    </div>
   </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  <!-- Success Toast -->
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        Operation completed successfully!
+      </div>
+    </div>
+  </div>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyC_jj0i3VxG-HjKHABbyMDyyO_PztkcTYs",
-    authDomain: "loanmanagement-cc0c3.firebaseapp.com",
-    projectId: "loanmanagement-cc0c3",
-    storageBucket: "loanmanagement-cc0c3.appspot.com",
-    messagingSenderId: "439123722675",
-    appId: "1:439123722675:web:8f9796cc48ad57384a0bc6"
-  };
+  <!-- ECLOF Watermark -->
+  <div id="watermark">ECLOF Malawi</div>
 
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script type="module">
+    console.log("🔥 ECLOF User Management System Loading...");
+    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, getDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  async function loadUsers() {
-    const tbody = document.getElementById('userTableBody');
-    tbody.innerHTML = '';
-    const snapshot = await db.collection('users').orderBy("createdAt", "desc").get();
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
 
-    if (snapshot.empty) {
-      tbody.innerHTML = '<tr><td colspan="4">No users found.</td></tr>';
-      return;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allUsers = [];
+    let filteredUsers = [];
+
+    function showLoading() {
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+      document.getElementById("emptyState").style.display = "none";
     }
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${data.username}</td>
-        <td><input type="password" class="form-control form-control-sm" value="${data.password}" readonly>
-            <button class="btn btn-sm btn-outline-secondary mt-1 toggleBtn">👁️</button></td>
-        <td>${data.role.replace('_', ' ').toUpperCase()}</td>
-        <td>${data.permissions}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    function hideLoading() {
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("tableContainer").style.display = "block";
+    }
 
-    // Toggle visibility
-    document.querySelectorAll('.toggleBtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const input = btn.previousElementSibling;
-        input.type = input.type === 'password' ? 'text' : 'password';
+    function showEmptyState() {
+      document.getElementById("emptyState").style.display = "block";
+      document.getElementById("tableContainer").style.display = "none";
+    }
+
+    function showNotification(message, type = 'success') {
+      document.getElementById('toastMessage').textContent = message;
+      const toast = new bootstrap.Toast(document.getElementById('successToast'));
+      toast.show();
+    }
+
+    function getInitials(name) {
+      if (!name) return 'U';
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+
+    function getRoleClass(role) {
+      switch(role) {
+        case 'admin': return 'role-admin';
+        case 'loan_officer': return 'role-loan-officer';
+        case 'branch_manager': return 'role-branch-manager';
+        default: return 'role-admin';
+      }
+    }
+
+    function getRoleDisplayName(role) {
+      switch(role) {
+        case 'admin': return 'System Admin';
+        case 'loan_officer': return 'Loan Officer';
+        case 'branch_manager': return 'Branch Manager';
+        default: return role;
+      }
+    }
+
+    function getPermissionsList(role) {
+      const permissions = {
+        'admin': [
+          'Full system access',
+          'User management',
+          'System configuration',
+          'All reports access'
+        ],
+        'loan_officer': [
+          'Approve/Reject loans',
+          'Add/Edit borrowers',
+          'Record payments',
+          'Generate reports'
+        ],
+        'branch_manager': [
+          'View all data',
+          'Dashboard access',
+          'Reports viewing',
+          'Read-only access'
+        ]
+      };
+      
+      return permissions[role] || ['Basic access'];
+    }
+
+    function formatDate(dateValue) {
+      if (!dateValue) return 'Never';
+      
+      let date;
+      if (dateValue.toDate) {
+        date = dateValue.toDate();
+      } else if (typeof dateValue === 'string') {
+        date = new Date(dateValue);
+      } else {
+        date = new Date(dateValue);
+      }
+      
+      if (isNaN(date.getTime())) return 'Never';
+      
+      return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       });
-    });
-  }
+    }
 
-  window.addEventListener('DOMContentLoaded', loadUsers);
-</script>
+    async function loadUsers() {
+      showLoading();
+      const tbody = document.getElementById("userTableBody");
+      tbody.innerHTML = "";
+      
+      try {
+        // Use real-time listener for live updates
+        const usersQuery = query(collection(db, "users"), orderBy("createdAt", "desc"));
+        
+        onSnapshot(usersQuery, (querySnapshot) => {
+          allUsers = [];
+          let adminCount = 0;
+          let loanOfficerCount = 0;
+          let branchManagerCount = 0;
+
+          querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            data.id = docSnap.id;
+            allUsers.push(data);
+            
+            // Count by role
+            switch(data.role) {
+              case 'admin': adminCount++; break;
+              case 'loan_officer': loanOfficerCount++; break;
+              case 'branch_manager': branchManagerCount++; break;
+            }
+          });
+
+          // Update statistics
+          document.getElementById('totalUsers').textContent = allUsers.length;
+          document.getElementById('adminCount').textContent = adminCount;
+          document.getElementById('loanOfficerCount').textContent = loanOfficerCount;
+          document.getElementById('branchManagerCount').textContent = branchManagerCount;
+
+          filteredUsers = [...allUsers];
+          displayUsers();
+          hideLoading();
+        });
+
+      } catch (e) {
+        console.error("Error loading users:", e);
+        showEmptyState();
+      }
+    }
+
+    function displayUsers() {
+      const tbody = document.getElementById("userTableBody");
+      tbody.innerHTML = "";
+
+      if (filteredUsers.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      filteredUsers.forEach((data, index) => {
+        const tr = document.createElement("tr");
+        const initials = getInitials(data.fullName || data.username);
+        const roleClass = getRoleClass(data.role);
+        const roleDisplay = getRoleDisplayName(data.role);
+        const permissions = getPermissionsList(data.role);
+        const isActive = data.isActive !== false;
+        
+        tr.innerHTML = `
+          <td class="text-center fw-bold">${index + 1}</td>
+          <td>
+            <div class="user-info">
+              <div class="user-avatar">${initials}</div>
+              <div class="user-details">
+                <h6>${data.fullName || 'No Name'}</h6>
+                <small>@${data.username || 'No Username'}</small>
+                ${data.email ? `<small><i class="bi bi-envelope me-1"></i>${data.email}</small>` : ''}
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="role-badge ${roleClass}">${roleDisplay}</span>
+          </td>
+          <td>
+            <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
+              ${isActive ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td>
+            <div class="permissions-list">
+              <ul>
+                ${permissions.map(perm => `<li>${perm}</li>`).join('')}
+              </ul>
+            </div>
+          </td>
+          <td>
+            <small class="text-muted">${data.branch || 'All Branches'}</small>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action btn-edit" onclick="editUser('${data.id}')" title="Edit User">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn-action btn-toggle" onclick="toggleUserStatus('${data.id}', ${!isActive})" title="${isActive ? 'Deactivate' : 'Activate'} User">
+                <i class="bi bi-${isActive ? 'pause' : 'play'}"></i>
+              </button>
+              <button class="btn-action btn-delete" onclick="deleteUser('${data.id}')" title="Delete User">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.searchUsers = function(searchTerm) {
+      if (!searchTerm.trim()) {
+        filteredUsers = [...allUsers];
+      } else {
+        const term = searchTerm.toLowerCase();
+        filteredUsers = allUsers.filter(user => 
+          (user.fullName && user.fullName.toLowerCase().includes(term)) ||
+          (user.username && user.username.toLowerCase().includes(term)) ||
+          (user.role && user.role.toLowerCase().includes(term)) ||
+          (user.email && user.email.toLowerCase().includes(term)) ||
+          (user.branch && user.branch.toLowerCase().includes(term))
+        );
+      }
+      displayUsers();
+    }
+
+    window.editUser = function(userId) {
+      // For now, redirect to a hypothetical edit page
+      // In a full implementation, you might open a modal or redirect
+      showNotification("Edit functionality - redirect to edit-user.html?id=" + userId);
+      console.log("Edit user:", userId);
+    }
+
+    window.toggleUserStatus = async function(userId, newStatus) {
+      try {
+        await updateDoc(doc(db, "users", userId), {
+          isActive: newStatus
+        });
+        showNotification(`User ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+      } catch (error) {
+        console.error("Error updating user status:", error);
+        showNotification("Error updating user status. Please try again.", "error");
+      }
+    }
+
+    window.deleteUser = async function(userId) {
+      if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+      
+      try {
+        await deleteDoc(doc(db, "users", userId));
+        showNotification("User deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        showNotification("Error deleting user. Please try again.", "error");
+      }
+    }
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", loadUsers);
+  </script>
+
 </body>
 </html>

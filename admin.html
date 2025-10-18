@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECLOF Malawi - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+      margin: 0;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background: linear-gradient(180deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%);
+      color: white;
+      padding-top: 1rem;
+      position: fixed;
+      width: 250px;
+      overflow-y: auto;
+      box-shadow: 4px 0 20px rgba(6, 78, 59, 0.3);
+      border-right: 2px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #10b981, #22c55e, #34d399);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .sidebar-header {
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+      animation: bounce 2s infinite;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .sidebar h4 {
+      background: linear-gradient(135deg, #34d399, #10b981, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.8rem;
+      color: #a7f3d0;
+      margin-top: 0.25rem;
+    }
+
+    .sidebar a {
+      color: #d1fae5;
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-radius: 12px;
+      margin: 0.25rem 1rem;
+      position: relative;
+      overflow: hidden;
+      font-weight: 500;
+    }
+
+    .sidebar a i {
+      width: 20px;
+      margin-right: 0.75rem;
+      text-align: center;
+      color: #a7f3d0;
+      transition: color 0.3s ease;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(34, 197, 94, 0.2));
+      color: white;
+      transform: translateX(8px);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .sidebar a:hover::before {
+      left: 100%;
+    }
+
+    .sidebar a:hover i {
+      color: #6ee7b7;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 25%, #047857 50%, #059669 75%, #10b981 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: fixed;
+      left: 250px;
+      right: 0;
+      top: 0;
+      z-index: 999;
+      box-shadow: 
+        0 4px 20px rgba(6, 78, 59, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h3 {
+      margin: 0;
+      font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #ffffff, #d1fae5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notification-badge {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .notification-badge .badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 2rem 1rem 1rem 1rem;
+      padding-top: 7rem;
+      min-height: 100vh;
+    }
+
+    .stats-card {
+      border-radius: 16px;
+      color: white;
+      margin-bottom: 1.5rem;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+    .stats-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      transition: all 0.3s ease;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      margin-right: 1rem;
+    }
+
+    .stats-card:hover .card-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .bg-admin-primary {
+      background: linear-gradient(135deg, #064e3b, #047857, #059669);
+    }
+
+    .bg-admin-users {
+      background: linear-gradient(135deg, #1e40af, #3b82f6, #60a5fa);
+    }
+
+    .bg-admin-loans {
+      background: linear-gradient(135deg, #ea580c, #f97316, #fb923c);
+    }
+
+    .bg-admin-activity {
+      background: linear-gradient(135deg, #7c3aed, #8b5cf6, #a78bfa);
+    }
+
+    .activity-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+      border-left: 4px solid #10b981;
+    }
+
+    .activity-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .activity-item {
+      padding: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background-color 0.3s ease;
+    }
+
+    .activity-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .activity-login {
+      background: rgba(34, 197, 94, 0.1);
+      color: #16a34a;
+    }
+
+    .activity-approval {
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+    }
+
+    .activity-rejection {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    .activity-system {
+      background: rgba(168, 85, 247, 0.1);
+      color: #7c3aed;
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05));
+      top: 15%;
+      left: 85%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08), rgba(52, 211, 153, 0.04));
+      top: 65%;
+      left: 5%;
+      animation-delay: 3s;
+    }
+
+    .shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.06), transparent);
+      top: 40%;
+      left: 90%;
+      animation-delay: 6s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+      50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+    }
+
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .success-indicator {
+      color: #10b981;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+    }
+
+    .last-updated {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 0.25rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      
+      .header {
+        left: 0;
+      }
+      
+      .content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-menu-btn {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile Menu Button -->
+  <button class="btn btn-success mobile-menu-btn position-fixed" style="top: 1rem; left: 1rem; z-index: 1001;" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <!-- Floating background shapes -->
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">E</div>
+      <h4>System Admin</h4>
+      <div class="sidebar-subtitle">ECLOF Malawi</div>
+    </div>
+    <a href="#" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="users.html"><i class="bi bi-people"></i> Users</a>
+    <a href="settings.html"><i class="bi bi-gear"></i> Settings</a>
+    <a href="#" id="logoutlink"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+
+  <div class="header">
+    <div class="header-content">
+      <h3><i class="bi bi-shield-check me-2"></i>ECLOF Admin Dashboard</h3>
+      <div class="header-actions">
+        <div class="notification-badge">
+          <i class="bi bi-bell text-white" style="font-size: 1.2rem;"></i>
+          <span class="badge" id="notificationCount">0</span>
+        </div>
+        <div class="text-white">
+          <i class="bi bi-person-circle me-1"></i>
+          <span id="currentUser">Loading...</span>
+          <span class="success-indicator" id="connectionStatus">
+            <i class="bi bi-wifi"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="container-fluid">
+      
+      <!-- Statistics Cards -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card stats-card bg-admin-primary p-3 h-100">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="bi bi-building"></i>
+              </div>
+              <div>
+                <div class="card-title">Total Branches</div>
+                <h4 id="totalBranches" class="pulse-animation">0</h4>
+                <div class="last-updated" id="branchesUpdated">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stats-card bg-admin-users p-3 h-100">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <div>
+                <div class="card-title">Total System Users</div>
+                <h4 id="totalUsers" class="pulse-animation">0</h4>
+                <div class="last-updated" id="usersUpdated">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stats-card bg-admin-activity p-3 h-100">
+            <div class="d-flex align-items-center">
+              <div class="card-icon">
+                <i class="bi bi-person-check"></i>
+              </div>
+              <div>
+                <div class="card-title">Active Staff</div>
+                <h4 id="activeStaff" class="pulse-animation">0</h4>
+                <small>Managers & Officers</small>
+                <div class="last-updated" id="staffUpdated">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Section -->
+      <div class="row">
+        <div class="col-12">
+          <div class="activity-card">
+            <div class="card-header bg-transparent border-bottom-0 p-3">
+              <h5 class="mb-0">
+                <i class="bi bi-clock-history me-2 text-success"></i>
+                Recent System Activity
+                <span class="success-indicator" id="activityConnectionStatus">
+                  <i class="bi bi-arrow-clockwise"></i>
+                </span>
+              </h5>
+            </div>
+            
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+              <div class="spinner-border text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading activity logs...</p>
+            </div>
+
+            <!-- Activity List -->
+            <div id="activityContainer">
+              <div id="activityLogs"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+              <i class="bi bi-inbox"></i>
+              <h4>No Recent Activity</h4>
+              <p>No system activity has been recorded recently.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      query, 
+      orderBy, 
+      limit, 
+      getDocs, 
+      doc, 
+      getDoc, 
+      onSnapshot,
+      where,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChvykBQXMRa7W9XBLWUVIcqc04d4ix7K0",
+      authDomain: "job-application-44096.firebaseapp.com",
+      projectId: "job-application-44096",
+      storageBucket: "job-application-44096.appspot.com",
+      messagingSenderId: "139219604583",
+      appId: "1:139219604583:web:d6e04aa9666ef0a41c30c2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Global state to track real-time updates
+    let isConnected = true;
+    let lastUpdateTimes = {
+      branches: null,
+      users: null,
+      staff: null
+    };
+
+    function getCurrentUserName() {
+      // Try to get user from session storage first
+      try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (currentUser.name) {
+          return currentUser.name;
+        }
+      } catch (error) {
+        console.log("No session user found");
+      }
+      
+      return localStorage.getItem('eclof_admin_name') || 'System Admin';
+    }
+
+    function updateConnectionStatus(status) {
+      isConnected = status;
+      const statusIcon = document.getElementById('connectionStatus');
+      const activityStatus = document.getElementById('activityConnectionStatus');
+      
+      if (status) {
+        statusIcon.innerHTML = '<i class="bi bi-wifi text-success"></i>';
+        activityStatus.innerHTML = '<i class="bi bi-arrow-clockwise text-success"></i>';
+      } else {
+        statusIcon.innerHTML = '<i class="bi bi-wifi-off text-danger"></i>';
+        activityStatus.innerHTML = '<i class="bi bi-exclamation-triangle text-warning"></i>';
+      }
+    }
+
+    function updateLastUpdateTime(type) {
+      lastUpdateTimes[type] = new Date();
+      const element = document.getElementById(`${type}Updated`);
+      if (element) {
+        element.textContent = `Updated: ${lastUpdateTimes[type].toLocaleTimeString()}`;
+      }
+    }
+
+    function animateCountChange(elementId, newValue, isAmount = false) {
+      const element = document.getElementById(elementId);
+      const currentValue = parseInt(element.textContent.replace(/,/g, '')) || 0;
+      
+      if (currentValue === newValue) return;
+      
+      element.classList.add('pulse-animation');
+      
+      // Animate the number change
+      const duration = 1000;
+      const steps = 20;
+      const increment = (newValue - currentValue) / steps;
+      let step = 0;
+      
+      const timer = setInterval(() => {
+        step++;
+        const value = Math.round(currentValue + (increment * step));
+        
+        if (isAmount) {
+          element.textContent = value.toLocaleString();
+        } else {
+          element.textContent = value;
+        }
+        
+        if (step >= steps) {
+          clearInterval(timer);
+          element.textContent = isAmount ? newValue.toLocaleString() : newValue;
+          setTimeout(() => {
+            element.classList.remove('pulse-animation');
+          }, 500);
+        }
+      }, duration / steps);
+    }
+
+    function showLoading() {
+      document.getElementById("loadingSpinner").style.display = "block";
+      document.getElementById("activityContainer").style.display = "none";
+      document.getElementById("emptyState").style.display = "none";
+    }
+
+    function hideLoading() {
+      document.getElementById("loadingSpinner").style.display = "none";
+      document.getElementById("activityContainer").style.display = "block";
+    }
+
+    function showEmptyState() {
+      document.getElementById("emptyState").style.display = "block";
+      document.getElementById("activityContainer").style.display = "none";
+      document.getElementById("loadingSpinner").style.display = "none";
+    }
+
+    function getActivityIcon(action) {
+      if (action.includes('login') || action.includes('Login') || action.includes('logged in')) return 'activity-login';
+      if (action.includes('approved') || action.includes('Approved') || action.includes('created') || action.includes('added')) return 'activity-approval';
+      if (action.includes('rejected') || action.includes('Rejected') || action.includes('deleted') || action.includes('removed')) return 'activity-rejection';
+      if (action.includes('updated') || action.includes('modified') || action.includes('changed')) return 'activity-system';
+      if (action.includes('logout') || action.includes('Logout') || action.includes('logged out')) return 'activity-rejection';
+      return 'activity-system';
+    }
+
+    function getActivityIconSymbol(action) {
+      if (action.includes('login') || action.includes('Login') || action.includes('logged in')) return 'bi-box-arrow-in-right';
+      if (action.includes('approved') || action.includes('Approved') || action.includes('created') || action.includes('added')) return 'bi-check-circle';
+      if (action.includes('rejected') || action.includes('Rejected') || action.includes('deleted') || action.includes('removed')) return 'bi-x-circle';
+      if (action.includes('updated') || action.includes('modified') || action.includes('changed')) return 'bi-pencil-square';
+      if (action.includes('logout') || action.includes('Logout') || action.includes('logged out')) return 'bi-box-arrow-right';
+      return 'bi-gear';
+    }
+
+    // Log admin activity
+    async function logAdminActivity(action) {
+      try {
+        await addDoc(collection(db, "activity_logs"), {
+          user: getCurrentUserName(),
+          action: action,
+          timestamp: serverTimestamp(),
+          type: 'admin'
+        });
+      } catch (error) {
+        console.error("Error logging activity:", error);
+      }
+    }
+
+    async function setupRealTimeListeners() {
+      try {
+        // Set current user name
+        const currentUserName = getCurrentUserName();
+        document.getElementById('currentUser').textContent = currentUserName;
+
+        // Real-time listener for users (all system users)
+        const usersRef = collection(db, "users");
+        onSnapshot(usersRef, (snapshot) => {
+          updateConnectionStatus(true);
+          const userCount = snapshot.size;
+          animateCountChange('totalUsers', userCount);
+          updateLastUpdateTime('users');
+          
+          // Count active staff (managers and officers)
+          let activeStaffCount = 0;
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const role = (data.role || data.userType || '').toLowerCase();
+            if (role.includes('manager') || role.includes('officer') || role.includes('admin')) {
+              if (data.isActive !== false) { // Count as active unless explicitly set to false
+                activeStaffCount++;
+              }
+            }
+          });
+          
+          animateCountChange('activeStaff', activeStaffCount);
+          updateLastUpdateTime('staff');
+          
+          console.log(`Users updated: ${userCount}, Active staff: ${activeStaffCount}`);
+        }, (error) => {
+          console.error("Error listening to users:", error);
+          updateConnectionStatus(false);
+        });
+
+        // Real-time listener for branches
+        const branchesRef = collection(db, "branches");
+        onSnapshot(branchesRef, (snapshot) => {
+          const branchCount = snapshot.size || 1; // Default to 1 if no branches collection
+          animateCountChange('totalBranches', branchCount);
+          updateLastUpdateTime('branches');
+          
+          console.log(`Branches updated: ${branchCount}`);
+        }, (error) => {
+          // If branches collection doesn't exist, set default
+          animateCountChange('totalBranches', 1);
+          updateLastUpdateTime('branches');
+          console.log("Branches collection not found, using default value");
+        });
+
+      } catch (error) {
+        console.error("Error setting up real-time listeners:", error);
+        updateConnectionStatus(false);
+      }
+    }
+
+    async function loadActivityLogs() {
+      showLoading();
+      
+      try {
+        const logsRef = collection(db, "activity_logs");
+        
+        // Get logs from all user types, ordered by timestamp
+        const q = query(logsRef, orderBy("timestamp", "desc"), limit(50));
+        
+        onSnapshot(q, async (querySnapshot) => {
+          updateConnectionStatus(true);
+          const activityList = document.getElementById("activityLogs");
+          activityList.innerHTML = "";
+
+          if (querySnapshot.empty) {
+            // Create a sample activity log if none exist
+            await logAdminActivity("Admin dashboard accessed for the first time");
+            showEmptyState();
+            return;
+          }
+
+          // Group activities by type to show a good mix
+          const activities = {
+            recent: [],
+            all: []
+          };
+
+          querySnapshot.forEach((docSnap) => {
+            const log = docSnap.data();
+            activities.all.push(log);
+            
+            // Show recent activities (last 24 hours) prominently
+            if (log.timestamp) {
+              const logTime = log.timestamp.toDate ? log.timestamp.toDate() : new Date(log.timestamp);
+              const now = new Date();
+              const hoursDiff = (now - logTime) / (1000 * 60 * 60);
+              
+              if (hoursDiff <= 24) {
+                activities.recent.push(log);
+              }
+            }
+          });
+
+          // Display activities (mix of recent and all, max 20)
+          const displayLogs = activities.all.slice(0, 20);
+          
+          for (const log of displayLogs) {
+            let name = log.user || 'Unknown User';
+            let role = log.type || 'User';
+            
+            // Clean up role display
+            if (role) {
+              role = role.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            const activityDiv = document.createElement("div");
+            activityDiv.className = "activity-item d-flex align-items-center";
+            
+            const iconClass = getActivityIcon(log.action);
+            const iconSymbol = getActivityIconSymbol(log.action);
+            
+            // Format timestamp
+            let timeStr = 'Unknown time';
+            if (log.timestamp) {
+              if (log.timestamp.toDate) {
+                const date = log.timestamp.toDate();
+                const now = new Date();
+                const diffHours = (now - date) / (1000 * 60 * 60);
+                
+                if (diffHours < 1) {
+                  timeStr = 'Just now';
+                } else if (diffHours < 24) {
+                  timeStr = `${Math.floor(diffHours)} hours ago`;
+                } else {
+                  timeStr = date.toLocaleString();
+                }
+              }
+            }
+            
+            // Determine role badge color
+            let badgeClass = 'bg-secondary';
+            if (role.toLowerCase().includes('admin')) badgeClass = 'bg-danger';
+            else if (role.toLowerCase().includes('manager')) badgeClass = 'bg-primary';
+            else if (role.toLowerCase().includes('officer')) badgeClass = 'bg-success';
+            
+            activityDiv.innerHTML = `
+              <div class="activity-icon ${iconClass}">
+                <i class="${iconSymbol}"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold">${name} <span class="badge ${badgeClass} ms-1">${role}</span></div>
+                <div class="text-muted small">${log.action}</div>
+                <div class="text-muted small">
+                  <i class="bi bi-clock me-1"></i>
+                  ${timeStr}
+                </div>
+              </div>
+            `;
+            activityList.appendChild(activityDiv);
+          }
+
+          hideLoading();
+          
+          // Update notification count based on recent activities
+          const recentCount = activities.recent.length;
+          document.getElementById('notificationCount').textContent = recentCount;
+          
+        }, (error) => {
+          console.error("Error loading activity logs:", error);
+          updateConnectionStatus(false);
+          showEmptyState();
+        });
+
+      } catch (error) {
+        console.error("Error setting up activity logs listener:", error);
+        updateConnectionStatus(false);
+        showEmptyState();
+      }
+    }
+
+    // Initialize dashboard
+    async function initializeDashboard() {
+      console.log("Initializing ECLOF Admin Dashboard...");
+      
+      // Log dashboard access
+      await logAdminActivity("Admin dashboard accessed");
+      
+      // Setup all real-time listeners
+      await setupRealTimeListeners();
+      
+      // Load activity logs
+      await loadActivityLogs();
+      
+      console.log("Dashboard initialization complete");
+    }
+
+    // Auto-refresh connection check
+    setInterval(() => {
+      if (!isConnected) {
+        console.log("Attempting to reconnect...");
+        setupRealTimeListeners();
+      }
+    }, 10000); // Check every 10 seconds
+
+    // Initialize everything when page loads
+    initializeDashboard();
+
+    // Logout functionality
+    document.getElementById('logoutlink').addEventListener('click', async function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        await logAdminActivity("Admin logged out");
+        sessionStorage.removeItem('currentUser');
+        localStorage.removeItem('eclof_admin_session');
+        localStorage.removeItem('eclof_admin_name');
+        alert('Logged out successfully!');
+        window.location.href = 'onboarding.html';
+      }
+    });
+
+    // Add some sample data creation functions for testing
+    window.createSampleData = async function() {
+      try {
+        console.log("Creating sample data...");
+        
+        // Create sample users with appropriate roles
+        const roles = ['branch_manager', 'loan_officer', 'admin', 'branch_manager', 'loan_officer'];
+        for (let i = 1; i <= 5; i++) {
+          await addDoc(collection(db, "users"), {
+            name: `${roles[i-1].replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} ${i}`,
+            email: `${roles[i-1]}${i}@eclof.mw`,
+            role: roles[i-1],
+            userType: roles[i-1],
+            createdAt: serverTimestamp(),
+            isActive: true,
+            branchId: i <= 2 ? 'branch_1' : 'branch_2'
+          });
+        }
+
+        // Create sample branches
+        await addDoc(collection(db, "branches"), {
+          name: "Main Branch - Blantyre",
+          location: "Blantyre, Malawi",
+          isActive: true,
+          manager: "Branch Manager 1"
+        });
+
+        await addDoc(collection(db, "branches"), {
+          name: "Sub Branch - Lilongwe",
+          location: "Lilongwe, Malawi", 
+          isActive: true,
+          manager: "Branch Manager 2"
+        });
+
+        // Create sample activity logs relevant to system administration
+        const activities = [
+          "New branch manager registered in system",
+          "Loan officer account created",
+          "User role updated to branch manager",
+          "System admin logged into dashboard",
+          "Branch office configuration updated"
+        ];
+
+        for (let activity of activities) {
+          await logAdminActivity(activity);
+          // Add small delay between activities
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        alert("Sample administrative data created successfully!");
+        
+      } catch (error) {
+        console.error("Error creating sample data:", error);
+        alert("Error creating sample data. Check console for details.");
+      }
+    };
+
+    // Expose function to console for testing
+    console.log("Tip: Run createSampleData() in console to add test administrative data");
+  </script>
+
+  <!-- Additional JavaScript -->
+  <script>
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('show');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const mobileBtn = document.querySelector('.mobile-menu-btn');
+      
+      if (window.innerWidth <= 768 && 
+          !sidebar.contains(event.target) && 
+          !mobileBtn.contains(event.target)) {
+        sidebar.classList.remove('show');
+      }
+    });
+
+    // Add visual feedback for card interactions
+    document.querySelectorAll('.stats-card').forEach(card => {
+      card.addEventListener('click', function() {
+        // Add a subtle click animation
+        this.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 150);
+      });
+    });
+
+    // Add loading states to navigation links
+    document.querySelectorAll('.sidebar a:not(#logoutlink)').forEach(link => {
+      link.addEventListener('click', function(e) {
+        if (this.getAttribute('href') !== '#') {
+          // Show loading state
+          const originalText = this.innerHTML;
+          this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Loading...';
+          
+          // Reset after navigation (fallback)
+          setTimeout(() => {
+            this.innerHTML = originalText;
+          }, 2000);
+        }
+      });
+    });
+
+    // Add notification click handler  
+    document.querySelector('.notification-badge').addEventListener('click', function() {
+      const count = parseInt(document.getElementById('notificationCount').textContent);
+      if (count > 0) {
+        alert(`You have ${count} recent system activities to review.`);
+      } else {
+        alert('No new system notifications.');
+      }
+    });
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 'r':
+            e.preventDefault();
+            location.reload();
+            break;
+          case 'd':
+            e.preventDefault();
+            document.querySelector('.sidebar a[href="#"]').click();
+            break;
+        }
+      }
+    });
+
+    // Add page visibility API to pause/resume updates
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        console.log('Dashboard hidden - reducing update frequency');
+      } else {
+        console.log('Dashboard visible - resuming normal updates');
+      }
+    });
+
+    console.log("ECLOF Admin Dashboard loaded successfully!");
+    console.log("Real-time updates are now active");
+    console.log("Use Ctrl+R to refresh, Ctrl+D for dashboard");
+  </script>
+
+</body>
+</html>
